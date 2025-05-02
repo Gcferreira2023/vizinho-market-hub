@@ -1,0 +1,115 @@
+
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ShoppingCart } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+
+const Login = () => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    // Simulando um login (seria substituído pela integração real)
+    setTimeout(() => {
+      toast({
+        title: "Login não implementado",
+        description: "Esta funcionalidade requer integração com backend.",
+      });
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 flex flex-col items-center">
+          <Link to="/" className="flex items-center gap-2 mb-4">
+            <div className="bg-primary p-1 rounded">
+              <ShoppingCart size={24} className="text-white" />
+            </div>
+            <span className="text-xl font-bold text-primary">VizinhoMarket</span>
+          </Link>
+          <CardTitle className="text-2xl">Entrar</CardTitle>
+          <CardDescription>
+            Acesse sua conta para comprar e vender no condomínio
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="seu@email.com"
+                required
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="password">Senha</Label>
+                <Link
+                  to="/recuperar-senha"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Esqueceu a senha?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+            <Button className="w-full" type="submit" disabled={isLoading}>
+              {isLoading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="text-center text-sm">
+            Não tem uma conta?{" "}
+            <Link to="/cadastro" className="text-primary hover:underline">
+              Cadastre-se
+            </Link>
+          </div>
+          <Link to="/" className="text-sm text-center text-muted-foreground hover:underline">
+            Voltar para o início
+          </Link>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+};
+
+export default Login;
