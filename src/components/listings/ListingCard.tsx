@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 interface ListingCardProps {
   id: string;
   title: string;
-  price: number | "A combinar";
+  price: number | string;  // Updated to accept any string, not just "A combinar"
   imageUrl: string;
   category: string;
   type: "produto" | "serviço";
