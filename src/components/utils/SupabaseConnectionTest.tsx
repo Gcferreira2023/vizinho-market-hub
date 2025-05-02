@@ -1,90 +1,81 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/contexts/AuthContext';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { testSupabaseConnection } from '@/utils/supabaseTest';
-import { useToast } from '@/components/ui/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-const SupabaseConnectionTest = () => {
-  const { toast } = useToast();
-  const [status, setStatus] = useState<{
-    checking: boolean;
-    success?: boolean;
-    message?: string;
-  }>({ checking: false });
-
-  const checkConnection = async () => {
-    setStatus({ checking: true });
-    const result = await testSupabaseConnection();
+export const SupabaseConnectionTest: React.FC = () => {
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  
+  const testConnection = async () => {
+    setStatus('loading');
     
-    setStatus({
-      checking: false,
-      success: result.success,
-      message: result.message
-    });
+    if (!supabase) {
+      setStatus('error');
+      setErrorMessage('Cliente Supabase não inicializado. Verifique as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no painel do projeto Lovable.');
+      return;
+    }
 
-    toast({
-      title: result.success ? "Conexão estabelecida" : "Falha na conexão",
-      description: result.message,
-      variant: result.success ? "default" : "destructive",
-    });
+    try {
+      // Verifica se as variáveis estão acessíveis
+      console.log('Testando conexão com Supabase...');
+      console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
+      console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+      
+      // Tenta fazer uma query simples
+      const { error } = await supabase.from('_test_connection').select('count').limit(1);
+      
+      if (error && error.message !== 'relation "_test_connection" does not exist') {
+        throw error;
+      }
+      
+      setStatus('success');
+    } catch (err: any) {
+      setStatus('error');
+      setErrorMessage(err instanceof Error ? err.message : 'Erro desconhecido ao testar conexão');
+    }
   };
 
+  useEffect(() => {
+    testConnection();
+  }, []);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Teste de Conexão Supabase</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-col gap-2">
-          <div>
-            <p className="text-sm font-medium mb-1">Status das Variáveis de Ambiente:</p>
-            <div className="text-sm">
-              <p className="flex items-center">
-                <span className="mr-2">VITE_SUPABASE_URL:</span>
-                {import.meta.env.VITE_SUPABASE_URL ? 
-                  <CheckCircle size={16} className="text-green-500" /> : 
-                  <AlertCircle size={16} className="text-red-500" />
-                }
-              </p>
-              <p className="flex items-center">
-                <span className="mr-2">VITE_SUPABASE_ANON_KEY:</span>
-                {import.meta.env.VITE_SUPABASE_ANON_KEY ? 
-                  <CheckCircle size={16} className="text-green-500" /> : 
-                  <AlertCircle size={16} className="text-red-500" />
-                }
-              </p>
-            </div>
-          </div>
-          
-          <Button 
-            onClick={checkConnection} 
-            disabled={status.checking}
-            className="w-full"
-          >
-            {status.checking ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verificando...
-              </>
-            ) : "Verificar Conexão"}
-          </Button>
-          
-          {status.message && (
-            <Alert variant={status.success ? "default" : "destructive"}>
-              <AlertTitle>
-                {status.success ? "Conexão bem-sucedida" : "Erro de conexão"}
-              </AlertTitle>
-              <AlertDescription>
-                {status.message}
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="p-4 my-4 border rounded">
+      <h2 className="text-xl font-semibold mb-4">Status da Conexão com Supabase</h2>
+      
+      {status === 'loading' && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <AlertTitle>Testando conexão...</AlertTitle>
+          <AlertDescription>Verificando a conexão com Supabase</AlertDescription>
+        </Alert>
+      )}
+      
+      {status === 'success' && (
+        <Alert className="bg-green-50 border-green-200">
+          <AlertTitle>Conexão bem-sucedida!</AlertTitle>
+          <AlertDescription>Seu aplicativo está conectado ao Supabase com sucesso.</AlertDescription>
+        </Alert>
+      )}
+      
+      {status === 'error' && (
+        <Alert className="bg-red-50 border-red-200 mb-4">
+          <AlertTitle>Erro na conexão</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="mt-4 p-4 bg-gray-50 rounded border">
+        <h3 className="font-medium mb-2">Informações de diagnóstico:</h3>
+        <p className="mb-1">VITE_SUPABASE_URL está configurado: {import.meta.env.VITE_SUPABASE_URL ? 'Sim' : 'Não'}</p>
+        <p>VITE_SUPABASE_ANON_KEY está configurado: {import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Sim (valor oculto)' : 'Não'}</p>
+      </div>
+      
+      <Button onClick={testConnection} className="mt-4">
+        Testar Conexão Novamente
+      </Button>
+    </div>
   );
 };
 
