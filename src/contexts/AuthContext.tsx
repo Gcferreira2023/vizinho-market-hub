@@ -2,11 +2,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
+import { useToast } from "@/components/ui/use-toast";
 
+// Check if Supabase environment variables exist
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Create a mock Supabase client if environment variables are not available
+export const supabase = supabaseUrl && supabaseKey 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 type AuthContextType = {
   session: Session | null;
@@ -25,8 +30,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Display warning if Supabase is not configured
+    if (!supabase) {
+      setLoading(false);
+      toast({
+        title: "Configuração Incompleta",
+        description: "As variáveis de ambiente do Supabase não estão configuradas. A autenticação e recursos relacionados não funcionarão.",
+        variant: "destructive",
+        duration: 10000,
+      });
+      return;
+    }
+
     // Configura o listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
       setSession(currentSession);
@@ -42,17 +60,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
-  }, []);
+  }, [toast]);
 
   const signIn = async (email: string, password: string) => {
-    const result = await supabase.auth.signInWithPassword({ email, password });
-    return result;
+    if (!supabase) {
+      return { error: new Error("Supabase não está configurado"), data: null };
+    }
+    return await supabase.auth.signInWithPassword({ email, password });
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const authResult = await supabase.auth.signUp({
+    if (!supabase) {
+      return { error: new Error("Supabase não está configurado"), data: null };
+    }
+    return await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -64,22 +87,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       },
     });
-    
-    return authResult;
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
   };
 
   const resetPassword = async (email: string) => {
+    if (!supabase) {
+      return { error: new Error("Supabase não está configurado"), data: null };
+    }
     return await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/atualizar-senha`,
     });
   };
 
   const updateProfile = async (userData: any) => {
-    if (!user) return { error: new Error('Usuário não autenticado'), data: null };
+    if (!supabase || !user) {
+      return { error: new Error("Usuário não autenticado ou Supabase não configurado"), data: null };
+    }
     
     // Atualiza os metadados do usuário
     const { error: updateError } = await supabase.auth.updateUser({

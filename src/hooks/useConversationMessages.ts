@@ -35,7 +35,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Função para buscar informações do anúncio
   const fetchAdInfo = useCallback(async () => {
-    if (!adId) return null;
+    if (!adId || !supabase) return null;
     
     try {
       const { data, error } = await supabase
@@ -54,6 +54,8 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Função para buscar informações do outro usuário
   const fetchUserInfo = useCallback(async (userId: string) => {
+    if (!supabase) return null;
+    
     try {
       const { data, error } = await supabase
         .auth.admin.getUserById(userId);
@@ -72,7 +74,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Função para buscar mensagens da conversa
   const fetchMessages = useCallback(async () => {
-    if (!user?.id || !adId || !otherId) return [];
+    if (!user?.id || !adId || !otherId || !supabase) return [];
     
     try {
       const { data, error } = await supabase
@@ -92,7 +94,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Função para marcar mensagens como lidas
   const markMessagesAsRead = useCallback(async (messagesToMark: Message[]) => {
-    if (!user?.id || messagesToMark.length === 0) return;
+    if (!user?.id || messagesToMark.length === 0 || !supabase) return;
     
     const unreadMessages = messagesToMark.filter(
       msg => msg.receiver_id === user.id && !msg.is_read
@@ -112,7 +114,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Função para configurar o canal de realtime
   const setupRealtimeChannel = useCallback(() => {
-    if (!user?.id || !adId || !otherId) return null;
+    if (!user?.id || !adId || !otherId || !supabase) return null;
     
     const channel = supabase
       .channel(`messages:${adId}:${otherId}`)
@@ -147,7 +149,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
       setMessages(prev => [...prev, newMsg]);
       
       // Marcar como lida se o usuário atual é o destinatário
-      if (newMsg.receiver_id === user.id) {
+      if (newMsg.receiver_id === user.id && supabase) {
         supabase
           .from('messages')
           .update({ is_read: true })
@@ -158,6 +160,16 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Efeito principal para carregar dados
   useEffect(() => {
+    if (!supabase) {
+      setIsLoading(false);
+      toast({
+        title: "Supabase não configurado",
+        description: "As mensagens não podem ser carregadas pois o Supabase não está configurado.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const loadConversationData = async () => {
       if (!user || !adId || !otherId) {
         setIsLoading(false);
@@ -196,13 +208,20 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
     const channel = setupRealtimeChannel();
     
     return () => {
-      if (channel) supabase.removeChannel(channel);
+      if (channel && supabase) supabase.removeChannel(channel);
     };
   }, [user, adId, otherId, toast, fetchAdInfo, fetchUserInfo, fetchMessages, markMessagesAsRead, setupRealtimeChannel]);
   
   // Função para enviar mensagens
   const sendMessage = async (content: string) => {
-    if (!content.trim() || !user || !adId || !otherId) {
+    if (!content.trim() || !user || !adId || !otherId || !supabase) {
+      if (!supabase) {
+        toast({
+          title: "Erro",
+          description: "Não é possível enviar mensagens: Supabase não está configurado",
+          variant: "destructive"
+        });
+      }
       return;
     }
     

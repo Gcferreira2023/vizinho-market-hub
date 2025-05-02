@@ -11,7 +11,10 @@ export const testSupabaseConnection = async () => {
     
     if (!supabaseUrl || !supabaseKey) {
       console.error('As variáveis de ambiente do Supabase não estão configuradas');
-      return { success: false, message: 'Variáveis de ambiente não encontradas' };
+      return { 
+        success: false, 
+        message: 'As variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY não foram encontradas. Você precisa conectar seu projeto ao Supabase.'
+      };
     }
     
     // Cria um cliente Supabase
