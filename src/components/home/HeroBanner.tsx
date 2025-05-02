@@ -47,7 +47,11 @@ const HeroBanner = () => {
       <div className="container mx-auto px-4">
         <Carousel 
           className="w-full"
-          onSelect={(index) => setCurrentSlide(index)}
+          onSelect={(index) => {
+            if (typeof index === 'number') {
+              setCurrentSlide(index);
+            }
+          }}
         >
           <CarouselContent>
             {bannerItems.map((item, index) => (
