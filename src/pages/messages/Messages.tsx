@@ -9,6 +9,32 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 
+// Define proper interfaces for the data structure
+interface AdInfo {
+  id: string;
+  title: string;
+}
+
+interface UserProfile {
+  id: string;
+  user_metadata: {
+    full_name?: string;
+  };
+}
+
+interface MessageData {
+  id: string;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+  sender_id: string;
+  receiver_id: string;
+  ad_id: string;
+  ads: AdInfo;
+  profiles_sender: UserProfile;
+  profiles_receiver: UserProfile;
+}
+
 interface Conversation {
   id: string;
   lastMessage: string;
@@ -67,12 +93,12 @@ const Messages = () => {
         // Processar os dados para agrupar por conversa
         const conversationsMap = new Map();
         
-        data?.forEach(message => {
+        data?.forEach((message: MessageData) => {
           // Determinar o ID do outro usuário
           const otherUserId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
-          const otherUserMetadata = message.sender_id === user.id 
-            ? message.profiles_receiver.user_metadata
-            : message.profiles_sender.user_metadata;
+          const otherUserProfile = message.sender_id === user.id 
+            ? message.profiles_receiver
+            : message.profiles_sender;
           
           // Criar chave única para a conversa
           const conversationKey = `${otherUserId}-${message.ad_id}`;
@@ -85,7 +111,7 @@ const Messages = () => {
               unread: message.receiver_id === user.id && !message.is_read,
               otherUser: {
                 id: otherUserId,
-                name: otherUserMetadata.full_name || "Usuário",
+                name: otherUserProfile.user_metadata?.full_name || "Usuário",
               },
               ad: {
                 id: message.ads.id,
