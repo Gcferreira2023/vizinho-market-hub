@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { testSupabaseConnection } from '@/utils/supabaseTest';
 import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 const SupabaseConnectionTest = () => {
   const { toast } = useToast();
@@ -30,25 +33,58 @@ const SupabaseConnectionTest = () => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow space-y-4">
-      <h2 className="text-lg font-semibold">Teste de Conexão Supabase</h2>
-      
-      <Button 
-        onClick={checkConnection} 
-        disabled={status.checking}
-        variant="outline"
-      >
-        {status.checking ? "Verificando..." : "Verificar Conexão"}
-      </Button>
-      
-      {status.message && (
-        <div className={`p-3 rounded text-sm ${
-          status.success ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-        }`}>
-          {status.message}
+    <Card>
+      <CardHeader>
+        <CardTitle>Teste de Conexão Supabase</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col gap-2">
+          <div>
+            <p className="text-sm font-medium mb-1">Status das Variáveis de Ambiente:</p>
+            <div className="text-sm">
+              <p className="flex items-center">
+                <span className="mr-2">VITE_SUPABASE_URL:</span>
+                {import.meta.env.VITE_SUPABASE_URL ? 
+                  <CheckCircle size={16} className="text-green-500" /> : 
+                  <AlertCircle size={16} className="text-red-500" />
+                }
+              </p>
+              <p className="flex items-center">
+                <span className="mr-2">VITE_SUPABASE_ANON_KEY:</span>
+                {import.meta.env.VITE_SUPABASE_ANON_KEY ? 
+                  <CheckCircle size={16} className="text-green-500" /> : 
+                  <AlertCircle size={16} className="text-red-500" />
+                }
+              </p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={checkConnection} 
+            disabled={status.checking}
+            className="w-full"
+          >
+            {status.checking ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Verificando...
+              </>
+            ) : "Verificar Conexão"}
+          </Button>
+          
+          {status.message && (
+            <Alert variant={status.success ? "default" : "destructive"}>
+              <AlertTitle>
+                {status.success ? "Conexão bem-sucedida" : "Erro de conexão"}
+              </AlertTitle>
+              <AlertDescription>
+                {status.message}
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

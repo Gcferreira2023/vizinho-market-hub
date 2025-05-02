@@ -164,8 +164,9 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
       setIsLoading(false);
       toast({
         title: "Supabase não configurado",
-        description: "As mensagens não podem ser carregadas pois o Supabase não está configurado.",
-        variant: "destructive"
+        description: "As mensagens não podem ser carregadas pois o Supabase não está configurado. Verifique as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.",
+        variant: "destructive",
+        duration: 10000
       });
       return;
     }

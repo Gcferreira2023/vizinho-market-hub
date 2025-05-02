@@ -4,21 +4,24 @@ import { createClient } from '@supabase/supabase-js';
 // Esta função tenta estabelecer uma conexão com o Supabase e retorna o status
 export const testSupabaseConnection = async () => {
   try {
-    // Se você já configurou a integração com Supabase, as variáveis de ambiente
-    // já devem estar disponíveis no ambiente da Lovable
+    // Verificação explícita das variáveis de ambiente
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('As variáveis de ambiente do Supabase não estão configuradas');
+    // Log de diagnóstico (pode ser removido em produção)
+    console.log('VITE_SUPABASE_URL disponível:', !!supabaseUrl);
+    console.log('VITE_SUPABASE_ANON_KEY disponível:', !!supabaseAnonKey);
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('⚠️ As variáveis de ambiente do Supabase não estão configuradas');
       return { 
         success: false, 
-        message: 'As variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY não foram encontradas. Você precisa conectar seu projeto ao Supabase.'
+        message: 'As variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY não foram encontradas. Você precisa configurar estas variáveis no painel do Lovable.'
       };
     }
     
     // Cria um cliente Supabase
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
     
     // Tenta fazer uma consulta simples para verificar a conexão
     const { data, error } = await supabase.from('_test_connection').select('*').limit(1).maybeSingle();

@@ -1,17 +1,25 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 import { useToast } from "@/components/ui/use-toast";
 
-// Check if Supabase environment variables exist
+// Verificação explícita das variáveis de ambiente
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Create a mock Supabase client if environment variables are not available
-export const supabase = supabaseUrl && supabaseKey 
-  ? createClient(supabaseUrl, supabaseKey)
+// Log de diagnóstico (remover em produção)
+console.log('VITE_SUPABASE_URL disponível:', !!supabaseUrl);
+console.log('VITE_SUPABASE_ANON_KEY disponível:', !!supabaseAnonKey);
+
+// Inicialização condicional do cliente
+export const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
+
+// Verificação explícita da inicialização
+if (!supabase) {
+  console.error('⚠️ Cliente Supabase não inicializado! Verifique as variáveis de ambiente.');
+}
 
 type AuthContextType = {
   session: Session | null;
@@ -38,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
       toast({
         title: "Configuração Incompleta",
-        description: "As variáveis de ambiente do Supabase não estão configuradas. A autenticação e recursos relacionados não funcionarão.",
+        description: "As variáveis de ambiente do Supabase não estão configuradas. A autenticação e recursos relacionados não funcionarão. Acesse as configurações do projeto para adicionar VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.",
         variant: "destructive",
         duration: 10000,
       });
