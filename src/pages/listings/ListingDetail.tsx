@@ -5,15 +5,12 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Star, MessageCircle, Phone, User } from "lucide-react";
+import { Star, Clock, MessageCircle } from "lucide-react";
 import ListingCard from "@/components/listings/ListingCard";
+import ListingImageGallery from "@/components/listings/ListingImageGallery";
+import SellerInfo from "@/components/listings/SellerInfo";
+import { Card } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
 
 // Dados de exemplo (mockup) para o anúncio específico
 const mockListing = {
@@ -81,14 +78,16 @@ const mockSimilarListings = [
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeImage, setActiveImage] = useState(0);
 
   // Em uma aplicação real, buscaríamos os detalhes do anúncio pelo ID
   const listing = mockListing;
 
   const handleContactWhatsApp = () => {
     // Simulando a ação (que seria integrada com o WhatsApp)
-    alert("Esta funcionalidade seria integrada com o WhatsApp");
+    toast({
+      title: "Redirecionando para WhatsApp",
+      description: "Esta funcionalidade seria integrada com o WhatsApp real"
+    });
   };
 
   return (
@@ -106,50 +105,11 @@ const ListingDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Coluna Esquerda - Imagens e Detalhes */}
           <div className="lg:col-span-2">
-            {/* Carousel de imagens */}
-            <div className="mb-6">
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {listing.images.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <div className="aspect-[4/3] w-full overflow-hidden rounded-lg">
-                        <img
-                          src={image}
-                          alt={`${listing.title} - Imagem ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2" />
-                <CarouselNext className="right-2" />
-              </Carousel>
-
-              {/* Miniaturas das imagens */}
-              <div className="flex mt-4 gap-2 overflow-x-auto pb-2">
-                {listing.images.map((image, index) => (
-                  <button
-                    key={index}
-                    className={`w-20 h-20 overflow-hidden rounded border-2 ${
-                      activeImage === index
-                        ? "border-primary"
-                        : "border-transparent"
-                    }`}
-                    onClick={() => setActiveImage(index)}
-                  >
-                    <img
-                      src={image}
-                      alt={`Miniatura ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Galeria de imagens */}
+            <ListingImageGallery images={listing.images} title={listing.title} />
 
             {/* Detalhes do anúncio */}
-            <div className="bg-white p-6 rounded-lg border mb-6">
+            <Card className="p-6 mb-6">
               <div className="flex items-center justify-between mb-2">
                 <Badge
                   variant={
@@ -188,8 +148,11 @@ const ListingDetail = () => {
                 </TabsContent>
                 <TabsContent value="disponibilidade" className="space-y-3">
                   <div>
-                    <h3 className="font-medium">Horário de disponibilidade:</h3>
-                    <p className="text-gray-700">{listing.availability}</p>
+                    <h3 className="font-medium flex items-center gap-2">
+                      <Clock size={18} className="text-gray-500" /> 
+                      Horário de disponibilidade:
+                    </h3>
+                    <p className="text-gray-700 ml-6">{listing.availability}</p>
                   </div>
                   <div>
                     <h3 className="font-medium">Entrega:</h3>
@@ -206,67 +169,50 @@ const ListingDetail = () => {
                 </TabsContent>
                 <TabsContent value="pagamento">
                   <h3 className="font-medium mb-2">Formas de pagamento aceitas:</h3>
-                  <ul className="list-disc list-inside text-gray-700">
+                  <div className="flex flex-wrap gap-2">
                     {listing.paymentMethods.map((method, index) => (
-                      <li key={index}>{method}</li>
+                      <Badge key={index} variant="outline">{method}</Badge>
                     ))}
-                  </ul>
+                  </div>
                 </TabsContent>
               </Tabs>
-            </div>
+              
+              <div className="mt-8">
+                <Button className="w-full sm:w-auto" onClick={() => {
+                  toast({
+                    title: "Pergunta enviada",
+                    description: "O vendedor responderá em breve!"
+                  });
+                }}>
+                  <MessageCircle className="mr-2" size={18} />
+                  Fazer uma pergunta
+                </Button>
+              </div>
+            </Card>
           </div>
 
           {/* Coluna Direita - Informações do vendedor e ações */}
           <div className="space-y-6">
-            {/* Card do Vendedor */}
-            <div className="bg-white p-6 rounded-lg border">
-              <h3 className="font-semibold text-lg mb-4">Informações do Vendedor</h3>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-gray-500" />
-                </div>
-                <div>
-                  <p className="font-medium">{listing.seller.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {listing.seller.block} - {listing.seller.apartment}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 mb-3">
-                <Star size={18} className="text-yellow-400 fill-yellow-400" />
-                <span className="font-medium">{listing.seller.rating}</span>
-                <span className="text-sm text-gray-500">
-                  ({listing.seller.listings} anúncios)
-                </span>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <Button
-                  className="w-full"
-                  onClick={handleContactWhatsApp}
-                >
-                  <Phone size={18} className="mr-2" /> Contato via WhatsApp
-                </Button>
-                <Button variant="outline" className="w-full">
-                  <MessageCircle size={18} className="mr-2" /> Enviar mensagem
-                </Button>
-              </div>
-            </div>
+            {/* Informações do vendedor */}
+            <SellerInfo 
+              seller={listing.seller} 
+              onContactWhatsApp={handleContactWhatsApp}
+            />
 
             {/* Segurança */}
-            <div className="bg-white p-4 rounded-lg border">
+            <Card className="p-4">
               <h3 className="font-medium mb-2 text-sm">Compra segura</h3>
               <p className="text-xs text-gray-500">
                 Converse com o vendedor antes de realizar qualquer pagamento e faça negociações seguras, preferencialmente em locais públicos dentro do condomínio.
               </p>
-            </div>
+            </Card>
           </div>
         </div>
 
         {/* Anúncios relacionados */}
         <section className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Anúncios Similares</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {mockSimilarListings.map((listing) => (
               <ListingCard key={listing.id} {...listing} />
             ))}

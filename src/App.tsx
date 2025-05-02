@@ -13,6 +13,7 @@ import Register from "./pages/auth/Register";
 import PasswordReset from "./pages/auth/PasswordReset";
 import ExploreListings from "./pages/listings/ExploreListings";
 import ListingDetail from "./pages/listings/ListingDetail";
+import HowItWorksPage from "./pages/HowItWorksPage";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/recuperar-senha" element={<PasswordReset />} />
           <Route path="/explorar" element={<ExploreListings />} />
           <Route path="/anuncio/:id" element={<ListingDetail />} />
+          <Route path="/como-funciona" element={<HowItWorksPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

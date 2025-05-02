@@ -17,8 +17,8 @@ const CallToAction = () => {
           Cadastre-se agora e comece a anunciar seus produtos e serviços para os moradores do seu condomínio.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Button size="lg" variant="secondary" asChild>
-            <Link to="/cadastro">Criar conta</Link>
+          <Button size="lg" variant="secondary" className="text-lg py-6" asChild>
+            <Link to="/anunciar">Anunciar Agora</Link>
           </Button>
           <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary" asChild>
             <Link to="/como-funciona">Como funciona</Link>
