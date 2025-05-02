@@ -15,11 +15,13 @@ interface AdInfo {
   title: string;
 }
 
+interface UserMetadata {
+  full_name?: string;
+}
+
 interface UserProfile {
   id: string;
-  user_metadata: {
-    full_name?: string;
-  };
+  user_metadata: UserMetadata;
 }
 
 interface MessageData {
@@ -93,33 +95,35 @@ const Messages = () => {
         // Processar os dados para agrupar por conversa
         const conversationsMap = new Map();
         
-        data?.forEach((message: MessageData) => {
-          // Determinar o ID do outro usuário
-          const otherUserId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
-          const otherUserProfile = message.sender_id === user.id 
-            ? message.profiles_receiver
-            : message.profiles_sender;
-          
-          // Criar chave única para a conversa
-          const conversationKey = `${otherUserId}-${message.ad_id}`;
-          
-          if (!conversationsMap.has(conversationKey)) {
-            conversationsMap.set(conversationKey, {
-              id: conversationKey,
-              lastMessage: message.content,
-              lastMessageDate: message.created_at,
-              unread: message.receiver_id === user.id && !message.is_read,
-              otherUser: {
-                id: otherUserId,
-                name: otherUserProfile.user_metadata?.full_name || "Usuário",
-              },
-              ad: {
-                id: message.ads.id,
-                title: message.ads.title,
-              }
-            });
-          }
-        });
+        if (data) {
+          data.forEach((message: any) => {
+            // Determinar o ID do outro usuário
+            const otherUserId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
+            const otherUserProfile = message.sender_id === user.id 
+              ? message.profiles_receiver
+              : message.profiles_sender;
+            
+            // Criar chave única para a conversa
+            const conversationKey = `${otherUserId}-${message.ad_id}`;
+            
+            if (!conversationsMap.has(conversationKey)) {
+              conversationsMap.set(conversationKey, {
+                id: conversationKey,
+                lastMessage: message.content,
+                lastMessageDate: message.created_at,
+                unread: message.receiver_id === user.id && !message.is_read,
+                otherUser: {
+                  id: otherUserId,
+                  name: otherUserProfile.user_metadata?.full_name || "Usuário",
+                },
+                ad: {
+                  id: message.ads.id,
+                  title: message.ads.title,
+                }
+              });
+            }
+          });
+        }
         
         // Converter mapa em array e ordenar por data da última mensagem
         const conversationsArray = Array.from(conversationsMap.values())
