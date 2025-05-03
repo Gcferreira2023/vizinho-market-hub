@@ -29,7 +29,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Trash2, X, Upload, Loader2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
+import ListingImageManager from "@/components/listings/ListingImageManager";
 
 // Interface for extended ad data
 interface ExtendedAdData {
@@ -80,9 +81,10 @@ const EditListing = () => {
     paymentMethods: "Dinheiro, Pix",
   });
   
+  // Convert existing images to a format compatible with our component
   const [existingImages, setExistingImages] = useState<any[]>([]);
-  const [newImages, setNewImages] = useState<File[]>([]);
-  const [newImageUrls, setNewImageUrls] = useState<string[]>([]);
+  const [images, setImages] = useState<File[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -141,6 +143,11 @@ const EditListing = () => {
         if (imageError) throw imageError;
         
         setExistingImages(imageData || []);
+        
+        // Convert existing images to URLs for our image manager component
+        const existingUrls = (imageData || []).map(img => img.image_url);
+        setImageUrls(existingUrls);
+        
       } catch (error: any) {
         console.error("Erro ao carregar dados:", error);
         toast({
@@ -171,38 +178,26 @@ const EditListing = () => {
     }));
   };
   
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const totalImagesCount = existingImages.length + newImages.length;
-      const selectedFiles = Array.from(e.target.files).slice(0, 3 - totalImagesCount);
-      
-      if (totalImagesCount + selectedFiles.length > 3) {
-        toast({
-          title: "Limite de imagens",
-          description: "Você pode enviar no máximo 3 imagens",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      // Criar URLs temporárias para visualização
-      const newUrls = selectedFiles.map(file => URL.createObjectURL(file));
-      
-      setNewImages(prev => [...prev, ...selectedFiles]);
-      setNewImageUrls(prev => [...prev, ...newUrls]);
-    }
-  };
-  
-  const removeExistingImage = (imageId: string) => {
-    setExistingImages(prev => prev.filter(img => img.id !== imageId));
-  };
-  
-  const removeNewImage = (index: number) => {
-    // Libera a URL temporária
-    URL.revokeObjectURL(newImageUrls[index]);
+  const handleImagesChange = (newImages: File[], newUrls: string[]) => {
+    // We need to keep track of which existing images were kept and which were removed
+    const keptExistingUrls = newUrls.filter(url => 
+      existingImages.some(img => img.image_url === url)
+    );
     
-    setNewImages(prev => prev.filter((_, i) => i !== index));
-    setNewImageUrls(prev => prev.filter((_, i) => i !== index));
+    // Update the list of existing images to keep
+    const updatedExistingImages = existingImages.filter(img => 
+      keptExistingUrls.includes(img.image_url)
+    );
+    
+    setExistingImages(updatedExistingImages);
+    
+    // New images are the files that were added
+    const actualNewImages = newImages.filter(file => 
+      !existingImages.some(img => URL.createObjectURL(file) === img.image_url)
+    );
+    
+    setImages(actualNewImages);
+    setImageUrls(newUrls);
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -217,7 +212,7 @@ const EditListing = () => {
       return;
     }
     
-    if (existingImages.length === 0 && newImages.length === 0) {
+    if (imageUrls.length === 0) {
       toast({
         title: "Imagens obrigatórias",
         description: "Adicione pelo menos uma imagem ao seu anúncio",
@@ -248,20 +243,23 @@ const EditListing = () => {
       
       if (updateError) throw updateError;
       
-      // 2. Remover imagens deletadas
+      // 2. Handle image changes
+      
+      // Get existing image IDs that we want to keep
       const existingImageIds = existingImages.map(img => img.id);
       
+      // Delete images that were removed
       const { error: deleteImagesError } = await supabase
         .from('ad_images')
         .delete()
         .eq('ad_id', id)
-        .not('id', 'in', `(${existingImageIds.join(',')})`);
+        .not('id', 'in', existingImageIds.length > 0 ? `(${existingImageIds.join(',')})` : '(-1)');
       
-      if (deleteImagesError && existingImageIds.length > 0) throw deleteImagesError;
+      if (deleteImagesError) throw deleteImagesError;
       
-      // 3. Fazer upload das novas imagens
-      for (let i = 0; i < newImages.length; i++) {
-        const file = newImages[i];
+      // 3. Upload new images
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}-${Date.now()}-${i}.${fileExt}`;
         const filePath = `ad-images/${id}/${fileName}`;
@@ -318,9 +316,6 @@ const EditListing = () => {
     setIsDeleting(true);
     
     try {
-      // Excluir imagens do Storage
-      // (Na prática, você pode configurar uma policy no Supabase para limpar automaticamente)
-      
       // Excluir o anúncio (as imagens serão excluídas devido à foreign key)
       const { error } = await supabase
         .from('ads')
@@ -467,74 +462,11 @@ const EditListing = () => {
               </div>
               
               {/* Upload de imagens */}
-              <div className="space-y-4">
-                <h3 className="font-medium">Imagens do produto/serviço</h3>
-                <p className="text-sm text-gray-500">
-                  Adicione até 3 imagens para ilustrar seu anúncio
-                </p>
-                
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Imagens existentes */}
-                  {existingImages.map((image) => (
-                    <div key={image.id} className="relative aspect-square border rounded-md overflow-hidden">
-                      <img 
-                        src={image.image_url} 
-                        alt="Imagem do anúncio" 
-                        className="w-full h-full object-cover"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 right-1 h-6 w-6 p-1"
-                        onClick={() => removeExistingImage(image.id)}
-                      >
-                        <X size={16} />
-                      </Button>
-                    </div>
-                  ))}
-                  
-                  {/* Novas imagens */}
-                  {newImageUrls.map((url, index) => (
-                    <div key={`new-${index}`} className="relative aspect-square border rounded-md overflow-hidden">
-                      <img 
-                        src={url} 
-                        alt={`Nova imagem ${index + 1}`} 
-                        className="w-full h-full object-cover"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 right-1 h-6 w-6 p-1"
-                        onClick={() => removeNewImage(index)}
-                      >
-                        <X size={16} />
-                      </Button>
-                    </div>
-                  ))}
-                  
-                  {/* Botão de upload */}
-                  {(existingImages.length + newImages.length) < 3 && (
-                    <div className="aspect-square border border-dashed rounded-md flex flex-col items-center justify-center bg-gray-50">
-                      <Input
-                        id="images"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                      <Label 
-                        htmlFor="images"
-                        className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
-                      >
-                        <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                        <span className="text-sm text-gray-500">Upload</span>
-                      </Label>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ListingImageManager
+                images={images}
+                imageUrls={imageUrls}
+                onImagesChange={handleImagesChange}
+              />
               
               {/* Informações adicionais */}
               <div className="space-y-4">

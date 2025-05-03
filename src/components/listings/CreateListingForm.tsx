@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { initialListingFormData, ListingFormData } from "@/types/listing";
-import ImageUploader from "@/components/listings/ImageUploader";
+import ListingImageManager from "@/components/listings/ListingImageManager";
 import ListingFormSections from "@/components/listings/ListingFormSections";
 import { useCreateListing } from "@/hooks/useCreateListing";
 
@@ -56,7 +56,7 @@ const CreateListingForm = () => {
         handleCheckboxChange={handleCheckboxChange}
       />
       
-      <ImageUploader
+      <ListingImageManager
         images={images}
         imageUrls={imageUrls}
         onImagesChange={handleImagesChange}
