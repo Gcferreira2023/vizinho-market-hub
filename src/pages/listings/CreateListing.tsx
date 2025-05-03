@@ -11,7 +11,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
 import CreateListingForm from "@/components/listings/CreateListingForm";
-import { checkStorageBucket } from "@/services/listingService";
+import { checkStorageBucket } from "@/services";
 import { useToast } from "@/components/ui/use-toast";
 
 const CreateListing = () => {

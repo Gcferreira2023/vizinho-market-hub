@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import * as listingService from "@/services";
 
 interface EditListingFormData {
   title: string;
@@ -53,16 +54,10 @@ export const useEditListing = (listingId: string) => {
     
     try {
       // Fetch listing data
-      const { data: adData, error: adError } = await supabase
-        .from('ads')
-        .select('*')
-        .eq('id', listingId)
-        .single();
-        
-      if (adError) throw adError;
+      const adData = await listingService.fetchListing(listingId);
       
       // Check if the listing belongs to the logged in user
-      if (adData.user_id !== user.id) {
+      if (!listingService.checkListingOwnership(adData, user.id)) {
         toast({
           title: "Acesso negado",
           description: "Você não tem permissão para editar este anúncio",
@@ -86,13 +81,7 @@ export const useEditListing = (listingId: string) => {
       });
       
       // Fetch listing images
-      const { data: imageData, error: imageError } = await supabase
-        .from('ad_images')
-        .select('*')
-        .eq('ad_id', listingId)
-        .order('position');
-        
-      if (imageError) throw imageError;
+      const imageData = await listingService.fetchListingImages(listingId);
       
       setExistingImages(imageData || []);
       
@@ -179,23 +168,7 @@ export const useEditListing = (listingId: string) => {
     
     try {
       // 1. Update listing data
-      const { error: updateError } = await supabase
-        .from('ads')
-        .update({
-          title: formData.title,
-          description: formData.description,
-          price: parseFloat(formData.price),
-          category: formData.category,
-          type: formData.type,
-          availability: formData.availability,
-          delivery: formData.delivery,
-          delivery_fee: formData.delivery ? parseFloat(formData.deliveryFee) : null,
-          payment_methods: formData.paymentMethods,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', listingId);
-      
-      if (updateError) throw updateError;
+      await listingService.updateListing(listingId, formData);
       
       // 2. Handle image changes
       
@@ -203,45 +176,11 @@ export const useEditListing = (listingId: string) => {
       const existingImageIds = existingImages.map(img => img.id);
       
       // Delete images that were removed
-      const { error: deleteImagesError } = await supabase
-        .from('ad_images')
-        .delete()
-        .eq('ad_id', listingId)
-        .not('id', 'in', existingImageIds.length > 0 ? `(${existingImageIds.join(',')})` : '(-1)');
-      
-      if (deleteImagesError) throw deleteImagesError;
+      await listingService.deleteRemovedImages(listingId, existingImageIds);
       
       // 3. Upload new images
-      for (let i = 0; i < images.length; i++) {
-        const file = images[i];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}-${i}.${fileExt}`;
-        const filePath = `ad-images/${listingId}/${fileName}`;
-        
-        // Upload image
-        const { error: uploadError } = await supabase
-          .storage
-          .from('ads')
-          .upload(filePath, file);
-          
-        if (uploadError) throw uploadError;
-        
-        // Get public URL
-        const { data: urlData } = supabase
-          .storage
-          .from('ads')
-          .getPublicUrl(filePath);
-          
-        // Save image reference
-        const { error: imageError } = await supabase
-          .from('ad_images')
-          .insert({
-            ad_id: listingId,
-            image_url: urlData.publicUrl,
-            position: existingImages.length + i,
-          });
-          
-        if (imageError) throw imageError;
+      if (images.length > 0) {
+        await listingService.uploadListingImages(images, listingId, user.id);
       }
       
       toast({
@@ -270,13 +209,8 @@ export const useEditListing = (listingId: string) => {
     setIsDeleting(true);
     
     try {
-      // Delete the listing (images will be deleted due to the foreign key)
-      const { error } = await supabase
-        .from('ads')
-        .delete()
-        .eq('id', listingId);
-        
-      if (error) throw error;
+      // Delete the listing
+      await listingService.deleteListing(listingId);
       
       toast({
         title: "Anúncio excluído",

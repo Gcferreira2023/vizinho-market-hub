@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { ListingFormData } from "@/types/listing";
-import * as listingService from "@/services/listingService";
+import * as listingService from "@/services";
 
 export const useCreateListing = () => {
   const { user } = useAuth();
