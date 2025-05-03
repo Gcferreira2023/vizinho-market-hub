@@ -35,37 +35,47 @@ const UserListings = () => {
         
         setUserListings(listings || []);
         
-        // Fetch primary images for each listing
+        // Fetch images for each listing
         if (listings && listings.length > 0) {
           console.log("Fetching images for listings:", listings.map(l => l.id));
           
+          // Create a copy of the existing image map
+          const newImageMap = { ...listingImages };
+          
           for (const listing of listings) {
             try {
-              // Query for the first image (position 0) for this listing
-              const { data, error: imgError } = await supabase
+              console.log(`Fetching primary image for listing ${listing.id}`);
+              
+              // Query for the first image for this listing
+              const { data: imageData, error: imgError } = await supabase
                 .from('ad_images')
                 .select('image_url')
                 .eq('ad_id', listing.id)
-                .eq('position', 0)
+                .order('position')
+                .limit(1)
                 .maybeSingle();
               
               if (imgError) {
                 console.error(`Error fetching image for listing ${listing.id}:`, imgError);
+                newImageMap[listing.id] = '/placeholder.svg';
                 continue;
               }
               
-              if (data && data.image_url) {
-                console.log(`Found image for listing ${listing.id}:`, data.image_url);
-                setListingImages(prev => ({...prev, [listing.id]: data.image_url}));
+              if (imageData && imageData.image_url) {
+                console.log(`Found image for listing ${listing.id}:`, imageData.image_url);
+                newImageMap[listing.id] = imageData.image_url;
               } else {
                 console.log(`No image found for listing ${listing.id}, using placeholder`);
-                setListingImages(prev => ({...prev, [listing.id]: '/placeholder.svg'}));
+                newImageMap[listing.id] = '/placeholder.svg';
               }
             } catch (error) {
               console.error("Error processing image for listing:", listing.id, error);
-              setListingImages(prev => ({...prev, [listing.id]: '/placeholder.svg'}));
+              newImageMap[listing.id] = '/placeholder.svg';
             }
           }
+          
+          // Update state with all the new images at once
+          setListingImages(newImageMap);
         }
       } catch (error: any) {
         console.error('Erro ao buscar anúncios:', error);
@@ -103,13 +113,16 @@ const UserListings = () => {
     
   // Custom ListingCard renderer that includes edit button
   const renderListingCard = (listing: any) => {
+    const imageUrl = listingImages[listing.id] || '/placeholder.svg';
+    console.log(`Rendering listing ${listing.id} with image: ${imageUrl}`);
+    
     return (
       <div key={listing.id} className="relative">
         <ListingCard
           id={listing.id}
           title={listing.title}
           price={listing.price}
-          imageUrl={listingImages[listing.id] || '/placeholder.svg'}
+          imageUrl={imageUrl}
           category={listing.category}
           type={listing.type}
           location={userLocation}
