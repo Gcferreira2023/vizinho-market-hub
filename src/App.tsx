@@ -22,6 +22,7 @@ import CreateListing from "./pages/listings/CreateListing";
 import EditListing from "./pages/listings/EditListing";
 import UserProfile from "./pages/user/UserProfile";
 import UserListings from "./pages/user/UserListings";
+import UserFavorites from "./pages/user/UserFavorites";
 import EditProfile from "./pages/user/EditProfile";
 import HowItWorksPage from "./pages/HowItWorksPage";
 
@@ -64,6 +65,11 @@ const App = () => (
             <Route path="/meus-anuncios" element={
               <ProtectedRoute>
                 <UserListings />
+              </ProtectedRoute>
+            } />
+            <Route path="/favoritos" element={
+              <ProtectedRoute>
+                <UserFavorites />
               </ProtectedRoute>
             } />
             <Route path="/editar-perfil" element={

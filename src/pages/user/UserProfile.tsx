@@ -9,12 +9,17 @@ import { User, PenSquare, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useFavorites } from "@/hooks/useFavorites";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import ListingCard from "@/components/listings/ListingCard";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 const UserProfile = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [userListings, setUserListings] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingListings, setIsLoadingListings] = useState(true);
+  const { favorites, isLoading: isLoadingFavorites } = useFavorites();
 
   useEffect(() => {
     const fetchUserListings = async () => {
@@ -38,7 +43,7 @@ const UserProfile = () => {
           variant: "destructive"
         });
       } finally {
-        setIsLoading(false);
+        setIsLoadingListings(false);
       }
     };
     
@@ -122,8 +127,10 @@ const UserProfile = () => {
               </TabsList>
               
               <TabsContent value="meus-anuncios">
-                {isLoading ? (
-                  <div className="text-center py-8">Carregando seus anúncios...</div>
+                {isLoadingListings ? (
+                  <div className="text-center py-8">
+                    <LoadingSpinner message="Carregando seus anúncios..." />
+                  </div>
                 ) : userListings.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {userListings.map((listing) => (
@@ -156,9 +163,57 @@ const UserProfile = () => {
               </TabsContent>
               
               <TabsContent value="favoritos">
-                <div className="text-center py-8">
-                  <p>Funcionalidade de favoritos em desenvolvimento</p>
-                </div>
+                {isLoadingFavorites ? (
+                  <div className="text-center py-8">
+                    <LoadingSpinner message="Carregando seus favoritos..." />
+                  </div>
+                ) : favorites.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {favorites.slice(0, 4).map((fav) => {
+                        if (!fav.ad) return null;
+                        
+                        const imageUrl = fav.ad.ad_images && fav.ad.ad_images.length > 0
+                          ? fav.ad.ad_images[0].image_url
+                          : '/placeholder.svg';
+                          
+                        const status: ListingStatus = 
+                          fav.ad.status === "active" ? "disponível" :
+                          fav.ad.status === "reserved" ? "reservado" : "vendido";
+                          
+                        return (
+                          <Card key={fav.id} className="overflow-hidden">
+                            <div className="p-4">
+                              <h3 className="font-medium mb-2">{fav.ad.title}</h3>
+                              <p className="text-primary font-bold">
+                                R$ {Number(fav.ad.price).toFixed(2)}
+                              </p>
+                              <div className="mt-4">
+                                <Button asChild variant="outline" size="sm" className="w-full">
+                                  <Link to={`/anuncio/${fav.ad.id}`}>Ver Anúncio</Link>
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                    {favorites.length > 4 && (
+                      <div className="text-center mt-6">
+                        <Button asChild>
+                          <Link to="/favoritos">Ver todos os {favorites.length} favoritos</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="mb-4">Você ainda não possui anúncios favoritos</p>
+                    <Button asChild>
+                      <Link to="/explorar">Explorar Anúncios</Link>
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>

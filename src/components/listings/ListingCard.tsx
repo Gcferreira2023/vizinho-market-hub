@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import StatusBadge, { ListingStatus } from "./StatusBadge";
+import FavoriteButton from "./FavoriteButton";
 
 interface ListingCardProps {
   id: string;
@@ -66,7 +67,18 @@ const ListingCard = ({
             </Badge>
             <StatusBadge status={status} className="bg-white/80 backdrop-blur-sm" />
           </div>
+          
+          {/* Botão de favorito */}
+          <div className="absolute bottom-2 right-2">
+            <FavoriteButton
+              listingId={id}
+              size="sm"
+              variant="ghost"
+              className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+            />
+          </div>
         </div>
+        
         <div className="p-4 flex flex-col flex-grow">
           <h3 className="font-medium text-lg mb-1 line-clamp-2" title={title}>
             {title}

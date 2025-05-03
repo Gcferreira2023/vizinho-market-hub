@@ -15,6 +15,7 @@ import ListingDetailTabs from "@/components/listings/detail/ListingDetailTabs";
 import ListingHeader from "@/components/listings/detail/ListingHeader";
 import SecurityInfo from "@/components/listings/detail/SecurityInfo";
 import SimilarListings from "@/components/listings/similar/SimilarListings";
+import FavoriteButton from "@/components/listings/FavoriteButton";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -169,18 +170,28 @@ const ListingDetail = () => {
 
             {/* Detalhes do anúncio */}
             <Card className="p-6 mb-6">
-              <ListingHeader
-                title={displayListing.title}
-                category={displayListing.category}
-                type={displayListing.type}
-                rating={displayListing.rating}
-                price={displayListing.price}
-                status={listingStatus}
-                adId={displayListing.id}
-                userId={user?.id}
-                ownerId={listing?.user_id || displayListing.seller.id}
-                onStatusChange={handleStatusChange}
-              />
+              <div className="flex justify-between items-start mb-4">
+                <ListingHeader
+                  title={displayListing.title}
+                  category={displayListing.category}
+                  type={displayListing.type}
+                  rating={displayListing.rating}
+                  price={displayListing.price}
+                  status={listingStatus}
+                  adId={displayListing.id}
+                  userId={user?.id}
+                  ownerId={listing?.user_id || displayListing.seller.id}
+                  onStatusChange={handleStatusChange}
+                />
+                {id && (
+                  <FavoriteButton 
+                    listingId={id} 
+                    size="default" 
+                    variant="outline"
+                    showText
+                  />
+                )}
+              </div>
 
               <ListingDetailTabs
                 description={displayListing.description}
