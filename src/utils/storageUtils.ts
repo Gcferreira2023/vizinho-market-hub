@@ -10,12 +10,14 @@ export const ensureStorageBucket = async (bucketName: string) => {
       .listBuckets();
     
     if (listError) {
+      console.error("Erro ao listar buckets:", listError);
       throw listError;
     }
     
     const bucketExists = buckets.some(bucket => bucket.name === bucketName);
     
     if (!bucketExists) {
+      console.log(`Bucket ${bucketName} não existe, criando...`);
       // Create the bucket if it doesn't exist
       const { error: createError } = await supabase
         .storage
@@ -25,25 +27,18 @@ export const ensureStorageBucket = async (bucketName: string) => {
         });
       
       if (createError) {
-        console.error("Error creating bucket:", createError);
+        console.error("Erro ao criar bucket:", createError);
         throw createError;
       }
       
-      // Set a default RLS policy for the bucket
-      // This can be adjusted based on security requirements
-      const { error: policyError } = await supabase
-        .storage
-        .from(bucketName)
-        .createSignedUrl('policy.json', 3600); // This doesn't actually matter, just checking permissions
-      
-      if (policyError && policyError.message !== 'The resource was not found') {
-        console.error("Error setting bucket policy:", policyError);
-      }
+      console.log(`Bucket ${bucketName} criado com sucesso!`);
+    } else {
+      console.log(`Bucket ${bucketName} já existe.`);
     }
     
     return true;
   } catch (error) {
-    console.error("Failed to ensure storage bucket exists:", error);
+    console.error("Falha ao verificar/criar bucket de armazenamento:", error);
     throw error;
   }
 };

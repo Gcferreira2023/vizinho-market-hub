@@ -23,7 +23,6 @@ export const useCreateListing = () => {
       return false;
     }
     
-    // Debug: Log the user object to ensure we have a valid ID
     console.log("Current user:", user);
     
     if (images.length === 0) {
@@ -50,10 +49,13 @@ export const useCreateListing = () => {
         .eq('id', user.id)
         .single();
       
+      console.log("Verificando usuário existente:", existingUser, userCheckError);
+      
       // If user doesn't exist in the users table, create them
       if (userCheckError || !existingUser) {
         // Get user metadata from auth
         const userMeta = user.user_metadata || {};
+        console.log("Metadados do usuário:", userMeta);
         
         // Insert the user into the users table
         const { error: createUserError } = await supabase
@@ -69,10 +71,14 @@ export const useCreateListing = () => {
           });
         
         if (createUserError) {
+          console.error("Erro detalhado ao criar perfil de usuário:", createUserError);
           throw new Error(`Erro ao criar perfil de usuário: ${createUserError.message}`);
         }
+        
+        console.log("Usuário criado com sucesso na tabela users");
       }
 
+      console.log("Inserindo anúncio com user_id:", user.id);
       // Now insert the ad with the user ID
       const { data: adData, error: adError } = await supabase
         .from('ads')
@@ -91,7 +97,12 @@ export const useCreateListing = () => {
         .select('id')
         .single();
       
-      if (adError) throw adError;
+      if (adError) {
+        console.error("Erro ao inserir anúncio:", adError);
+        throw adError;
+      }
+      
+      console.log("Anúncio criado com ID:", adData.id);
       
       // 2. Upload the images to Storage
       for (let i = 0; i < images.length; i++) {
@@ -100,13 +111,18 @@ export const useCreateListing = () => {
         const fileName = `${user.id}-${Date.now()}-${i}.${fileExt}`;
         const filePath = `ad-images/${adData.id}/${fileName}`;
         
+        console.log(`Enviando imagem ${i+1}/${images.length}: ${filePath}`);
+        
         // Upload da imagem
         const { error: uploadError } = await supabase
           .storage
           .from('ads')
           .upload(filePath, file);
           
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Erro ao fazer upload da imagem:", uploadError);
+          throw uploadError;
+        }
         
         // Get the public URL of the image
         const { data: urlData } = supabase
@@ -114,6 +130,8 @@ export const useCreateListing = () => {
           .from('ads')
           .getPublicUrl(filePath);
           
+        console.log("URL pública da imagem:", urlData.publicUrl);
+        
         // Save image reference
         const { error: imageError } = await supabase
           .from('ad_images')
@@ -123,7 +141,10 @@ export const useCreateListing = () => {
             position: i,
           });
           
-        if (imageError) throw imageError;
+        if (imageError) {
+          console.error("Erro ao salvar referência da imagem:", imageError);
+          throw imageError;
+        }
       }
       
       toast({
