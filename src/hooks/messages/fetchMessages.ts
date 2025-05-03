@@ -1,6 +1,17 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/messages";
+
+// Defina um tipo intermediário para os dados que vêm do Supabase
+// Isso evita o problema de tipo excessivamente profundo
+interface RawMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  read: boolean | null; // Usando null para cobrir possíveis valores nulos do banco
+  sender_id: string;
+  receiver_id: string;
+  ad_id: string;
+}
 
 export const fetchMessages = async (
   userId?: string,
@@ -19,12 +30,13 @@ export const fetchMessages = async (
       
     if (error) throw error;
     
-    // Simplificação: Mapeamento explícito para o tipo Message para evitar recursão de tipos
-    return (data || []).map(msg => ({
+    // Converter dados brutos para o tipo Message usando o tipo intermediário
+    // Isso previne a recursão de tipos e o erro "excessivamente profundo"
+    return (data as RawMessage[] || []).map(msg => ({
       id: msg.id,
       content: msg.content,
       created_at: msg.created_at,
-      read: Boolean(msg.read), // Garantir tipo booleano
+      read: Boolean(msg.read),
       sender_id: msg.sender_id,
       receiver_id: msg.receiver_id,
       ad_id: msg.ad_id
