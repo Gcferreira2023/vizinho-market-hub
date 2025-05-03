@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, PenSquare, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const UserProfile = () => {
   const { user, signOut } = useAuth();
