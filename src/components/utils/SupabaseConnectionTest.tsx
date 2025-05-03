@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
@@ -23,10 +23,10 @@ export const SupabaseConnectionTest: React.FC = () => {
       console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
       console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
       
-      // Tenta fazer uma query simples
-      const { error } = await supabase.from('_test_connection').select('count').limit(1);
+      // Use getSession instead of querying a specific table
+      const { data, error } = await supabase.auth.getSession();
       
-      if (error && error.message !== 'relation "_test_connection" does not exist') {
+      if (error) {
         throw error;
       }
       

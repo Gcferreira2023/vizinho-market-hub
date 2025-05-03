@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, X, Upload, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +29,24 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Trash2, X, Upload, Loader2 } from "lucide-react";
+
+// Interface for extended ad data
+interface ExtendedAdData {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  status: string;
+  user_id: string;
+  created_at: string;
+  type: string;
+  availability: string;
+  delivery: boolean;
+  delivery_fee: number;
+  payment_methods: string;
+}
 
 // Categorias disponíveis no sistema
 const categories = [
@@ -99,17 +115,20 @@ const EditListing = () => {
           return;
         }
         
+        // Cast to ExtendedAdData to handle additional properties
+        const extendedAdData = adData as unknown as ExtendedAdData;
+        
         // Preencher formulário com dados existentes
         setFormData({
-          title: adData.title || "",
-          description: adData.description || "",
-          price: adData.price?.toString() || "0",
-          category: adData.category || "",
-          type: adData.type || "produto",
-          availability: adData.availability || "",
-          delivery: adData.delivery || false,
-          deliveryFee: adData.delivery_fee?.toString() || "0",
-          paymentMethods: adData.payment_methods || "",
+          title: extendedAdData.title || "",
+          description: extendedAdData.description || "",
+          price: extendedAdData.price?.toString() || "0",
+          category: extendedAdData.category || "",
+          type: extendedAdData.type || "produto",
+          availability: extendedAdData.availability || "",
+          delivery: extendedAdData.delivery || false,
+          deliveryFee: extendedAdData.delivery_fee?.toString() || "0",
+          paymentMethods: extendedAdData.payment_methods || "",
         });
         
         // Buscar imagens do anúncio
