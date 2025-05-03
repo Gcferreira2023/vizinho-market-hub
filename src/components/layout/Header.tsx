@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, X, User, Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +10,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isLoggedIn = false; // Temporariamente falso até implementarmos autenticação
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  const isLoggedIn = !!user;
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você saiu da sua conta"
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível fazer logout",
+        variant: "destructive"
+      });
+    }
+    
+    // Fechar o menu mobile após logout
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="w-full bg-white shadow-sm sticky top-0 z-50">
@@ -82,7 +108,9 @@ const Header = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/meus-anuncios">Meus Anúncios</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>Sair</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    Sair
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -154,9 +182,12 @@ const Header = () => {
                 >
                   Favoritos
                 </Link>
-                <div className="px-4 py-3 text-gray-700 hover:bg-gray-50">
+                <button 
+                  className="px-4 py-3 text-left text-gray-700 hover:bg-gray-50"
+                  onClick={handleSignOut}
+                >
                   Sair
-                </div>
+                </button>
               </>
             ) : (
               <>
