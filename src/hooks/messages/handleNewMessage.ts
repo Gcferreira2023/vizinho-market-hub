@@ -1,11 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/messages";
+import { Dispatch, SetStateAction } from "react";
 
 export const createMessageHandler = (
   userId: string | undefined, 
   otherId: string | null | undefined,
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+  setMessages: Dispatch<SetStateAction<Message[]>>
 ) => {
   return (newMsg: Message) => {
     if (!userId || !otherId) return;
@@ -17,7 +18,8 @@ export const createMessageHandler = (
     );
     
     if (isRelevant) {
-      setMessages((prev) => [...prev, newMsg]);
+      // Usar uma abordagem mais segura para atualizar o estado
+      setMessages(prev => [...prev, newMsg]);
       
       // Marcar como lida se o usuário atual é o destinatário
       if (newMsg.receiver_id === userId) {
