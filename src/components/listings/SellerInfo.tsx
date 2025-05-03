@@ -1,10 +1,14 @@
 
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MessageCircle, Star, User } from "lucide-react";
 import WhatsAppButton from "./WhatsAppButton";
 import { usePhoneMask } from "@/hooks/usePhoneMask";
 import { Link } from "react-router-dom";
+import UserRatingDisplay from "../ratings/UserRatingDisplay";
+import { useUserRatings } from "@/hooks/useUserRatings";
+import RatingModal from "../ratings/RatingModal";
 
 interface SellerInfoProps {
   seller: {
@@ -16,11 +20,14 @@ interface SellerInfoProps {
     listings: number;
     phone?: string;
   };
+  adId?: string;
 }
 
-const SellerInfo = ({ seller }: SellerInfoProps) => {
+const SellerInfo = ({ seller, adId }: SellerInfoProps) => {
   const defaultPhone = "5511999999999"; // Telefone padrão caso o vendedor não tenha cadastrado
   const sellerPhone = seller.phone || defaultPhone;
+  const { ratings, summary, isLoading } = useUserRatings(seller.id);
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
   
   return (
     <Card className="mb-6">
@@ -39,13 +46,31 @@ const SellerInfo = ({ seller }: SellerInfoProps) => {
             </p>
           </div>
         </div>
+        
         <div className="flex items-center gap-2">
-          <Star size={18} className="text-yellow-400 fill-yellow-400" />
-          <span className="font-medium">{seller.rating}</span>
-          <span className="text-sm text-gray-500">
-            ({seller.listings} anúncios)
-          </span>
+          {isLoading ? (
+            <div className="flex items-center gap-1">
+              <Star size={18} className="text-gray-300" />
+              <span className="text-sm text-gray-500">Carregando...</span>
+            </div>
+          ) : (
+            <UserRatingDisplay 
+              summary={summary}
+              size="md"
+              showCount={true}
+              className="cursor-pointer hover:opacity-80"
+              onClick={() => setRatingModalOpen(true)}
+            />
+          )}
         </div>
+
+        <Button 
+          variant="ghost" 
+          className="text-sm p-0 h-auto hover:bg-transparent hover:underline text-primary"
+          onClick={() => setRatingModalOpen(true)}
+        >
+          Ver avaliações e avaliar este vendedor
+        </Button>
 
         <div className="pt-4 space-y-3">
           <WhatsAppButton 
@@ -60,6 +85,14 @@ const SellerInfo = ({ seller }: SellerInfoProps) => {
           </Button>
         </div>
       </CardContent>
+      
+      <RatingModal 
+        open={ratingModalOpen}
+        onOpenChange={setRatingModalOpen}
+        userId={seller.id}
+        userName={seller.name}
+        adId={adId}
+      />
     </Card>
   );
 };

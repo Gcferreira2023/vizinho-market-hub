@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -177,6 +176,7 @@ const ListingDetail = () => {
             {/* Informações do vendedor */}
             <SellerInfo 
               seller={listing.seller} 
+              adId={id}
             />
 
             {/* Segurança */}

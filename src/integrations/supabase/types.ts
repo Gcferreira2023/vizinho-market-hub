@@ -139,6 +139,44 @@ export type Database = {
           },
         ]
       }
+      ratings: {
+        Row: {
+          ad_id: string | null
+          comment: string | null
+          created_at: string | null
+          id: string
+          rated_user_id: string | null
+          rating: number
+          reviewer_id: string | null
+        }
+        Insert: {
+          ad_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rated_user_id?: string | null
+          rating: number
+          reviewer_id?: string | null
+        }
+        Update: {
+          ad_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rated_user_id?: string | null
+          rating?: number
+          reviewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string | null
