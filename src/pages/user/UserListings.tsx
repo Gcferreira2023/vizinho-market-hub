@@ -47,9 +47,11 @@ const UserListings = () => {
                 .single();
                 
               if (imgError || !data) {
+                console.log(`No image found for listing ${listing.id}, using placeholder`);
                 return [listing.id, '/placeholder.svg'];
               }
               
+              console.log(`Found image for listing ${listing.id}:`, data.image_url);
               return [listing.id, data.image_url];
             } catch (error) {
               console.error("Error fetching image for listing:", listing.id, error);
@@ -75,6 +77,20 @@ const UserListings = () => {
     
     fetchUserListings();
   }, [user, toast]);
+
+  // Map status from English to Portuguese
+  const translateStatus = (status: string): "disponível" | "reservado" | "vendido" => {
+    switch (status) {
+      case "active":
+        return "disponível";
+      case "reserved":
+        return "reservado";
+      case "sold":
+        return "vendido";
+      default:
+        return "disponível";
+    }
+  };
 
   // Format user data for location display
   const userLocation = user?.user_metadata 
@@ -108,7 +124,7 @@ const UserListings = () => {
                 category={listing.category}
                 type={listing.type}
                 location={userLocation}
-                status={listing.status || "disponível"}
+                status={translateStatus(listing.status)}
               />
             ))}
           </div>
