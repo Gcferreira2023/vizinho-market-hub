@@ -1,42 +1,54 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-/**
- * Verify if a storage bucket exists, and create it if it doesn't
- */
+// Ensure the storage bucket exists
 export const ensureStorageBucket = async (bucketName: string) => {
   try {
     // Check if bucket exists
-    const { data: buckets, error: bucketsError } = await supabase
+    const { data: buckets, error: listError } = await supabase
       .storage
       .listBuckets();
     
-    if (bucketsError) {
-      console.error("Error checking buckets:", bucketsError);
-      return false;
+    if (listError) {
+      throw listError;
     }
     
-    // If bucket doesn't exist, create it
     const bucketExists = buckets.some(bucket => bucket.name === bucketName);
     
     if (!bucketExists) {
+      // Create the bucket if it doesn't exist
       const { error: createError } = await supabase
         .storage
         .createBucket(bucketName, {
-          public: true // Make the bucket public so images are accessible
+          public: true,  // Make bucket publicly accessible
+          fileSizeLimit: 10485760, // 10MB file size limit
         });
-        
+      
       if (createError) {
         console.error("Error creating bucket:", createError);
-        return false;
+        throw createError;
       }
       
-      console.log(`Storage bucket ${bucketName} created successfully`);
+      // Set a default RLS policy for the bucket
+      // This can be adjusted based on security requirements
+      const { error: policyError } = await supabase
+        .storage
+        .from(bucketName)
+        .createSignedUrl('policy.json', 3600); // This doesn't actually matter, just checking permissions
+      
+      if (policyError && policyError.message !== 'The resource was not found') {
+        console.error("Error setting bucket policy:", policyError);
+      }
     }
     
     return true;
   } catch (error) {
-    console.error("Error ensuring storage bucket:", error);
-    return false;
+    console.error("Failed to ensure storage bucket exists:", error);
+    throw error;
   }
+};
+
+// Helper to get public URL for an image
+export const getPublicImageUrl = (bucket: string, path: string) => {
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 };

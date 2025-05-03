@@ -43,7 +43,37 @@ export const useCreateListing = () => {
         throw new Error("ID do usuário não disponível. Por favor, faça login novamente.");
       }
 
-      // 1. Inserir o anúncio no banco de dados
+      // First check if user exists in the users table
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+      
+      // If user doesn't exist in the users table, create them
+      if (userCheckError || !existingUser) {
+        // Get user metadata from auth
+        const userMeta = user.user_metadata || {};
+        
+        // Insert the user into the users table
+        const { error: createUserError } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email || '',
+            name: userMeta.full_name || user.email?.split('@')[0] || 'Usuário',
+            password_hash: 'managed-by-auth', // Just a placeholder as password is managed by Auth
+            apartment: userMeta.apartment || null,
+            block: userMeta.block || null,
+            phone: userMeta.phone || null,
+          });
+        
+        if (createUserError) {
+          throw new Error(`Erro ao criar perfil de usuário: ${createUserError.message}`);
+        }
+      }
+
+      // Now insert the ad with the user ID
       const { data: adData, error: adError } = await supabase
         .from('ads')
         .insert({
@@ -63,7 +93,7 @@ export const useCreateListing = () => {
       
       if (adError) throw adError;
       
-      // 2. Fazer upload das imagens para o Storage
+      // 2. Upload the images to Storage
       for (let i = 0; i < images.length; i++) {
         const file = images[i];
         const fileExt = file.name.split('.').pop();
@@ -78,13 +108,13 @@ export const useCreateListing = () => {
           
         if (uploadError) throw uploadError;
         
-        // Pegar a URL pública da imagem
+        // Get the public URL of the image
         const { data: urlData } = supabase
           .storage
           .from('ads')
           .getPublicUrl(filePath);
           
-        // Salvar referência da imagem
+        // Save image reference
         const { error: imageError } = await supabase
           .from('ad_images')
           .insert({
@@ -101,7 +131,7 @@ export const useCreateListing = () => {
         description: "Seu anúncio foi publicado com sucesso!"
       });
       
-      // Redireciona para a página do anúncio
+      // Redirect to the ad page
       navigate(`/anuncio/${adData.id}`);
       return true;
       
