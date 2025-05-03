@@ -18,7 +18,19 @@ export const checkStorageBucket = async (): Promise<boolean> => {
     const bucketExists = buckets.some(bucket => bucket.name === 'ads');
     console.log("Bucket 'ads' existe?", bucketExists);
     
-    return bucketExists;
+    if (!bucketExists) {
+      console.log("Tentando criar o bucket 'ads'...");
+      try {
+        // Tentar criar o bucket se ele não existir
+        await ensureStorageBucket('ads');
+        return true;
+      } catch (error) {
+        console.error("Falha ao tentar criar o bucket:", error);
+        return false;
+      }
+    }
+    
+    return true;
   } catch (error) {
     console.error("Erro ao verificar bucket:", error);
     return false;

@@ -20,6 +20,14 @@ export const ensureStorageBucket = async (bucketName: string) => {
     
     if (!bucketExists) {
       console.log(`Bucket ${bucketName} não existe, criando...`);
+      
+      // Before trying to create, verify if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error("Usuário não autenticado, não é possível criar bucket");
+        return false;
+      }
+      
       // Create the bucket if it doesn't exist
       const { error: createError } = await supabase
         .storage
@@ -34,42 +42,16 @@ export const ensureStorageBucket = async (bucketName: string) => {
         throw createError;
       }
       
-      // After creating the bucket, update its permissions to public
-      const { error: updateError } = await supabase
-        .storage
-        .updateBucket(bucketName, {
-          public: true,
-        });
-        
-      if (updateError) {
-        console.error("Erro ao atualizar permissões do bucket:", updateError);
-        console.error("Detalhes do erro:", JSON.stringify(updateError, null, 2));
-        throw updateError;
-      }
-      
       console.log(`Bucket ${bucketName} criado com sucesso!`);
     } else {
       console.log(`Bucket ${bucketName} já existe.`);
-      
-      // Ensure the bucket is public even if it already exists
-      const { error: updateError } = await supabase
-        .storage
-        .updateBucket(bucketName, {
-          public: true,
-        });
-        
-      if (updateError) {
-        console.error("Erro ao atualizar permissões do bucket:", updateError);
-        console.error("Detalhes do erro:", JSON.stringify(updateError, null, 2));
-        throw updateError;
-      }
     }
     
     return true;
   } catch (error) {
     console.error("Falha ao verificar/criar bucket de armazenamento:", error);
     console.error("Detalhes do erro:", JSON.stringify(error, null, 2));
-    throw error;
+    return false;
   }
 };
 

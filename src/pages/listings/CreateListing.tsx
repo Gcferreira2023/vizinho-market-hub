@@ -13,17 +13,25 @@ import { AlertCircle, Info } from "lucide-react";
 import CreateListingForm from "@/components/listings/CreateListingForm";
 import { checkStorageBucket } from "@/services";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CreateListing = () => {
   const [storageError, setStorageError] = useState<string | null>(null);
   const [isStorageReady, setIsStorageReady] = useState(false);
   const [isCheckingStorage, setIsCheckingStorage] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Check if the storage bucket exists when the component mounts
   useEffect(() => {
     const checkStorage = async () => {
       setIsCheckingStorage(true);
+      
+      // Check authentication first
+      if (!user) {
+        console.log("CreateListing: Usuário não autenticado, verificando bucket apenas para leitura");
+      }
+      
       try {
         // Verifica se o bucket existe
         const bucketExists = await checkStorageBucket();
@@ -57,7 +65,7 @@ const CreateListing = () => {
     };
     
     checkStorage();
-  }, [toast]);
+  }, [toast, user]);
   
   return (
     <Layout>
