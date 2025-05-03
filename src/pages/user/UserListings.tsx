@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ListingCard from "@/components/listings/ListingCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, Edit } from "lucide-react";
 
 const UserListings = () => {
   const { user } = useAuth();
@@ -100,6 +100,34 @@ const UserListings = () => {
   const userLocation = user?.user_metadata 
     ? `Bloco ${user.user_metadata.block || '-'}, Apt ${user.user_metadata.apartment || '-'}`
     : "Localização não informada";
+    
+  // Custom ListingCard renderer that includes edit button
+  const renderListingCard = (listing: any) => {
+    return (
+      <div key={listing.id} className="relative">
+        <ListingCard
+          id={listing.id}
+          title={listing.title}
+          price={listing.price}
+          imageUrl={listingImages[listing.id] || '/placeholder.svg'}
+          category={listing.category}
+          type={listing.type}
+          location={userLocation}
+          status={translateStatus(listing.status)}
+        />
+        <Button
+          size="sm"
+          className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-white text-gray-800"
+          asChild
+        >
+          <Link to={`/editar-anuncio/${listing.id}`}>
+            <Edit size={16} className="mr-1" />
+            Editar
+          </Link>
+        </Button>
+      </div>
+    );
+  };
 
   return (
     <Layout>
@@ -118,19 +146,7 @@ const UserListings = () => {
           </div>
         ) : userListings.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {userListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price}
-                imageUrl={listingImages[listing.id] || '/placeholder.svg'}
-                category={listing.category}
-                type={listing.type}
-                location={userLocation}
-                status={translateStatus(listing.status)}
-              />
-            ))}
+            {userListings.map(renderListingCard)}
           </div>
         ) : (
           <div className="text-center py-12">

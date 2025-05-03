@@ -29,13 +29,17 @@ const ListingCard = ({
   status = "disponível",
 }: ListingCardProps) => {
   return (
-    <Link to={`/anuncio/${id}`} className="block">
+    <Link to={`/anuncio/${id}`} className="block h-full">
       <Card className="card-hover overflow-hidden h-full flex flex-col">
         <div className="relative h-48 overflow-hidden">
           <img
             src={imageUrl}
             alt={title}
             className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 ${status === "vendido" ? "opacity-70" : ""}`}
+            onError={(e) => {
+              console.log("Image error, using placeholder");
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
           />
           <Badge
             className="absolute top-2 left-2"
