@@ -41,17 +41,25 @@ const RatingsList = ({ userId, limit = 5, showAllRatings = false }: RatingsListP
         const reviewerIds = [...new Set(data.map(item => item.reviewer_id))];
         
         if (reviewerIds.length > 0) {
-          const { data: users } = await supabase.auth.admin.listUsers({
-            filter: {
-              id: {
-                in: reviewerIds,
-              },
-            },
+          // Vamos usar um método mais simples para obter informações do usuário
+          // já que o método admin.listUsers não está disponível em todos os contextos
+          const usersPromises = reviewerIds.map(async (id) => {
+            const { data: userData } = await supabase
+              .from('profiles') // Assumindo que existe uma tabela de perfis
+              .select('id, full_name')
+              .eq('id', id)
+              .single();
+              
+            return userData;
           });
           
+          const usersData = await Promise.all(usersPromises);
+          
           const userMap = new Map();
-          users?.users.forEach(user => {
-            userMap.set(user.id, user.user_metadata?.full_name || 'Usuário');
+          usersData.forEach(user => {
+            if (user) {
+              userMap.set(user.id, user.full_name || 'Usuário');
+            }
           });
           
           const ratingsWithNames = data.map(rating => ({

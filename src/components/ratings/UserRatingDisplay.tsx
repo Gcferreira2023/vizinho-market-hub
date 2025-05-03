@@ -8,13 +8,15 @@ interface UserRatingDisplayProps {
   size?: 'sm' | 'md' | 'lg';
   showCount?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
 const UserRatingDisplay: React.FC<UserRatingDisplayProps> = ({
   summary,
   size = 'md',
   showCount = true,
-  className = ''
+  className = '',
+  onClick
 }) => {
   const { average_rating, total_ratings } = summary;
   
@@ -45,7 +47,7 @@ const UserRatingDisplay: React.FC<UserRatingDisplayProps> = ({
   };
   
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={`flex items-center ${className}`} onClick={onClick} role={onClick ? "button" : undefined}>
       <div className="flex">
         {renderStars()}
       </div>
