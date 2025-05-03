@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,7 +9,8 @@ import { Star, Clock } from "lucide-react";
 import ListingCard from "@/components/listings/ListingCard";
 import ListingImageGallery from "@/components/listings/ListingImageGallery";
 import SellerInfo from "@/components/listings/SellerInfo";
-import StatusSelector, { ListingStatus } from "@/components/listings/StatusSelector";
+import StatusSelector from "@/components/listings/StatusSelector";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 
