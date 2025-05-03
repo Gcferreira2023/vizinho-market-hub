@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,7 @@ import {
 import { usePhoneMask } from "@/hooks/usePhoneMask";
 import PasswordStrengthIndicator from "@/components/auth/PasswordStrengthIndicator";
 import { getPasswordStrength } from "@/utils/passwordUtils";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define o esquema de validação com Zod
 const registerSchema = z.object({
@@ -62,6 +63,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Register = () => {
   const { toast } = useToast();
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState("fraca");
@@ -92,22 +95,60 @@ const Register = () => {
     form.setValue("phone", value);
   };
 
-  const onFirstStepSubmit = (data: RegisterFormData) => {
+  const onFirstStepSubmit = () => {
     setStep(2);
   };
 
-  const onFinalSubmit = (data: RegisterFormData) => {
+  const onFinalSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     
-    // Simulando um cadastro (seria substituído pela integração real)
-    setTimeout(() => {
+    try {
+      const userData = {
+        fullName: data.fullName,
+        apartment: data.apartment,
+        block: data.block,
+        phone: data.phone
+      };
+
+      const { error } = await signUp(data.email, data.password, userData);
+      
+      if (error) {
+        console.error("Erro ao cadastrar:", error);
+        
+        if (error.message.includes("User already registered")) {
+          toast({
+            title: "Email já cadastrado",
+            description: "Este email já está sendo usado. Tente fazer login ou use outro email.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Erro ao cadastrar",
+            description: error.message || "Ocorreu um erro ao criar sua conta. Tente novamente.",
+            variant: "destructive"
+          });
+        }
+        setIsLoading(false);
+        return;
+      }
+
       toast({
-        title: "Cadastro não implementado",
-        description: "Esta funcionalidade requer integração com backend.",
+        title: "Cadastro realizado!",
+        description: "Sua conta foi criada com sucesso. Faça login para continuar.",
       });
+      
+      // Redireciona para a página de login após cadastro bem-sucedido
+      navigate("/login");
+    } catch (err) {
+      console.error("Erro geral:", err);
+      toast({
+        title: "Erro ao cadastrar",
+        description: "Ocorreu um erro ao criar sua conta. Tente novamente mais tarde.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-      console.log("Dados enviados:", data);
-    }, 1000);
+    }
   };
 
   return (
