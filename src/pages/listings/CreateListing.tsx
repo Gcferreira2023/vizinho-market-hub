@@ -25,16 +25,17 @@ const CreateListing = () => {
     const checkStorage = async () => {
       setIsCheckingStorage(true);
       try {
+        // Esta função agora tentará criar o bucket se não existir
         const bucketExists = await checkStorageBucket();
         
         if (bucketExists) {
-          console.log("CreateListing: Bucket encontrado e acessível");
+          console.log("CreateListing: Bucket encontrado/criado e acessível");
           setIsStorageReady(true);
           setStorageError(null);
         } else {
-          console.warn("CreateListing: Bucket não acessível ou não existe");
+          console.warn("CreateListing: Não foi possível acessar ou criar o bucket");
           setIsStorageReady(false);
-          setStorageError("Não foi possível acessar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
+          setStorageError("Não foi possível configurar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
           toast({
             title: "Aviso",
             description: "Você pode criar anúncios, mas a funcionalidade de imagens pode estar limitada.",
@@ -42,7 +43,7 @@ const CreateListing = () => {
           });
         }
       } catch (err: any) {
-        console.error("CreateListing: Erro ao verificar bucket:", err);
+        console.error("CreateListing: Erro ao verificar/criar bucket:", err);
         setIsStorageReady(false);
         setStorageError("Não foi possível configurar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
         toast({
