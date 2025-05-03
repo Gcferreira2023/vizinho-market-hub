@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -94,7 +95,11 @@ const ListingDetail = () => {
   useEffect(() => {
     // Inicializa o estado com o status atual do anúncio
     setListingStatus(listing.status);
-  }, [listing.status]);
+    
+    // Em um app real, aqui você faria a chamada para API para buscar os detalhes 
+    // do anúncio baseado no ID vindo da URL
+    console.log("Fetching listing details for ID:", id);
+  }, [listing.status, id]);
   
   const handleStatusChange = (newStatus: ListingStatus) => {
     setListingStatus(newStatus);

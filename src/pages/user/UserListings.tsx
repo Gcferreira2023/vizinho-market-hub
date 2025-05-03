@@ -129,29 +129,26 @@ const UserListings = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {userListings.map((listing) => (
               <div key={listing.id} className="relative">
-                <div className="w-full h-full">
-                  <ListingCard
-                    id={listing.id}
-                    title={listing.title}
-                    price={listing.price}
-                    imageUrl={listingImages[listing.id] || '/placeholder.svg'}
-                    category={listing.category}
-                    type={listing.type as "produto" | "serviço"}
-                    location={userLocation}
-                    status={translateStatus(listing.status)}
-                    linkTo={`/anuncio/${listing.id}`}
-                  />
-                  <Button
-                    size="sm"
-                    className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-800"
-                    asChild
-                  >
-                    <Link to={`/editar-anuncio/${listing.id}`}>
-                      <Edit size={16} className="mr-1" />
-                      Editar
-                    </Link>
-                  </Button>
-                </div>
+                <ListingCard
+                  id={listing.id}
+                  title={listing.title}
+                  price={listing.price}
+                  imageUrl={listingImages[listing.id] || '/placeholder.svg'}
+                  category={listing.category}
+                  type={listing.type as "produto" | "serviço"}
+                  location={userLocation}
+                  status={translateStatus(listing.status)}
+                />
+                <Button
+                  size="sm"
+                  className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-800"
+                  asChild
+                >
+                  <Link to={`/editar-anuncio/${listing.id}`}>
+                    <Edit size={16} className="mr-1" />
+                    Editar
+                  </Link>
+                </Button>
               </div>
             ))}
           </div>
