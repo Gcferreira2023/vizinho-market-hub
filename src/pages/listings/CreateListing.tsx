@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,7 @@ import {
 import ImageUploader from "@/components/listings/ImageUploader";
 import ListingFormSections from "@/components/listings/ListingFormSections";
 import { initialListingFormData, ListingFormData } from "@/types/listing";
+import { ensureStorageBucket } from "@/utils/storageUtils";
 
 const CreateListing = () => {
   const { user } = useAuth();
@@ -26,6 +27,13 @@ const CreateListing = () => {
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Ensure the storage bucket exists when the component mounts
+  useEffect(() => {
+    ensureStorageBucket('ads').catch(err => {
+      console.error("Failed to ensure storage bucket exists:", err);
+    });
+  }, []);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -65,6 +73,9 @@ const CreateListing = () => {
       });
       return;
     }
+
+    // Debug: Log the user object to ensure we have a valid ID
+    console.log("Current user:", user);
     
     if (images.length === 0) {
       toast({
@@ -78,6 +89,11 @@ const CreateListing = () => {
     setIsLoading(true);
     
     try {
+      // Ensure we have a valid user ID before proceeding
+      if (!user.id) {
+        throw new Error("ID do usuário não disponível. Por favor, faça login novamente.");
+      }
+
       // 1. Inserir o anúncio no banco de dados
       const { data: adData, error: adError } = await supabase
         .from('ads')
