@@ -1,87 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
-export const SupabaseConnectionTest: React.FC = () => {
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  
+/**
+ * Componente para testar a conexão com o Supabase.
+ * Ele tenta buscar dados da tabela de categorias para verificar se a conexão está funcionando.
+ */
+const SupabaseConnectionTest = () => {
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const testConnection = async () => {
-    setStatus('loading');
+    setIsLoading(true);
+    setError(null);
     
-    if (!supabase) {
-      setStatus('error');
-      setErrorMessage('Cliente Supabase não inicializado. Verifique as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no painel do projeto Lovable.');
-      return;
-    }
-
     try {
-      console.log('--- INÍCIO DO TESTE DE CONEXÃO ---');
-
-      // Verifica se as variáveis do ambiente estão disponíveis
-      console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
-      console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-
-      // Tenta conectar ao Supabase
-      console.log('Testando conexão com o Supabase...');
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        console.error('Erro na conexão com o Supabase:', sessionError.message);
-        throw new Error('Conexão com o Supabase falhou');
+      // Tenta buscar dados da tabela de categorias
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .limit(5);
+      
+      if (error) {
+        throw error;
       }
-
-      console.log('Conexão com Supabase bem-sucedida:', !!sessionData);
-      setStatus('success');
+      
+      // Se chegou até aqui, a conexão está funcionando
+      setIsConnected(true);
+      setData(data);
+      console.info("Conexão com Supabase funcionando! Dados:", data);
     } catch (err: any) {
-      console.error('Erro geral ao testar conexão:', err);
-      setStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Erro desconhecido ao testar conexão');
+      // Em caso de erro, marca como não conectado
+      setIsConnected(false);
+      setError(err.message || "Erro desconhecido ao conectar com Supabase");
+      console.error("Erro na conexão com Supabase:", err);
     } finally {
-      console.log('--- FIM DO TESTE DE CONEXÃO ---');
+      setIsLoading(false);
     }
-  }; // <-- Aqui estava faltando o fechamento da função testConnection
+  };
 
+  // Testa a conexão automaticamente na primeira renderização
   useEffect(() => {
     testConnection();
   }, []);
 
   return (
-    <div className="p-4 my-4 border rounded">
-      <h2 className="text-xl font-semibold mb-4">Status da Conexão com Supabase</h2>
-      
-      {status === 'loading' && (
-        <Alert className="bg-blue-50 border-blue-200">
-          <AlertTitle>Testando conexão...</AlertTitle>
-          <AlertDescription>Verificando a conexão com Supabase</AlertDescription>
-        </Alert>
-      )}
-      
-      {status === 'success' && (
-        <Alert className="bg-green-50 border-green-200">
-          <AlertTitle>Conexão bem-sucedida!</AlertTitle>
-          <AlertDescription>Seu aplicativo está conectado ao Supabase com sucesso.</AlertDescription>
-        </Alert>
-      )}
-      
-      {status === 'error' && (
-        <Alert className="bg-red-50 border-red-200 mb-4">
-          <AlertTitle>Erro na conexão</AlertTitle>
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
-      )}
-      
-      <div className="mt-4 p-4 bg-gray-50 rounded border">
-        <h3 className="font-medium mb-2">Informações de diagnóstico:</h3>
-        <p className="mb-1">VITE_SUPABASE_URL está configurado: {import.meta.env.VITE_SUPABASE_URL ? 'Sim' : 'Não'}</p>
-        <p>VITE_SUPABASE_ANON_KEY está configurado: {import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Sim (valor oculto)' : 'Não'}</p>
-      </div>
-      
-      <Button onClick={testConnection} className="mt-4">
-        Testar Conexão Novamente
-      </Button>
-    </div>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Status da Conexão com Supabase</CardTitle>
+        <CardDescription>
+          Verifique se sua aplicação está conectada corretamente ao backend Supabase
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isConnected === null ? (
+          <p className="text-center text-gray-500">Verificando conexão...</p>
+        ) : isConnected ? (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertTitle className="text-green-800">Conectado com sucesso!</AlertTitle>
+            <AlertDescription className="text-green-700">
+              Sua aplicação está conectada com o backend Supabase.
+              {data && data.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium">Dados recuperados:</p>
+                  <pre className="bg-gray-100 p-2 rounded mt-1 text-xs overflow-auto max-h-32">
+                    {JSON.stringify(data, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Erro de conexão</AlertTitle>
+            <AlertDescription>
+              Não foi possível conectar ao Supabase.
+              {error && <div className="mt-1 text-sm font-mono">{error}</div>}
+            </AlertDescription>
+          </Alert>
+        )}
+      </CardContent>
+      <CardFooter>
+        <Button 
+          onClick={testConnection} 
+          disabled={isLoading}
+          className="w-full"
+        >
+          {isLoading ? "Testando..." : "Testar novamente"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
