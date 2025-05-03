@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { ListingFormData } from "@/types/listing";
+import { ensureStorageBucket } from "@/utils/storageUtils";
 
 export const useCreateListing = () => {
   const { user } = useAuth();
@@ -37,6 +38,11 @@ export const useCreateListing = () => {
     setIsLoading(true);
     
     try {
+      // First, ensure the storage bucket exists before we try to upload
+      console.log("Verificando se o bucket 'ads' existe antes de prosseguir...");
+      await ensureStorageBucket('ads');
+      console.log("Bucket 'ads' verificado com sucesso.");
+
       // Ensure we have a valid user ID before proceeding
       if (!user.id) {
         throw new Error("ID do usuário não disponível. Por favor, faça login novamente.");

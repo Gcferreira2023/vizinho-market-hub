@@ -16,16 +16,18 @@ import { useToast } from "@/components/ui/use-toast";
 
 const CreateListing = () => {
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [isStorageReady, setIsStorageReady] = useState(false);
   const { toast } = useToast();
   
   // Ensure the storage bucket exists when the component mounts
   useEffect(() => {
-    console.log("CreateListing: Verificando se o bucket existe...");
-    ensureStorageBucket('ads')
-      .then(() => {
+    const setupStorage = async () => {
+      console.log("CreateListing: Verificando se o bucket existe...");
+      try {
+        await ensureStorageBucket('ads');
         console.log("CreateListing: Bucket verificado com sucesso");
-      })
-      .catch(err => {
+        setIsStorageReady(true);
+      } catch (err: any) {
         console.error("CreateListing: Erro ao verificar/criar bucket:", err);
         setStorageError("Não foi possível configurar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
         toast({
@@ -33,7 +35,10 @@ const CreateListing = () => {
           description: "Não foi possível configurar o armazenamento de imagens. Tente novamente mais tarde.",
           variant: "destructive"
         });
-      });
+      }
+    };
+    
+    setupStorage();
   }, [toast]);
   
   return (
@@ -44,6 +49,14 @@ const CreateListing = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Erro</AlertTitle>
             <AlertDescription>{storageError}</AlertDescription>
+          </Alert>
+        )}
+        
+        {!isStorageReady && !storageError && (
+          <Alert className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Configurando armazenamento</AlertTitle>
+            <AlertDescription>Preparando o sistema de armazenamento de imagens...</AlertDescription>
           </Alert>
         )}
         

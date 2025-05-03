@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 // Ensure the storage bucket exists
 export const ensureStorageBucket = async (bucketName: string) => {
   try {
+    console.log(`Verificando se o bucket ${bucketName} existe...`);
+    
     // Check if bucket exists
     const { data: buckets, error: listError } = await supabase
       .storage
@@ -31,9 +33,33 @@ export const ensureStorageBucket = async (bucketName: string) => {
         throw createError;
       }
       
+      // After creating the bucket, update its permissions to public
+      const { error: updateError } = await supabase
+        .storage
+        .updateBucket(bucketName, {
+          public: true,
+        });
+        
+      if (updateError) {
+        console.error("Erro ao atualizar permissões do bucket:", updateError);
+        throw updateError;
+      }
+      
       console.log(`Bucket ${bucketName} criado com sucesso!`);
     } else {
       console.log(`Bucket ${bucketName} já existe.`);
+      
+      // Ensure the bucket is public even if it already exists
+      const { error: updateError } = await supabase
+        .storage
+        .updateBucket(bucketName, {
+          public: true,
+        });
+        
+      if (updateError) {
+        console.error("Erro ao atualizar permissões do bucket:", updateError);
+        throw updateError;
+      }
     }
     
     return true;
