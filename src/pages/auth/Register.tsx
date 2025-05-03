@@ -70,13 +70,26 @@ const Register = () => {
   const [passwordStrength, setPasswordStrength] = useState("fraca");
   const { applyMask } = usePhoneMask();
 
-  const form = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  // Formulário para o primeiro passo
+  const form1 = useForm<Pick<RegisterFormData, 'fullName' | 'email' | 'password' | 'confirmPassword'>>({
+    resolver: zodResolver(
+      registerSchema.pick({ fullName: true, email: true, password: true, confirmPassword: true })
+    ),
     defaultValues: {
       fullName: "",
       email: "",
       password: "",
       confirmPassword: "",
+    },
+    mode: "onChange",
+  });
+
+  // Formulário para o segundo passo
+  const form2 = useForm<Pick<RegisterFormData, 'apartment' | 'block' | 'phone' | 'terms'>>({
+    resolver: zodResolver(
+      registerSchema.pick({ apartment: true, block: true, phone: true, terms: true })
+    ),
+    defaultValues: {
       apartment: "",
       block: "",
       phone: "",
@@ -86,43 +99,44 @@ const Register = () => {
   });
   
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    form.setValue("password", e.target.value);
+    form1.setValue("password", e.target.value);
     setPasswordStrength(getPasswordStrength(e.target.value));
   };
   
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = applyMask(e.target.value);
-    form.setValue("phone", value);
+    form2.setValue("phone", value);
   };
 
   // Função para lidar com o envio do primeiro passo
-  const onFirstStepSubmit = async () => {
-    // Valida apenas os campos do primeiro passo
-    const firstStepFields = ["fullName", "email", "password", "confirmPassword"];
-    const hasErrors = await form.trigger(firstStepFields as any);
+  const onFirstStepSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const valid = await form1.trigger();
     
-    if (hasErrors) {
+    if (valid) {
       console.log("Primeiro passo validado com sucesso, avançando...");
       setStep(2);
     } else {
-      console.log("Erros de validação no primeiro passo");
+      console.log("Erros de validação no primeiro passo:", form1.formState.errors);
     }
   };
 
-  const onFinalSubmit = async (data: RegisterFormData) => {
-    console.log("Tentando finalizar cadastro com dados:", data);
+  const onFinalSubmit = async (stepData: Pick<RegisterFormData, 'apartment' | 'block' | 'phone' | 'terms'>) => {
+    console.log("Tentando finalizar cadastro");
     setIsLoading(true);
     
     try {
+      // Combinar dados do primeiro formulário com os do segundo
+      const firstStepData = form1.getValues();
       const userData = {
-        fullName: data.fullName,
-        apartment: data.apartment,
-        block: data.block,
-        phone: data.phone
+        fullName: firstStepData.fullName,
+        apartment: stepData.apartment,
+        block: stepData.block,
+        phone: stepData.phone
       };
 
-      console.log("Enviando dados para signUp:", data.email, "senha:", "***", userData);
-      const { error } = await signUp(data.email, data.password, userData);
+      console.log("Enviando dados para signUp:", firstStepData.email, "senha:", "***", userData);
+      const { error } = await signUp(firstStepData.email, firstStepData.password, userData);
       
       if (error) {
         console.error("Erro ao cadastrar:", error);
@@ -180,13 +194,10 @@ const Register = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {step === 1 ? (
-            <Form {...form}>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                onFirstStepSubmit();
-              }} className="space-y-4">
+            <Form {...form1}>
+              <form onSubmit={onFirstStepSubmit} className="space-y-4">
                 <FormField
-                  control={form.control}
+                  control={form1.control}
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
@@ -203,7 +214,7 @@ const Register = () => {
                 />
                 
                 <FormField
-                  control={form.control}
+                  control={form1.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -221,7 +232,7 @@ const Register = () => {
                 />
                 
                 <FormField
-                  control={form.control}
+                  control={form1.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -244,7 +255,7 @@ const Register = () => {
                 />
                 
                 <FormField
-                  control={form.control}
+                  control={form1.control}
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
@@ -267,10 +278,10 @@ const Register = () => {
               </form>
             </Form>
           ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onFinalSubmit)} className="space-y-4">
+            <Form {...form2}>
+              <form onSubmit={form2.handleSubmit(onFinalSubmit)} className="space-y-4">
                 <FormField
-                  control={form.control}
+                  control={form2.control}
                   name="apartment"
                   render={({ field }) => (
                     <FormItem>
@@ -287,7 +298,7 @@ const Register = () => {
                 />
                 
                 <FormField
-                  control={form.control}
+                  control={form2.control}
                   name="block"
                   render={({ field }) => (
                     <FormItem>
@@ -304,7 +315,7 @@ const Register = () => {
                 />
                 
                 <FormField
-                  control={form.control}
+                  control={form2.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
@@ -324,7 +335,7 @@ const Register = () => {
                 />
                 
                 <FormField
-                  control={form.control}
+                  control={form2.control}
                   name="terms"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
