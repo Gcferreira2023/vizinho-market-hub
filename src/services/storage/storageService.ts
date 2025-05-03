@@ -29,13 +29,21 @@ export const uploadImage = async (file: File, listingId: string, userId: string,
     const fileName = `${userId}-${Date.now()}-${position}.${fileExt}`;
     const filePath = `ad-images/${listingId}/${fileName}`;
     
+    console.log(`Iniciando upload da imagem para ${filePath}`);
+    
     // Upload da imagem
     const { error: uploadError } = await supabase
       .storage
       .from('ads')
       .upload(filePath, file);
       
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error("Erro ao fazer upload da imagem:", uploadError);
+      console.error("Detalhes do erro:", JSON.stringify(uploadError, null, 2));
+      throw uploadError;
+    }
+    
+    console.log("Upload concluído com sucesso, obtendo URL pública...");
     
     // Obter URL pública
     const { data: urlData } = supabase
@@ -43,6 +51,7 @@ export const uploadImage = async (file: File, listingId: string, userId: string,
       .from('ads')
       .getPublicUrl(filePath);
       
+    console.log("URL pública obtida:", urlData.publicUrl);
     return urlData.publicUrl;
   } catch (error) {
     console.error("Erro ao fazer upload da imagem:", error);

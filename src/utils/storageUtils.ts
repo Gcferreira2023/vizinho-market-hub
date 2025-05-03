@@ -30,6 +30,7 @@ export const ensureStorageBucket = async (bucketName: string) => {
       
       if (createError) {
         console.error("Erro ao criar bucket:", createError);
+        console.error("Detalhes do erro:", JSON.stringify(createError, null, 2));
         throw createError;
       }
       
@@ -42,6 +43,7 @@ export const ensureStorageBucket = async (bucketName: string) => {
         
       if (updateError) {
         console.error("Erro ao atualizar permissões do bucket:", updateError);
+        console.error("Detalhes do erro:", JSON.stringify(updateError, null, 2));
         throw updateError;
       }
       
@@ -58,6 +60,7 @@ export const ensureStorageBucket = async (bucketName: string) => {
         
       if (updateError) {
         console.error("Erro ao atualizar permissões do bucket:", updateError);
+        console.error("Detalhes do erro:", JSON.stringify(updateError, null, 2));
         throw updateError;
       }
     }
@@ -65,6 +68,7 @@ export const ensureStorageBucket = async (bucketName: string) => {
     return true;
   } catch (error) {
     console.error("Falha ao verificar/criar bucket de armazenamento:", error);
+    console.error("Detalhes do erro:", JSON.stringify(error, null, 2));
     throw error;
   }
 };
