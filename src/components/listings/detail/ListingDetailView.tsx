@@ -31,12 +31,26 @@ const ListingDetailView = ({
 }: ListingDetailViewProps) => {
   const { user } = useAuth();
 
+  // Garanta que displayListing.images seja sempre um array
+  const images = Array.isArray(listingImages) ? listingImages : [];
+  
+  // Garanta que seller seja sempre um objeto com as propriedades necessárias
+  const seller = displayListing?.seller || {
+    id: "",
+    name: "Carregando...",
+    apartment: "...",
+    block: "...",
+    rating: 0,
+    listings: 0,
+    phone: "",
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb
         items={[
           { label: "Explorar", href: "/explorar" },
-          { label: displayListing.title }
+          { label: displayListing?.title || "Anúncio" }
         ]}
       />
 
@@ -45,8 +59,8 @@ const ListingDetailView = ({
         <div className="lg:col-span-2">
           {/* Galeria de imagens */}
           <ListingImageGallery 
-            images={displayListing.images} 
-            title={displayListing.title} 
+            images={images} 
+            title={displayListing?.title || "Anúncio"} 
             status={listingStatus}
           />
 
@@ -54,15 +68,15 @@ const ListingDetailView = ({
           <Card className="p-6 mb-6">
             <div className="flex justify-between items-start mb-4">
               <ListingHeader
-                title={displayListing.title}
-                category={displayListing.category}
-                type={displayListing.type}
-                rating={displayListing.rating}
-                price={displayListing.price}
+                title={displayListing?.title || ""}
+                category={displayListing?.category || ""}
+                type={displayListing?.type || "produto"}
+                rating={displayListing?.rating || 0}
+                price={displayListing?.price || 0}
                 status={listingStatus}
-                adId={displayListing.id}
+                adId={displayListing?.id || ""}
                 userId={user?.id}
-                ownerId={listing?.user_id || displayListing.seller.id}
+                ownerId={listing?.user_id || seller?.id || ""}
                 onStatusChange={handleStatusChange}
               />
               {id && (
@@ -76,12 +90,12 @@ const ListingDetailView = ({
             </div>
 
             <ListingDetailTabs
-              description={displayListing.description}
-              availability={displayListing.availability}
-              delivery={displayListing.delivery}
-              deliveryFee={displayListing.deliveryFee}
-              location={displayListing.location}
-              paymentMethods={displayListing.paymentMethods}
+              description={displayListing?.description || ""}
+              availability={displayListing?.availability || ""}
+              delivery={displayListing?.delivery || false}
+              deliveryFee={displayListing?.deliveryFee || 0}
+              location={displayListing?.location || ""}
+              paymentMethods={displayListing?.paymentMethods || []}
             />
           </Card>
         </div>
@@ -90,8 +104,8 @@ const ListingDetailView = ({
         <div className="space-y-6">
           {/* Informações do vendedor */}
           <SellerInfo 
-            seller={displayListing.seller} 
-            adId={id}
+            seller={seller} 
+            adId={id || ""}
           />
 
           {/* Segurança */}
@@ -103,7 +117,7 @@ const ListingDetailView = ({
       {listing && (
         <SimilarListings 
           currentListingId={id || ""}
-          category={listing.category}
+          category={listing.category || ""}
         />
       )}
     </div>

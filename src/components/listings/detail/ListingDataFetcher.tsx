@@ -59,10 +59,15 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
             
           if (imageError) {
             console.error("Error fetching images:", imageError);
+            // Em caso de erro, defina ao menos um array vazio
+            setListingImages([]);
           } else {
             console.log("Image data:", imageData);
-            const images = imageData?.map(img => img.image_url) || [];
-            setListingImages(images.length > 0 ? images : ['/placeholder.svg']);
+            // Certifique-se de que imageData não seja nulo antes de usar map
+            const images = imageData && imageData.length > 0
+              ? imageData.map(img => img.image_url)
+              : ['/placeholder.svg'];
+            setListingImages(images);
           }
         }
       } catch (error) {
@@ -72,6 +77,8 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
           description: "Não foi possível carregar os detalhes deste anúncio",
           variant: "destructive"
         });
+        // Defina um array vazio para garantir que não haja erros
+        setListingImages([]);
       } finally {
         setIsLoading(false);
       }
@@ -102,39 +109,34 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
     });
   };
 
-  // If no real data yet, use mock data
+  // Dados mock para quando não há dados reais ainda
   const mockListing = {
     id: id || "1",
-    title: "Bolo de Chocolate Caseiro",
-    price: 35.9,
-    description:
-      "Delicioso bolo de chocolate caseiro com cobertura de brigadeiro. Feito com ingredientes selecionados e muito carinho. Ideal para festas, aniversários ou para matar aquela vontade de comer algo doce. Tamanho médio, serve aproximadamente 10 pessoas.",
-    images: listingImages.length > 0 ? listingImages : [
-      "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
-      "https://images.unsplash.com/photo-1565958011703-44f9829ba187",
-      "https://images.unsplash.com/photo-1606313564200-e75d5e30476c",
-    ],
-    category: "Alimentos",
+    title: "Carregando anúncio...",
+    price: 0,
+    description: "Carregando descrição...",
+    images: listingImages.length > 0 ? listingImages : ['/placeholder.svg'],
+    category: "...",
     type: "produto" as const,
-    rating: 4.8,
-    location: "Bloco A, 101",
+    rating: 0,
+    location: "...",
     status: listingStatus,
     seller: {
-      id: "s1",
-      name: "Maria Silva",
-      apartment: "101",
-      block: "A",
-      rating: 4.9,
-      listings: 12,
-      phone: "5511999999999",
+      id: "",
+      name: "Carregando...",
+      apartment: "...",
+      block: "...",
+      rating: 0,
+      listings: 0,
+      phone: "",
     },
-    availability: "Segunda a Sexta, das 09h às 18h",
-    delivery: true,
-    deliveryFee: 5.0,
-    paymentMethods: ["Pix", "Dinheiro", "Cartão de Crédito"],
+    availability: "...",
+    delivery: false,
+    deliveryFee: 0,
+    paymentMethods: ["..."],
   };
   
-  // Use real data if available, otherwise fall back to mock data
+  // Use dados reais se disponíveis, caso contrário use mock data
   const displayListing = listing || mockListing;
 
   return (

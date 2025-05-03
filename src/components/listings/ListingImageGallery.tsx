@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import StatusBadge, { ListingStatus } from "./StatusBadge";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ListingImageGalleryProps {
   images: string[];
@@ -10,15 +11,22 @@ interface ListingImageGalleryProps {
   status?: ListingStatus;
 }
 
-const ListingImageGallery = ({ images, title, status = "disponível" }: ListingImageGalleryProps) => {
+const ListingImageGallery = ({ 
+  images = [], 
+  title, 
+  status = "disponível" 
+}: ListingImageGalleryProps) => {
   const [currentImage, setCurrentImage] = useState(0);
   
+  // Se não houver imagens, use uma imagem placeholder
+  const displayImages = images.length > 0 ? images : ['/placeholder.svg'];
+  
   const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % images.length);
+    setCurrentImage((prev) => (prev + 1) % displayImages.length);
   };
   
   const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImage((prev) => (prev - 1 + displayImages.length) % displayImages.length);
   };
   
   const getOverlayStyle = () => {
@@ -33,46 +41,48 @@ const ListingImageGallery = ({ images, title, status = "disponível" }: ListingI
   return (
     <div className="mb-6">
       {/* Imagem Principal */}
-      <div className="relative w-full h-96 overflow-hidden bg-gray-100 rounded-lg mb-2">
-        {status !== "disponível" && (
-          <div className={getOverlayStyle()}>
-            <StatusBadge 
-              status={status} 
-              className="transform scale-150 bg-white/90 text-lg px-6 py-2"
-            />
-          </div>
-        )}
-        <img
-          src={images[currentImage]}
-          alt={`${title} - Imagem ${currentImage + 1}`}
-          className={`w-full h-full object-contain ${status === "vendido" ? "opacity-80" : ""}`}
-        />
-        {images.length > 1 && (
-          <>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
-              onClick={prevImage}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
-              onClick={nextImage}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </>
-        )}
+      <div className="relative w-full overflow-hidden bg-gray-100 rounded-lg mb-2">
+        <AspectRatio ratio={4/3} className="bg-muted">
+          {status !== "disponível" && (
+            <div className={getOverlayStyle()}>
+              <StatusBadge 
+                status={status} 
+                className="transform scale-150 bg-white/90 text-lg px-6 py-2"
+              />
+            </div>
+          )}
+          <img
+            src={displayImages[currentImage]}
+            alt={`${title} - Imagem ${currentImage + 1}`}
+            className="w-full h-full object-contain"
+          />
+          {displayImages.length > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
+                onClick={nextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </AspectRatio>
       </div>
 
       {/* Miniaturas */}
-      {images.length > 1 && (
+      {displayImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {images.map((image, index) => (
+          {displayImages.map((image, index) => (
             <button
               key={index}
               className={`relative w-20 h-20 flex-shrink-0 rounded ${
