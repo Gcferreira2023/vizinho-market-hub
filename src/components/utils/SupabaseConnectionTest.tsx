@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -18,30 +17,31 @@ export const SupabaseConnectionTest: React.FC = () => {
     }
 
     try {
-  console.log('--- INÍCIO DO TESTE DE CONEXÃO ---');
+      console.log('--- INÍCIO DO TESTE DE CONEXÃO ---');
 
-  // Verifica se as variáveis do ambiente estão disponíveis
-  console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
-  console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+      // Verifica se as variáveis do ambiente estão disponíveis
+      console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
+      console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
 
-  // Tenta conectar ao Supabase
-  console.log('Testando conexão com o Supabase...');
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      // Tenta conectar ao Supabase
+      console.log('Testando conexão com o Supabase...');
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-  if (sessionError) {
-    console.error('Erro na conexão com o Supabase:', sessionError.message);
-    throw new Error('Conexão com o Supabase falhou');
-  }
+      if (sessionError) {
+        console.error('Erro na conexão com o Supabase:', sessionError.message);
+        throw new Error('Conexão com o Supabase falhou');
+      }
 
-  console.log('Conexão com Supabase bem-sucedida:', !!sessionData);
-  setStatus('success');
-  } catch (err: any) {
-    console.error('Erro geral ao testar conexão:', err);
-    setStatus('error');
-    setErrorMessage(err instanceof Error ? err.message : 'Erro desconhecido ao testar conexão');
-  } finally {
-    console.log('--- FIM DO TESTE DE CONEXÃO ---');
-  }
+      console.log('Conexão com Supabase bem-sucedida:', !!sessionData);
+      setStatus('success');
+    } catch (err: any) {
+      console.error('Erro geral ao testar conexão:', err);
+      setStatus('error');
+      setErrorMessage(err instanceof Error ? err.message : 'Erro desconhecido ao testar conexão');
+    } finally {
+      console.log('--- FIM DO TESTE DE CONEXÃO ---');
+    }
+  }; // <-- Aqui estava faltando o fechamento da função testConnection
 
   useEffect(() => {
     testConnection();
