@@ -1,0 +1,128 @@
+
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import ListingCard from "@/components/listings/ListingCard";
+import { Loader2 } from "lucide-react";
+
+const UserListings = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [userListings, setUserListings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [listingImages, setListingImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        
+        // Fetch user's listings
+        const { data: listings, error } = await supabase
+          .from('ads')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        setUserListings(listings || []);
+        
+        // Fetch primary images for each listing
+        if (listings && listings.length > 0) {
+          const imagePromises = listings.map(async (listing) => {
+            try {
+              const { data, error: imgError } = await supabase
+                .from('ad_images')
+                .select('image_url')
+                .eq('ad_id', listing.id)
+                .eq('position', 0)
+                .single();
+                
+              if (imgError || !data) {
+                return [listing.id, '/placeholder.svg'];
+              }
+              
+              return [listing.id, data.image_url];
+            } catch (error) {
+              console.error("Error fetching image for listing:", listing.id, error);
+              return [listing.id, '/placeholder.svg'];
+            }
+          });
+          
+          const imageResults = await Promise.all(imagePromises);
+          const imageMap = Object.fromEntries(imageResults);
+          setListingImages(imageMap);
+        }
+      } catch (error: any) {
+        console.error('Erro ao buscar anúncios:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar seus anúncios",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUserListings();
+  }, [user, toast]);
+
+  // Format user data for location display
+  const userLocation = user?.user_metadata 
+    ? `Bloco ${user.user_metadata.block || '-'}, Apt ${user.user_metadata.apartment || '-'}`
+    : "Localização não informada";
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Meus Anúncios</h1>
+          <Button asChild>
+            <Link to="/criar-anuncio">Criar Novo Anúncio</Link>
+          </Button>
+        </div>
+        
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Carregando seus anúncios...</span>
+          </div>
+        ) : userListings.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {userListings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                id={listing.id}
+                title={listing.title}
+                price={listing.price}
+                imageUrl={listingImages[listing.id] || '/placeholder.svg'}
+                category={listing.category}
+                type={listing.type}
+                location={userLocation}
+                status={listing.status || "disponível"}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-lg mb-4">Você ainda não possui nenhum anúncio</p>
+            <Button asChild>
+              <Link to="/criar-anuncio">Criar meu primeiro anúncio</Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+};
+
+export default UserListings;

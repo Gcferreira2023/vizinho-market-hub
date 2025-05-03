@@ -21,6 +21,7 @@ import ListingDetail from "./pages/listings/ListingDetail";
 import CreateListing from "./pages/listings/CreateListing";
 import EditListing from "./pages/listings/EditListing";
 import UserProfile from "./pages/user/UserProfile";
+import UserListings from "./pages/user/UserListings";
 import EditProfile from "./pages/user/EditProfile";
 import HowItWorksPage from "./pages/HowItWorksPage";
 
@@ -58,6 +59,11 @@ const App = () => (
             <Route path="/perfil" element={
               <ProtectedRoute>
                 <UserProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/meus-anuncios" element={
+              <ProtectedRoute>
+                <UserListings />
               </ProtectedRoute>
             } />
             <Route path="/editar-perfil" element={
