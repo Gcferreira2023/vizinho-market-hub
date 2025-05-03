@@ -41,6 +41,11 @@ const ListingCard = ({
             src={imageUrl}
             alt={title}
             className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 ${status === "vendido" ? "opacity-70" : ""}`}
+            style={{
+              width: '100%',
+              height: '200px',
+              objectFit: 'cover'
+            }}
             onError={(e) => {
               console.log(`Image error loading ${imageUrl}, using placeholder`);
               (e.target as HTMLImageElement).src = '/placeholder.svg';

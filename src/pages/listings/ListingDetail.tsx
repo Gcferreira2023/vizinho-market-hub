@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,92 +13,141 @@ import StatusSelector from "@/components/listings/StatusSelector";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-
-// Dados de exemplo (mockup) para o anúncio específico
-const mockListing = {
-  id: "1",
-  title: "Bolo de Chocolate Caseiro",
-  price: 35.9,
-  description:
-    "Delicioso bolo de chocolate caseiro com cobertura de brigadeiro. Feito com ingredientes selecionados e muito carinho. Ideal para festas, aniversários ou para matar aquela vontade de comer algo doce. Tamanho médio, serve aproximadamente 10 pessoas.",
-  images: [
-    "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
-    "https://images.unsplash.com/photo-1565958011703-44f9829ba187",
-    "https://images.unsplash.com/photo-1606313564200-e75d5e30476c",
-  ],
-  category: "Alimentos",
-  type: "produto" as const,
-  rating: 4.8,
-  location: "Bloco A, 101",
-  status: "disponível" as ListingStatus,
-  seller: {
-    id: "s1",
-    name: "Maria Silva",
-    apartment: "101",
-    block: "A",
-    rating: 4.9,
-    listings: 12,
-    phone: "5511999999999",
-  },
-  availability: "Segunda a Sexta, das 09h às 18h",
-  delivery: true,
-  deliveryFee: 5.0,
-  paymentMethods: ["Pix", "Dinheiro", "Cartão de Crédito"],
-};
-
-// Dados de exemplo para anúncios similares
-const mockSimilarListings = [
-  {
-    id: "5",
-    title: "Pão Artesanal de Fermentação Natural",
-    price: 15.9,
-    imageUrl: "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04",
-    category: "Alimentos",
-    type: "produto" as const,
-    rating: 4.7,
-    location: "Bloco A, 302",
-    status: "disponível" as ListingStatus,
-  },
-  {
-    id: "9",
-    title: "Cookies Americanos",
-    price: 20.0,
-    imageUrl: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35",
-    category: "Alimentos",
-    type: "produto" as const,
-    rating: 4.6,
-    location: "Bloco B, 201",
-    status: "disponível" as ListingStatus,
-  },
-  {
-    id: "10",
-    title: "Brigadeiros Gourmet",
-    price: 25.0,
-    imageUrl: "https://images.unsplash.com/photo-1586882829491-b81178aa622e",
-    category: "Alimentos",
-    type: "produto" as const,
-    rating: 4.9,
-    location: "Bloco C, 307",
-    status: "reservado" as ListingStatus,
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const [listing, setListing] = useState<any>(null);
+  const [listingImages, setListingImages] = useState<string[]>([]);
   const [listingStatus, setListingStatus] = useState<ListingStatus>("disponível");
+  const [isLoading, setIsLoading] = useState(true);
+  const [similarListings, setSimilarListings] = useState<any[]>([]);
 
-  // Em uma aplicação real, buscaríamos os detalhes do anúncio pelo ID
-  const listing = mockListing;
-  
   useEffect(() => {
-    // Inicializa o estado com o status atual do anúncio
-    setListingStatus(listing.status);
+    const fetchListingDetails = async () => {
+      if (!id) return;
+      
+      try {
+        console.log("Fetching listing details for ID:", id);
+        setIsLoading(true);
+        
+        // Fetch the listing data
+        const { data: listingData, error: listingError } = await supabase
+          .from('ads')
+          .select('*')
+          .eq('id', id)
+          .single();
+          
+        if (listingError) {
+          throw listingError;
+        }
+        
+        console.log("Listing data:", listingData);
+        
+        if (listingData) {
+          setListing(listingData);
+          
+          // Map status
+          const status = translateStatus(listingData.status);
+          setListingStatus(status);
+          
+          // Fetch images for the listing
+          const { data: imageData, error: imageError } = await supabase
+            .from('ad_images')
+            .select('*')
+            .eq('ad_id', id)
+            .order('position');
+            
+          if (imageError) {
+            console.error("Error fetching images:", imageError);
+          } else {
+            console.log("Image data:", imageData);
+            const images = imageData?.map(img => img.image_url) || [];
+            setListingImages(images.length > 0 ? images : ['/placeholder.svg']);
+          }
+          
+          // Fetch seller information
+          // This would typically come from a join or separate query
+          
+          // Fetch similar listings (mock for now)
+          // In real app, you would fetch based on category, etc.
+          const { data: similarData, error: similarError } = await supabase
+            .from('ads')
+            .select('*')
+            .neq('id', id)
+            .eq('category', listingData.category)
+            .limit(3);
+            
+          if (similarError) {
+            console.error("Error fetching similar listings:", similarError);
+          } else {
+            setSimilarListings(similarData || []);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching listing details:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os detalhes deste anúncio",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-    // Em um app real, aqui você faria a chamada para API para buscar os detalhes 
-    // do anúncio baseado no ID vindo da URL
-    console.log("Fetching listing details for ID:", id);
-  }, [listing.status, id]);
+    fetchListingDetails();
+  }, [id, toast]);
+  
+  // If no real data yet, use mock data
+  const mockListing = {
+    id: id || "1",
+    title: "Bolo de Chocolate Caseiro",
+    price: 35.9,
+    description:
+      "Delicioso bolo de chocolate caseiro com cobertura de brigadeiro. Feito com ingredientes selecionados e muito carinho. Ideal para festas, aniversários ou para matar aquela vontade de comer algo doce. Tamanho médio, serve aproximadamente 10 pessoas.",
+    images: listingImages.length > 0 ? listingImages : [
+      "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
+      "https://images.unsplash.com/photo-1565958011703-44f9829ba187",
+      "https://images.unsplash.com/photo-1606313564200-e75d5e30476c",
+    ],
+    category: "Alimentos",
+    type: "produto" as const,
+    rating: 4.8,
+    location: "Bloco A, 101",
+    status: listingStatus,
+    seller: {
+      id: "s1",
+      name: "Maria Silva",
+      apartment: "101",
+      block: "A",
+      rating: 4.9,
+      listings: 12,
+      phone: "5511999999999",
+    },
+    availability: "Segunda a Sexta, das 09h às 18h",
+    delivery: true,
+    deliveryFee: 5.0,
+    paymentMethods: ["Pix", "Dinheiro", "Cartão de Crédito"],
+  };
+  
+  // Use real data if available, otherwise fall back to mock data
+  const displayListing = listing || mockListing;
+  
+  // Map status from English to Portuguese
+  function translateStatus(status: string): ListingStatus {
+    switch (status) {
+      case "active":
+        return "disponível";
+      case "reserved":
+        return "reservado";
+      case "sold":
+        return "vendido";
+      default:
+        return "disponível";
+    }
+  }
   
   const handleStatusChange = (newStatus: ListingStatus) => {
     setListingStatus(newStatus);
@@ -108,6 +156,21 @@ const ListingDetail = () => {
       description: `O anúncio agora está ${newStatus}.`,
     });
   };
+  
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container flex justify-center items-center py-16">
+          <div className="animate-spin mr-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+            </svg>
+          </div>
+          Carregando anúncio...
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -126,8 +189,8 @@ const ListingDetail = () => {
           <div className="lg:col-span-2">
             {/* Galeria de imagens */}
             <ListingImageGallery 
-              images={listing.images} 
-              title={listing.title} 
+              images={displayListing.images} 
+              title={displayListing.title} 
               status={listingStatus}
             />
 
@@ -137,35 +200,35 @@ const ListingDetail = () => {
                 <div className="flex items-center gap-2">
                   <Badge
                     variant={
-                      listing.type === "produto" ? "default" : "secondary"
+                      displayListing.type === "produto" ? "default" : "secondary"
                     }
                   >
-                    {listing.type}
+                    {displayListing.type}
                   </Badge>
-                  <span className="text-sm text-gray-500">{listing.category}</span>
+                  <span className="text-sm text-gray-500">{displayListing.category}</span>
                 </div>
                 <StatusSelector 
-                  adId={listing.id}
+                  adId={displayListing.id}
                   currentStatus={listingStatus}
                   onStatusChange={handleStatusChange}
                   userId={user?.id}
-                  ownerId={listing.seller.id}
+                  ownerId={listing?.user_id || displayListing.seller.id}
                 />
               </div>
-              <h1 className="text-2xl font-bold mb-2">{listing.title}</h1>
+              <h1 className="text-2xl font-bold mb-2">{displayListing.title}</h1>
               <div className="flex items-center gap-2 mb-4">
                 <Star
                   size={18}
                   className="text-yellow-400 fill-yellow-400"
                 />
-                <span className="font-semibold">{listing.rating}</span>
+                <span className="font-semibold">{displayListing.rating}</span>
               </div>
 
               <div className="mb-6">
                 <span className="text-2xl font-bold text-primary">
-                  {typeof listing.price === "number"
-                    ? `R$ ${listing.price.toFixed(2)}`
-                    : listing.price}
+                  {typeof displayListing.price === "number"
+                    ? `R$ ${displayListing.price.toFixed(2)}`
+                    : displayListing.price}
                 </span>
               </div>
 
@@ -176,7 +239,7 @@ const ListingDetail = () => {
                   <TabsTrigger value="pagamento">Pagamento</TabsTrigger>
                 </TabsList>
                 <TabsContent value="descricao" className="text-gray-700">
-                  <p>{listing.description}</p>
+                  <p>{displayListing.description}</p>
                 </TabsContent>
                 <TabsContent value="disponibilidade" className="space-y-3">
                   <div>
@@ -184,25 +247,25 @@ const ListingDetail = () => {
                       <Clock size={18} className="text-gray-500" /> 
                       Horário de disponibilidade:
                     </h3>
-                    <p className="text-gray-700 ml-6">{listing.availability}</p>
+                    <p className="text-gray-700 ml-6">{displayListing.availability}</p>
                   </div>
                   <div>
                     <h3 className="font-medium">Entrega:</h3>
                     <p className="text-gray-700">
-                      {listing.delivery
-                        ? `Sim (Taxa de R$ ${listing.deliveryFee.toFixed(2)})`
+                      {displayListing.delivery
+                        ? `Sim (Taxa de R$ ${displayListing.deliveryFee.toFixed(2)})`
                         : "Não disponível"}
                     </p>
                   </div>
                   <div>
                     <h3 className="font-medium">Localização:</h3>
-                    <p className="text-gray-700">{listing.location}</p>
+                    <p className="text-gray-700">{displayListing.location}</p>
                   </div>
                 </TabsContent>
                 <TabsContent value="pagamento">
                   <h3 className="font-medium mb-2">Formas de pagamento aceitas:</h3>
                   <div className="flex flex-wrap gap-2">
-                    {listing.paymentMethods.map((method, index) => (
+                    {displayListing.paymentMethods.map((method, index) => (
                       <Badge key={index} variant="outline">{method}</Badge>
                     ))}
                   </div>
@@ -215,7 +278,7 @@ const ListingDetail = () => {
           <div className="space-y-6">
             {/* Informações do vendedor */}
             <SellerInfo 
-              seller={listing.seller} 
+              seller={displayListing.seller} 
               adId={id}
             />
 

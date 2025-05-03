@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -128,7 +127,8 @@ const UserListings = () => {
         ) : userListings.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {userListings.map((listing) => (
-              <div key={listing.id} className="relative">
+              <div key={listing.id} className="relative group">
+                {/* Adicionamos a classe group para ajudar no hover */}
                 <ListingCard
                   id={listing.id}
                   title={listing.title}
@@ -140,16 +140,13 @@ const UserListings = () => {
                   status={translateStatus(listing.status)}
                   linkTo={`/anuncio/${listing.id}`}
                 />
-                <Button
-                  size="sm"
-                  className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-800"
-                  asChild
+                <Link 
+                  to={`/editar-anuncio/${listing.id}`}
+                  className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-800 py-1 px-3 rounded-md flex items-center shadow-sm"
                 >
-                  <Link to={`/editar-anuncio/${listing.id}`}>
-                    <Edit size={16} className="mr-1" />
-                    Editar
-                  </Link>
-                </Button>
+                  <Edit size={16} className="mr-1" />
+                  <span>Editar</span>
+                </Link>
               </div>
             ))}
           </div>
