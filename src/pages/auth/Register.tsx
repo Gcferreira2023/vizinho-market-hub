@@ -31,8 +31,8 @@ import PasswordStrengthIndicator from "@/components/auth/PasswordStrengthIndicat
 import { getPasswordStrength } from "@/utils/passwordUtils";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Define o esquema de validação com Zod
-const registerSchema = z.object({
+// Defining separate schemas for each step to avoid the refine/pick issue
+const step1Schema = z.object({
   fullName: z.string()
     .min(3, "Nome deve ter pelo menos 3 caracteres")
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "Nome deve conter apenas letras e espaços"),
@@ -42,7 +42,20 @@ const registerSchema = z.object({
     .min(8, "Senha deve ter pelo menos 8 caracteres")
     .regex(/\d/, "Senha deve incluir pelo menos 1 número")
     .regex(/[!@#$%^&*(),.?":{}|<>]/, "Senha deve incluir pelo menos 1 caractere especial"),
-  confirmPassword: z.string(),
+  confirmPassword: z.string()
+});
+
+// Add the refine check to step1Schema separately
+const step1SchemaWithValidation = step1Schema.refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  }
+);
+
+// Define step 2 schema separately
+const step2Schema = z.object({
   apartment: z.string()
     .min(1, "Número do apartamento é obrigatório")
     .regex(/^\d+$/, "Apartamento deve ser um número"),
@@ -54,12 +67,20 @@ const registerSchema = z.object({
     .refine(value => value === true, {
       message: "Você precisa concordar com os Termos de Uso e Política de Privacidade",
     })
-}).refine(data => data.password === data.confirmPassword, {
-  message: "As senhas não coincidem",
-  path: ["confirmPassword"],
 });
 
+// We can still define the full schema for type inference if needed
+const registerSchema = step1Schema.merge(step2Schema).refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  }
+);
+
 type RegisterFormData = z.infer<typeof registerSchema>;
+type Step1FormData = z.infer<typeof step1Schema>;
+type Step2FormData = z.infer<typeof step2Schema>;
 
 const Register = () => {
   const { toast } = useToast();
@@ -69,12 +90,11 @@ const Register = () => {
   const [step, setStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState("fraca");
   const { applyMask } = usePhoneMask();
+  const [step1Data, setStep1Data] = useState<Step1FormData | null>(null);
 
-  // Formulário para o primeiro passo
-  const form1 = useForm<Pick<RegisterFormData, 'fullName' | 'email' | 'password' | 'confirmPassword'>>({
-    resolver: zodResolver(
-      registerSchema.pick({ fullName: true, email: true, password: true, confirmPassword: true })
-    ),
+  // Formulário para o primeiro passo usando o schema específico do passo 1
+  const form1 = useForm<Step1FormData>({
+    resolver: zodResolver(step1SchemaWithValidation),
     defaultValues: {
       fullName: "",
       email: "",
@@ -84,11 +104,9 @@ const Register = () => {
     mode: "onChange",
   });
 
-  // Formulário para o segundo passo
-  const form2 = useForm<Pick<RegisterFormData, 'apartment' | 'block' | 'phone' | 'terms'>>({
-    resolver: zodResolver(
-      registerSchema.pick({ apartment: true, block: true, phone: true, terms: true })
-    ),
+  // Formulário para o segundo passo usando o schema específico do passo 2
+  const form2 = useForm<Step2FormData>({
+    resolver: zodResolver(step2Schema),
     defaultValues: {
       apartment: "",
       block: "",
@@ -109,34 +127,39 @@ const Register = () => {
   };
 
   // Função para lidar com o envio do primeiro passo
-  const onFirstStepSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const valid = await form1.trigger();
-    
-    if (valid) {
-      console.log("Primeiro passo validado com sucesso, avançando...");
-      setStep(2);
-    } else {
-      console.log("Erros de validação no primeiro passo:", form1.formState.errors);
-    }
+  const onFirstStepSubmit = (data: Step1FormData) => {
+    console.log("Primeiro passo validado com sucesso, avançando...", data);
+    setStep1Data(data);
+    setStep(2);
   };
 
-  const onFinalSubmit = async (stepData: Pick<RegisterFormData, 'apartment' | 'block' | 'phone' | 'terms'>) => {
+  const onFinalSubmit = async (stepData: Step2FormData) => {
     console.log("Tentando finalizar cadastro");
+    
+    // Make sure we have step1Data before proceeding
+    if (!step1Data) {
+      console.error("Dados do primeiro passo não encontrados");
+      toast({
+        title: "Erro de registro",
+        description: "Por favor, volte e preencha novamente o primeiro passo.",
+        variant: "destructive"
+      });
+      setStep(1);
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      // Combinar dados do primeiro formulário com os do segundo
-      const firstStepData = form1.getValues();
       const userData = {
-        fullName: firstStepData.fullName,
+        fullName: step1Data.fullName,
         apartment: stepData.apartment,
         block: stepData.block,
         phone: stepData.phone
       };
 
-      console.log("Enviando dados para signUp:", firstStepData.email, "senha:", "***", userData);
-      const { error } = await signUp(firstStepData.email, firstStepData.password, userData);
+      console.log("Enviando dados para signUp:", step1Data.email, "senha:", "***", userData);
+      const { error } = await signUp(step1Data.email, step1Data.password, userData);
       
       if (error) {
         console.error("Erro ao cadastrar:", error);
@@ -195,7 +218,7 @@ const Register = () => {
         <CardContent className="space-y-4">
           {step === 1 ? (
             <Form {...form1}>
-              <form onSubmit={onFirstStepSubmit} className="space-y-4">
+              <form onSubmit={form1.handleSubmit(onFirstStepSubmit)} className="space-y-4">
                 <FormField
                   control={form1.control}
                   name="fullName"
