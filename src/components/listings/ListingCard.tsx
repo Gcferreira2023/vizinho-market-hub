@@ -15,6 +15,7 @@ interface ListingCardProps {
   rating?: number;
   location: string;
   status?: ListingStatus;
+  linkTo?: string; // Optional custom link path
 }
 
 const ListingCard = ({
@@ -27,9 +28,13 @@ const ListingCard = ({
   rating,
   location,
   status = "disponível",
+  linkTo, // Use custom link if provided
 }: ListingCardProps) => {
+  // Use the provided linkTo or default to the listing detail page
+  const linkPath = linkTo || `/anuncio/${id}`;
+  
   return (
-    <Link to={`/anuncio/${id}`} className="block h-full">
+    <Link to={linkPath} className="block h-full">
       <Card className="card-hover overflow-hidden h-full flex flex-col">
         <div className="relative h-48 overflow-hidden">
           <img
@@ -37,7 +42,7 @@ const ListingCard = ({
             alt={title}
             className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 ${status === "vendido" ? "opacity-70" : ""}`}
             onError={(e) => {
-              console.log("Image error, using placeholder");
+              console.log(`Image error loading ${imageUrl}, using placeholder`);
               (e.target as HTMLImageElement).src = '/placeholder.svg';
             }}
           />

@@ -33,27 +33,25 @@ const UserListings = () => {
           
         if (error) throw error;
         
+        console.log("Listings fetched:", listings);
         setUserListings(listings || []);
         
         // Fetch images for each listing
         if (listings && listings.length > 0) {
           console.log("Fetching images for listings:", listings.map(l => l.id));
           
-          // Create a copy of the existing image map
-          const newImageMap = { ...listingImages };
+          const newImageMap: Record<string, string> = {};
           
           for (const listing of listings) {
             try {
               console.log(`Fetching primary image for listing ${listing.id}`);
               
-              // Query for the first image for this listing
+              // Query for images for this listing
               const { data: imageData, error: imgError } = await supabase
                 .from('ad_images')
-                .select('image_url')
+                .select('*')
                 .eq('ad_id', listing.id)
-                .order('position')
-                .limit(1)
-                .maybeSingle();
+                .order('position');
               
               if (imgError) {
                 console.error(`Error fetching image for listing ${listing.id}:`, imgError);
@@ -61,11 +59,13 @@ const UserListings = () => {
                 continue;
               }
               
-              if (imageData && imageData.image_url) {
-                console.log(`Found image for listing ${listing.id}:`, imageData.image_url);
-                newImageMap[listing.id] = imageData.image_url;
+              console.log(`Found ${imageData?.length || 0} images for listing ${listing.id}`);
+              
+              if (imageData && imageData.length > 0) {
+                console.log(`Using first image for listing ${listing.id}:`, imageData[0].image_url);
+                newImageMap[listing.id] = imageData[0].image_url;
               } else {
-                console.log(`No image found for listing ${listing.id}, using placeholder`);
+                console.log(`No images found for listing ${listing.id}, using placeholder`);
                 newImageMap[listing.id] = '/placeholder.svg';
               }
             } catch (error) {
@@ -74,7 +74,7 @@ const UserListings = () => {
             }
           }
           
-          // Update state with all the new images at once
+          console.log("Final image map:", newImageMap);
           setListingImages(newImageMap);
         }
       } catch (error: any) {
@@ -118,26 +118,29 @@ const UserListings = () => {
     
     return (
       <div key={listing.id} className="relative">
-        <ListingCard
-          id={listing.id}
-          title={listing.title}
-          price={listing.price}
-          imageUrl={imageUrl}
-          category={listing.category}
-          type={listing.type}
-          location={userLocation}
-          status={translateStatus(listing.status)}
-        />
-        <Button
-          size="sm"
-          className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-white text-gray-800"
-          asChild
-        >
-          <Link to={`/editar-anuncio/${listing.id}`}>
-            <Edit size={16} className="mr-1" />
-            Editar
-          </Link>
-        </Button>
+        <div className="w-full h-full">
+          <ListingCard
+            id={listing.id}
+            title={listing.title}
+            price={listing.price}
+            imageUrl={imageUrl}
+            category={listing.category}
+            type={listing.type}
+            location={userLocation}
+            status={translateStatus(listing.status)}
+            linkTo={`/anuncio/${listing.id}`}
+          />
+          <Button
+            size="sm"
+            className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-white text-gray-800"
+            asChild
+          >
+            <Link to={`/editar-anuncio/${listing.id}`}>
+              <Edit size={16} className="mr-1" />
+              Editar
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   };
