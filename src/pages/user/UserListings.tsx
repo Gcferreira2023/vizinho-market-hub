@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -144,7 +143,7 @@ const UserListings = () => {
                   />
                   <Button
                     size="sm"
-                    className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-white text-gray-800"
+                    className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-gray-800"
                     asChild
                   >
                     <Link to={`/editar-anuncio/${listing.id}`}>

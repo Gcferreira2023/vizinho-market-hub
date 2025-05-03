@@ -35,7 +35,7 @@ const ListingCard = ({
   
   return (
     <Card className="card-hover overflow-hidden h-full flex flex-col">
-      <Link to={linkPath} className="block h-full">
+      <Link to={linkPath} className="block h-full no-underline">
         <div className="relative h-48 overflow-hidden">
           <img
             src={imageUrl}
