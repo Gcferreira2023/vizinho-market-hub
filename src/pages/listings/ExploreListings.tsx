@@ -176,16 +176,16 @@ const ExploreListings = () => {
                 <div className="space-y-2">
                   <Label>Categoria</Label>
                   <Select
-                    value={selectedCategory || ""}
+                    value={selectedCategory || "all"}
                     onValueChange={(value) => 
-                      setSelectedCategory(value === "" ? null : value)
+                      setSelectedCategory(value === "all" ? null : value)
                     }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Todas as categorias" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as categorias</SelectItem>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
                       <SelectItem value="Alimentos">Alimentos</SelectItem>
                       <SelectItem value="Serviços">Serviços</SelectItem>
                       <SelectItem value="Produtos Gerais">Produtos Gerais</SelectItem>
@@ -281,16 +281,16 @@ const ExploreListings = () => {
               <div className="space-y-2">
                 <Label>Categoria</Label>
                 <Select
-                  value={selectedCategory || ""}
+                  value={selectedCategory || "all"}
                   onValueChange={(value) => 
-                    setSelectedCategory(value === "" ? null : value)
+                    setSelectedCategory(value === "all" ? null : value)
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Todas as categorias" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas as categorias</SelectItem>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
                     <SelectItem value="Alimentos">Alimentos</SelectItem>
                     <SelectItem value="Serviços">Serviços</SelectItem>
                     <SelectItem value="Produtos Gerais">Produtos Gerais</SelectItem>
