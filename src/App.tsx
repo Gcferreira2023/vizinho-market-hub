@@ -22,8 +22,6 @@ import CreateListing from "./pages/listings/CreateListing";
 import EditListing from "./pages/listings/EditListing";
 import UserProfile from "./pages/user/UserProfile";
 import EditProfile from "./pages/user/EditProfile";
-import Messages from "./pages/messages/Messages";
-import Conversation from "./pages/messages/Conversation";
 import HowItWorksPage from "./pages/HowItWorksPage";
 
 const queryClient = new QueryClient();
@@ -65,16 +63,6 @@ const App = () => (
             <Route path="/editar-perfil" element={
               <ProtectedRoute>
                 <EditProfile />
-              </ProtectedRoute>
-            } />
-            <Route path="/mensagens" element={
-              <ProtectedRoute>
-                <Messages />
-              </ProtectedRoute>
-            } />
-            <Route path="/conversa/:id" element={
-              <ProtectedRoute>
-                <Conversation />
               </ProtectedRoute>
             } />
             
