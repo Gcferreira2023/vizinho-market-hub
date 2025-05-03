@@ -18,24 +18,30 @@ export const SupabaseConnectionTest: React.FC = () => {
     }
 
     try {
-      // Verifica se as variáveis estão acessíveis
-      console.log('Testando conexão com Supabase...');
-      console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
-      console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-      
-      // Use getSession instead of querying a specific table
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        throw error;
-      }
-      
-      setStatus('success');
-    } catch (err: any) {
-      setStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Erro desconhecido ao testar conexão');
-    }
-  };
+  console.log('--- INÍCIO DO TESTE DE CONEXÃO ---');
+
+  // Verifica se as variáveis do ambiente estão disponíveis
+  console.log('URL disponível:', !!import.meta.env.VITE_SUPABASE_URL);
+  console.log('ANON_KEY disponível:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+
+  // Tenta conectar ao Supabase
+  console.log('Testando conexão com o Supabase...');
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    console.error('Erro na conexão com o Supabase:', sessionError.message);
+    throw new Error('Conexão com o Supabase falhou');
+  }
+
+  console.log('Conexão com Supabase bem-sucedida:', !!sessionData);
+  setStatus('success');
+  } catch (err: any) {
+    console.error('Erro geral ao testar conexão:', err);
+    setStatus('error');
+    setErrorMessage(err instanceof Error ? err.message : 'Erro desconhecido ao testar conexão');
+  } finally {
+    console.log('--- FIM DO TESTE DE CONEXÃO ---');
+  }
 
   useEffect(() => {
     testConnection();
