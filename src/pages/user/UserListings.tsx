@@ -138,6 +138,7 @@ const UserListings = () => {
                   type={listing.type as "produto" | "serviço"}
                   location={userLocation}
                   status={translateStatus(listing.status)}
+                  linkTo={`/anuncio/${listing.id}`}
                 />
                 <Button
                   size="sm"
