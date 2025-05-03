@@ -83,6 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Erro no cadastro:", result.error.message);
       } else {
         console.log("Cadastro bem-sucedido:", result.data.user?.email);
+        // Você pode adicionar um toast aqui se quiser
+        toast({
+          title: "Conta criada com sucesso",
+          description: "Verifique seu email para confirmar o cadastro.",
+        });
       }
       
       return result;

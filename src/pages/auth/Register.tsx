@@ -95,11 +95,22 @@ const Register = () => {
     form.setValue("phone", value);
   };
 
-  const onFirstStepSubmit = () => {
-    setStep(2);
+  // Função para lidar com o envio do primeiro passo
+  const onFirstStepSubmit = async () => {
+    // Valida apenas os campos do primeiro passo
+    const firstStepFields = ["fullName", "email", "password", "confirmPassword"];
+    const hasErrors = await form.trigger(firstStepFields as any);
+    
+    if (hasErrors) {
+      console.log("Primeiro passo validado com sucesso, avançando...");
+      setStep(2);
+    } else {
+      console.log("Erros de validação no primeiro passo");
+    }
   };
 
   const onFinalSubmit = async (data: RegisterFormData) => {
+    console.log("Tentando finalizar cadastro com dados:", data);
     setIsLoading(true);
     
     try {
@@ -110,12 +121,13 @@ const Register = () => {
         phone: data.phone
       };
 
+      console.log("Enviando dados para signUp:", data.email, "senha:", "***", userData);
       const { error } = await signUp(data.email, data.password, userData);
       
       if (error) {
         console.error("Erro ao cadastrar:", error);
         
-        if (error.message.includes("User already registered")) {
+        if (error.message && error.message.includes("User already registered")) {
           toast({
             title: "Email já cadastrado",
             description: "Este email já está sendo usado. Tente fazer login ou use outro email.",
@@ -169,7 +181,10 @@ const Register = () => {
         <CardContent className="space-y-4">
           {step === 1 ? (
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onFirstStepSubmit)} className="space-y-4">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                onFirstStepSubmit();
+              }} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="fullName"
