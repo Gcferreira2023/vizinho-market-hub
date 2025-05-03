@@ -12,6 +12,9 @@ export type ListingFormData = {
   paymentMethods: string;
 };
 
+// Type for editing a listing
+export type EditListingFormData = ListingFormData;
+
 export const initialListingFormData: ListingFormData = {
   title: "",
   description: "",
