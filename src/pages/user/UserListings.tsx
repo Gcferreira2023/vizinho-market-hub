@@ -59,7 +59,7 @@ const UserListings = () => {
                 continue;
               }
               
-              console.log(`Found ${imageData?.length || 0} images for listing ${listing.id}`);
+              console.log(`Found ${imageData?.length || 0} images for listing ${listing.id}:`, imageData);
               
               if (imageData && imageData.length > 0) {
                 console.log(`Using first image for listing ${listing.id}:`, imageData[0].image_url);
@@ -111,40 +111,6 @@ const UserListings = () => {
     ? `Bloco ${user.user_metadata.block || '-'}, Apt ${user.user_metadata.apartment || '-'}`
     : "Localização não informada";
     
-  // Custom ListingCard renderer that includes edit button
-  const renderListingCard = (listing: any) => {
-    const imageUrl = listingImages[listing.id] || '/placeholder.svg';
-    console.log(`Rendering listing ${listing.id} with image: ${imageUrl}`);
-    
-    return (
-      <div key={listing.id} className="relative">
-        <div className="w-full h-full">
-          <ListingCard
-            id={listing.id}
-            title={listing.title}
-            price={listing.price}
-            imageUrl={imageUrl}
-            category={listing.category}
-            type={listing.type}
-            location={userLocation}
-            status={translateStatus(listing.status)}
-            linkTo={`/anuncio/${listing.id}`}
-          />
-          <Button
-            size="sm"
-            className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-white text-gray-800"
-            asChild
-          >
-            <Link to={`/editar-anuncio/${listing.id}`}>
-              <Edit size={16} className="mr-1" />
-              Editar
-            </Link>
-          </Button>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -162,7 +128,31 @@ const UserListings = () => {
           </div>
         ) : userListings.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {userListings.map(renderListingCard)}
+            {userListings.map((listing) => (
+              <div key={listing.id} className="relative">
+                <ListingCard
+                  id={listing.id}
+                  title={listing.title}
+                  price={listing.price}
+                  imageUrl={listingImages[listing.id] || '/placeholder.svg'}
+                  category={listing.category}
+                  type={listing.type}
+                  location={userLocation}
+                  status={translateStatus(listing.status)}
+                  linkTo={`/anuncio/${listing.id}`}
+                />
+                <Button
+                  size="sm"
+                  className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-white text-gray-800"
+                  asChild
+                >
+                  <Link to={`/editar-anuncio/${listing.id}`}>
+                    <Edit size={16} className="mr-1" />
+                    Editar
+                  </Link>
+                </Button>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="text-center py-12">

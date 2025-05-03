@@ -87,8 +87,8 @@ export const useCreateListing = () => {
         });
       }
       
-      // Redirect to the ad page
-      navigate(`/anuncio/${adId}`);
+      // Redirect to the user's ads page instead of the ad detail page
+      navigate("/meus-anuncios");
       return true;
       
     } catch (error: any) {
