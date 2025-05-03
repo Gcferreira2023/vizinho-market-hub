@@ -5,7 +5,7 @@ export interface Message {
   read: boolean;
   sender_id: string;
   receiver_id: string;
-  ad_id?: string;  // Adicionada propriedade que faltava
+  ad_id: string;  // Removido o '?' para tornar obrigatório
 }
 
 export interface AdInfo {
