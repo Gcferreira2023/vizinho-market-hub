@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // Garante que as variáveis de ambiente VITE_ são expostas
+  // Usar a sintaxe correta para acessar as variáveis de ambiente no Vite
   define: {
     'import.meta.env': JSON.stringify(import.meta.env)
   },
