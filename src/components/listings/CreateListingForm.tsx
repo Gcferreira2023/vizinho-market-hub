@@ -1,46 +1,30 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { initialListingFormData, ListingFormData } from "@/types/listing";
+import { initialListingFormData } from "@/types/listing";
 import ListingImageManager from "@/components/listings/ListingImageManager";
 import ListingFormSections from "@/components/listings/ListingFormSections";
 import { useCreateListing } from "@/hooks/useCreateListing";
+import { useNavigate } from "react-router-dom";
+import { useListingForm } from "@/hooks/listings/useListingForm";
+import { useListingImages } from "@/hooks/listings/useListingImages";
 
 const CreateListingForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<ListingFormData>(initialListingFormData);
-  const [images, setImages] = useState<File[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  
+  const {
+    formData,
+    handleChange,
+    handleSelectChange,
+    handleCheckboxChange
+  } = useListingForm(initialListingFormData);
+  
+  const {
+    images,
+    imageUrls,
+    handleImagesChange
+  } = useListingImages();
   
   const { createListing, isLoading } = useCreateListing();
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleCheckboxChange = (name: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked
-    }));
-  };
-  
-  const handleImagesChange = (newImages: File[], newUrls: string[]) => {
-    setImages(newImages);
-    setImageUrls(newUrls);
-  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
