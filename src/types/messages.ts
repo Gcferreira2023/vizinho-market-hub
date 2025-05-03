@@ -1,4 +1,3 @@
-
 export interface Message {
   id: string;
   content: string;
@@ -6,7 +5,7 @@ export interface Message {
   read: boolean;
   sender_id: string;
   receiver_id: string;
-  ad_id?: string;
+  ad_id?: string;  // Adicionada propriedade que faltava
 }
 
 export interface AdInfo {

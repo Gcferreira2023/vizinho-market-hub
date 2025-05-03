@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Message, AdInfo, UserInfo, Conversation } from "@/types/messages";
+import { Message, AdInfo, UserInfo } from "@/types/messages";
 
 import { fetchAdInfo } from "./fetchAdInfo";
 import { fetchUserInfo } from "./fetchUserInfo";
