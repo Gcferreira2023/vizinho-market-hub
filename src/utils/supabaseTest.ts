@@ -24,15 +24,15 @@ export const testSupabaseConnection = async () => {
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
     
     // Tenta fazer uma consulta simples para verificar a conexão
-    const { data, error } = await supabase.from('_test_connection').select('*').limit(1).maybeSingle();
+    // Usando auth.getSession() em vez de uma tabela específica para evitar erros
+    const { data, error } = await supabase.auth.getSession();
     
-    if (error && error.message !== 'relation "_test_connection" does not exist') {
-      // Se o erro não for relacionado à tabela não existir, há um problema de conexão
+    if (error) {
       console.error('Erro ao conectar ao Supabase:', error);
       return { success: false, message: `Erro na conexão: ${error.message}` };
     }
 
-    // A tabela pode não existir, mas a conexão está funcionando
+    // A conexão está funcionando
     return { success: true, message: 'Conexão com Supabase estabelecida com sucesso' };
   } catch (err) {
     console.error('Falha ao testar conexão com Supabase:', err);

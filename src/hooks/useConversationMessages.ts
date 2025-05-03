@@ -8,7 +8,7 @@ interface Message {
   id: string;
   content: string;
   created_at: string;
-  is_read: boolean;
+  read: boolean; // Changed from is_read to match database field
   sender_id: string;
   receiver_id: string;
 }
@@ -72,7 +72,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
 
   // Função para buscar mensagens da conversa
   const fetchMessages = useCallback(async () => {
-    if (!user?.id || !adId || !otherId) return [];
+    if (!user?.id || !adId || !otherId) return [] as Message[];
     
     try {
       const { data, error } = await supabase
@@ -83,10 +83,15 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
         .order('created_at');
         
       if (error) throw error;
-      return data || [];
+      // Ensure proper type conversion
+      const typedMessages = (data || []).map(msg => ({
+        ...msg,
+        read: !!msg.read // Ensure consistent field name
+      })) as Message[];
+      return typedMessages;
     } catch (error) {
       console.error("Erro ao buscar mensagens:", error);
-      return [];
+      return [] as Message[];
     }
   }, [user, adId, otherId]);
 
@@ -95,7 +100,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
     if (!user?.id || messagesToMark.length === 0) return;
     
     const unreadMessages = messagesToMark.filter(
-      msg => msg.receiver_id === user.id && !msg.is_read
+      msg => msg.receiver_id === user.id && !msg.read
     );
     
     if (unreadMessages.length === 0) return;
@@ -103,7 +108,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
     try {
       await supabase
         .from('messages')
-        .update({ is_read: true })
+        .update({ read: true }) // Using read instead of is_read
         .in('id', unreadMessages.map(msg => msg.id));
     } catch (error) {
       console.error("Erro ao marcar mensagens como lidas:", error);
@@ -125,7 +130,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
           filter: `ad_id=eq.${adId}`
         },
         (payload: any) => {
-          handleNewMessage(payload.new);
+          handleNewMessage(payload.new as Message);
         }
       )
       .subscribe();
@@ -150,7 +155,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
       if (newMsg.receiver_id === user.id) {
         supabase
           .from('messages')
-          .update({ is_read: true })
+          .update({ read: true }) // Using read instead of is_read
           .eq('id', newMsg.id);
       }
     }
@@ -214,7 +219,7 @@ export const useConversationMessages = (adId?: string, otherId?: string | null) 
           sender_id: user.id,
           receiver_id: otherId,
           ad_id: adId,
-          is_read: false,
+          read: false, // Using read instead of is_read
         });
         
       if (error) throw error;
