@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import StatusBadge, { ListingStatus } from "./StatusBadge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ListingImageGalleryProps {
   images: string[];
@@ -17,9 +18,10 @@ const ListingImageGallery = ({
   status = "disponível" 
 }: ListingImageGalleryProps) => {
   const [currentImage, setCurrentImage] = useState(0);
+  const isMobile = useIsMobile();
   
-  // Se não houver imagens, use uma imagem placeholder
-  const displayImages = images.length > 0 ? images : ['/placeholder.svg'];
+  // Garanta que temos uma matriz de imagens válida, usando um placeholder como fallback
+  const displayImages = images && images.length > 0 ? images : ['/placeholder.svg'];
   
   const nextImage = () => {
     setCurrentImage((prev) => (prev + 1) % displayImages.length);
@@ -81,11 +83,11 @@ const ListingImageGallery = ({
 
       {/* Miniaturas */}
       {displayImages.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className={`flex gap-2 overflow-x-auto pb-2 ${isMobile ? "scrollbar-hide -mx-4 px-4" : ""}`}>
           {displayImages.map((image, index) => (
             <button
               key={index}
-              className={`relative w-20 h-20 flex-shrink-0 rounded ${
+              className={`relative ${isMobile ? "w-16 h-16" : "w-20 h-20"} flex-shrink-0 rounded ${
                 currentImage === index
                   ? "ring-2 ring-primary ring-offset-2"
                   : "opacity-70"

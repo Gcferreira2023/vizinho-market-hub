@@ -1,7 +1,7 @@
 
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import ListingImageGallery from "@/components/listings/ListingImageGallery";
 import SellerInfo from "@/components/listings/SellerInfo";
 import SecurityInfo from "@/components/listings/detail/SecurityInfo";
@@ -30,7 +30,8 @@ const ListingDetailView = ({
   handleStatusChange
 }: ListingDetailViewProps) => {
   const { user } = useAuth();
-
+  const isMobile = useIsMobile();
+  
   // Garanta que displayListing.images seja sempre um array
   const images = Array.isArray(listingImages) ? listingImages : [];
   
@@ -45,8 +46,10 @@ const ListingDetailView = ({
     phone: "",
   };
 
+  const isOwner = user?.id === listing?.user_id;
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 md:py-8">
       <Breadcrumb
         items={[
           { label: "Explorar", href: "/explorar" },
@@ -54,7 +57,7 @@ const ListingDetailView = ({
         ]}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
         {/* Coluna Esquerda - Imagens e Detalhes */}
         <div className="lg:col-span-2">
           {/* Galeria de imagens */}
@@ -65,7 +68,7 @@ const ListingDetailView = ({
           />
 
           {/* Detalhes do anúncio */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-6">
             <div className="flex justify-between items-start mb-4">
               <ListingHeader
                 title={displayListing?.title || ""}
@@ -82,9 +85,9 @@ const ListingDetailView = ({
               {id && (
                 <FavoriteButton 
                   listingId={id} 
-                  size="default" 
+                  size={isMobile ? "sm" : "default"}
                   variant="outline"
-                  showText
+                  showText={!isMobile}
                 />
               )}
             </div>
@@ -98,19 +101,34 @@ const ListingDetailView = ({
               paymentMethods={displayListing?.paymentMethods || []}
             />
           </Card>
+          
+          {/* Em dispositivos móveis, exibir as informações do vendedor entre os detalhes e anúncios similares */}
+          {isMobile && (
+            <div className="space-y-4 mb-6">
+              <SellerInfo 
+                seller={seller} 
+                adId={id || ""}
+                isOwner={isOwner}
+              />
+              <SecurityInfo />
+            </div>
+          )}
         </div>
 
         {/* Coluna Direita - Informações do vendedor e ações */}
-        <div className="space-y-6">
-          {/* Informações do vendedor */}
-          <SellerInfo 
-            seller={seller} 
-            adId={id || ""}
-          />
+        {!isMobile && (
+          <div className="space-y-6">
+            {/* Informações do vendedor */}
+            <SellerInfo 
+              seller={seller} 
+              adId={id || ""}
+              isOwner={isOwner}
+            />
 
-          {/* Segurança */}
-          <SecurityInfo />
-        </div>
+            {/* Segurança */}
+            <SecurityInfo />
+          </div>
+        )}
       </div>
 
       {/* Anúncios relacionados */}
