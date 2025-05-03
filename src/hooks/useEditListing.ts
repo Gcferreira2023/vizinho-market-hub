@@ -1,62 +1,51 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { EditListingFormData } from "@/types/listing";
 import * as listingService from "@/services";
+import { useListingForm } from "./listings/useListingForm";
+import { useListingImages } from "./listings/useListingImages";
+import { useListingOperations } from "./listings/useListingOperations";
 
-interface EditListingFormData {
-  title: string;
-  description: string;
-  price: string;
-  category: string;
-  type: string;
-  availability: string;
-  delivery: boolean;
-  deliveryFee: string;
-  paymentMethods: string;
-}
-
-interface ExistingImage {
-  id: string;
-  image_url: string;
-  position?: number;
-  ad_id?: string;
-}
+// Initial form data
+const initialFormData: EditListingFormData = {
+  title: "",
+  description: "",
+  price: "",
+  category: "",
+  type: "produto",
+  availability: "",
+  delivery: false,
+  deliveryFee: "0",
+  paymentMethods: "Dinheiro, Pix",
+};
 
 export const useEditListing = (listingId: string) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Use the form hook
+  const formHook = useListingForm(initialFormData);
   
-  const [formData, setFormData] = useState<EditListingFormData>({
-    title: "",
-    description: "",
-    price: "",
-    category: "",
-    type: "produto",
-    availability: "",
-    delivery: false,
-    deliveryFee: "0",
-    paymentMethods: "Dinheiro, Pix",
-  });
+  // Use the images hook
+  const imagesHook = useListingImages();
   
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
-  const [images, setImages] = useState<File[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  
+  // Use the operations hook
+  const { isLoading, isSaving, isDeleting, setIsLoading, setIsSaving, setIsDeleting } = useListingOperations();
+
   const fetchListingData = async () => {
     if (!user || !listingId) return;
     
     try {
-      // Fetch listing data
+      setIsLoading(true);
+      
+      // Buscar dados do anúncio
       const adData = await listingService.fetchListing(listingId);
       
-      // Check if the listing belongs to the logged in user
+      // Verificar se o anúncio pertence ao usuário logado
       if (!listingService.checkListingOwnership(adData, user.id)) {
         toast({
           title: "Acesso negado",
@@ -67,8 +56,8 @@ export const useEditListing = (listingId: string) => {
         return;
       }
       
-      // Fill form with existing data
-      setFormData({
+      // Preencher formulário com dados existentes
+      formHook.setFormData({
         title: adData.title || "",
         description: adData.description || "",
         price: adData.price?.toString() || "0",
@@ -80,14 +69,14 @@ export const useEditListing = (listingId: string) => {
         paymentMethods: adData.payment_methods || "",
       });
       
-      // Fetch listing images
+      // Buscar imagens do anúncio
       const imageData = await listingService.fetchListingImages(listingId);
       
-      setExistingImages(imageData || []);
+      imagesHook.setExistingImages(imageData || []);
       
-      // Convert existing images to URLs for image manager
+      // Converter imagens existentes em URLs para o gerenciador de imagens
       const existingUrls = (imageData || []).map(img => img.image_url);
-      setImageUrls(existingUrls);
+      imagesHook.setImageUrls(existingUrls);
       
     } catch (error: any) {
       console.error("Erro ao carregar dados:", error);
@@ -101,50 +90,6 @@ export const useEditListing = (listingId: string) => {
     }
   };
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleCheckboxChange = (name: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked
-    }));
-  };
-  
-  const handleImagesChange = (newImages: File[], newUrls: string[]) => {
-    // Track which existing images were kept and which were removed
-    const keptExistingUrls = newUrls.filter(url => 
-      existingImages.some(img => img.image_url === url)
-    );
-    
-    // Update the list of existing images to keep
-    const updatedExistingImages = existingImages.filter(img => 
-      keptExistingUrls.includes(img.image_url)
-    );
-    
-    setExistingImages(updatedExistingImages);
-    
-    // New images are the files that were added
-    const actualNewImages = newImages.filter(file => 
-      !existingImages.some(img => URL.createObjectURL(file) === img.image_url)
-    );
-    
-    setImages(actualNewImages);
-    setImageUrls(newUrls);
-  };
-  
   const saveListing = async () => {
     if (!user || !listingId) {
       toast({
@@ -155,32 +100,25 @@ export const useEditListing = (listingId: string) => {
       return;
     }
     
-    if (imageUrls.length === 0) {
-      toast({
-        title: "Imagens obrigatórias",
-        description: "Adicione pelo menos uma imagem ao seu anúncio",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Validar imagens
+    if (!imagesHook.validateImages()) return;
     
     setIsSaving(true);
     
     try {
-      // 1. Update listing data
-      await listingService.updateListing(listingId, formData);
+      // 1. Atualizar dados do anúncio
+      await listingService.updateListing(listingId, formHook.formData);
       
-      // 2. Handle image changes
+      // 2. Tratar mudanças nas imagens
+      // Obter IDs das imagens existentes que queremos manter
+      const existingImageIds = imagesHook.existingImages.map(img => img.id);
       
-      // Get existing image IDs that we want to keep
-      const existingImageIds = existingImages.map(img => img.id);
-      
-      // Delete images that were removed
+      // Excluir imagens que foram removidas
       await listingService.deleteRemovedImages(listingId, existingImageIds);
       
-      // 3. Upload new images
-      if (images.length > 0) {
-        await listingService.uploadListingImages(images, listingId, user.id);
+      // 3. Fazer upload das novas imagens
+      if (imagesHook.images.length > 0) {
+        await listingService.uploadListingImages(imagesHook.images, listingId, user.id);
       }
       
       toast({
@@ -188,7 +126,7 @@ export const useEditListing = (listingId: string) => {
         description: "Seu anúncio foi atualizado com sucesso!"
       });
       
-      // Redirect to listing page
+      // Redirecionar para página do anúncio
       navigate(`/anuncio/${listingId}`);
       
     } catch (error: any) {
@@ -209,7 +147,7 @@ export const useEditListing = (listingId: string) => {
     setIsDeleting(true);
     
     try {
-      // Delete the listing
+      // Excluir o anúncio
       await listingService.deleteListing(listingId);
       
       toast({
@@ -217,7 +155,7 @@ export const useEditListing = (listingId: string) => {
         description: "Seu anúncio foi excluído com sucesso"
       });
       
-      // Redirect to profile page
+      // Redirecionar para página de perfil
       navigate('/perfil');
       
     } catch (error: any) {
@@ -232,17 +170,22 @@ export const useEditListing = (listingId: string) => {
     }
   };
 
+  // Carregar dados do anúncio ao montar o componente
+  useEffect(() => {
+    fetchListingData();
+  }, [listingId]);
+
   return {
-    formData,
-    imageUrls,
-    images,
+    formData: formHook.formData,
+    imageUrls: imagesHook.imageUrls,
+    images: imagesHook.images,
     isLoading,
     isSaving,
     isDeleting,
-    handleChange,
-    handleSelectChange,
-    handleCheckboxChange,
-    handleImagesChange,
+    handleChange: formHook.handleChange,
+    handleSelectChange: formHook.handleSelectChange,
+    handleCheckboxChange: formHook.handleCheckboxChange,
+    handleImagesChange: imagesHook.handleImagesChange,
     fetchListingData,
     saveListing,
     deleteListing

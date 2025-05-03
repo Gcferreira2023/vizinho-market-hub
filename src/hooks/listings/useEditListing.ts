@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useListingForm } from "./useListingForm";
 import { useListingImages, ExistingImage } from "./useListingImages";
 import { EditListingFormData } from "@/types/listing";
-import * as listingService from "@/services/listingService";
+import * as listingService from "@/services";
 
 const initialFormData: EditListingFormData = {
   title: "",
@@ -128,23 +128,8 @@ export const useEditListing = (listingId: string) => {
       await listingService.deleteRemovedImages(listingId, existingImageIds);
       
       // 3. Fazer upload das novas imagens
-      for (let i = 0; i < images.length; i++) {
-        const file = images[i];
-        
-        // Upload da imagem
-        const publicUrl = await listingService.uploadImage(
-          file, 
-          listingId, 
-          user.id, 
-          i
-        );
-        
-        // Salvar referência da imagem
-        await listingService.saveImageReference(
-          listingId, 
-          publicUrl, 
-          existingImages.length + i
-        );
+      if (images.length > 0) {
+        await listingService.uploadListingImages(images, listingId, user.id);
       }
       
       toast({
