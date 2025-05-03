@@ -37,31 +37,35 @@ const UserListings = () => {
         
         // Fetch primary images for each listing
         if (listings && listings.length > 0) {
-          const imagePromises = listings.map(async (listing) => {
+          console.log("Fetching images for listings:", listings.map(l => l.id));
+          
+          for (const listing of listings) {
             try {
+              // Query for the first image (position 0) for this listing
               const { data, error: imgError } = await supabase
                 .from('ad_images')
                 .select('image_url')
                 .eq('ad_id', listing.id)
                 .eq('position', 0)
-                .single();
-                
-              if (imgError || !data) {
-                console.log(`No image found for listing ${listing.id}, using placeholder`);
-                return [listing.id, '/placeholder.svg'];
+                .maybeSingle();
+              
+              if (imgError) {
+                console.error(`Error fetching image for listing ${listing.id}:`, imgError);
+                continue;
               }
               
-              console.log(`Found image for listing ${listing.id}:`, data.image_url);
-              return [listing.id, data.image_url];
+              if (data && data.image_url) {
+                console.log(`Found image for listing ${listing.id}:`, data.image_url);
+                setListingImages(prev => ({...prev, [listing.id]: data.image_url}));
+              } else {
+                console.log(`No image found for listing ${listing.id}, using placeholder`);
+                setListingImages(prev => ({...prev, [listing.id]: '/placeholder.svg'}));
+              }
             } catch (error) {
-              console.error("Error fetching image for listing:", listing.id, error);
-              return [listing.id, '/placeholder.svg'];
+              console.error("Error processing image for listing:", listing.id, error);
+              setListingImages(prev => ({...prev, [listing.id]: '/placeholder.svg'}));
             }
-          });
-          
-          const imageResults = await Promise.all(imagePromises);
-          const imageMap = Object.fromEntries(imageResults);
-          setListingImages(imageMap);
+          }
         }
       } catch (error: any) {
         console.error('Erro ao buscar anúncios:', error);
