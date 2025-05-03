@@ -23,6 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 // Dados de exemplo (mockup) - combinando produtos e serviços
 const mockAllListings = [
@@ -34,7 +35,8 @@ const mockAllListings = [
     category: "Alimentos",
     type: "produto" as const,
     rating: 4.8,
-    location: "Bloco A, 101"
+    location: "Bloco A, 101",
+    status: "disponível" as ListingStatus
   },
   {
     id: "2",
@@ -44,7 +46,8 @@ const mockAllListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 4.5,
-    location: "Bloco B, 304"
+    location: "Bloco B, 304",
+    status: "disponível" as ListingStatus
   },
   {
     id: "3",
@@ -54,7 +57,8 @@ const mockAllListings = [
     category: "Produtos Gerais",
     type: "produto" as const,
     rating: 4.2,
-    location: "Bloco C, 202"
+    location: "Bloco C, 202",
+    status: "reservado" as ListingStatus
   },
   {
     id: "4",
@@ -64,7 +68,8 @@ const mockAllListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 5.0,
-    location: "Bloco D, 405"
+    location: "Bloco D, 405",
+    status: "disponível" as ListingStatus
   },
   {
     id: "5",
@@ -74,7 +79,8 @@ const mockAllListings = [
     category: "Alimentos",
     type: "produto" as const,
     rating: 4.7,
-    location: "Bloco A, 302"
+    location: "Bloco A, 302",
+    status: "vendido" as ListingStatus
   },
   {
     id: "6",
@@ -84,7 +90,8 @@ const mockAllListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 4.9,
-    location: "Bloco B, 105"
+    location: "Bloco B, 105",
+    status: "disponível" as ListingStatus
   },
   {
     id: "7",
@@ -94,7 +101,8 @@ const mockAllListings = [
     category: "Produtos Gerais",
     type: "produto" as const,
     rating: 4.3,
-    location: "Bloco C, 408"
+    location: "Bloco C, 408",
+    status: "disponível" as ListingStatus
   },
   {
     id: "8",
@@ -104,7 +112,8 @@ const mockAllListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 4.8,
-    location: "Bloco D, 201"
+    location: "Bloco D, 201",
+    status: "vendido" as ListingStatus
   },
 ];
 
@@ -113,6 +122,8 @@ const ExploreListings = () => {
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<ListingStatus | null>(null);
+  const [showSoldItems, setShowSoldItems] = useState(true);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Filtros simulados
@@ -132,6 +143,16 @@ const ExploreListings = () => {
 
     // Filtro por tipo
     if (selectedType && listing.type !== selectedType) {
+      return false;
+    }
+
+    // Filtro por status
+    if (selectedStatus && listing.status !== selectedStatus) {
+      return false;
+    }
+    
+    // Opção de esconder itens vendidos
+    if (!showSoldItems && listing.status === "vendido") {
       return false;
     }
 
@@ -192,6 +213,36 @@ const ExploreListings = () => {
                       <SelectItem value="Vagas/Empregos">Vagas/Empregos</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Filtro de Status (Mobile) */}
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select
+                    value={selectedStatus || "all"}
+                    onValueChange={(value) => 
+                      setSelectedStatus(value === "all" ? null : value as ListingStatus)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todos os status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os status</SelectItem>
+                      <SelectItem value="disponível">Disponível</SelectItem>
+                      <SelectItem value="reservado">Reservado</SelectItem>
+                      <SelectItem value="vendido">Vendido</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center space-x-2 pt-2">
+                  <Checkbox
+                    id="show-sold-mobile"
+                    checked={showSoldItems}
+                    onCheckedChange={(checked) => setShowSoldItems(!!checked)}
+                  />
+                  <Label htmlFor="show-sold-mobile">Mostrar itens vendidos</Label>
                 </div>
 
                 {/* Filtro de Tipos (Mobile) */}
@@ -298,6 +349,36 @@ const ExploreListings = () => {
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Filtro de Status */}
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={selectedStatus || "all"}
+                  onValueChange={(value) => 
+                    setSelectedStatus(value === "all" ? null : value as ListingStatus)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos os status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os status</SelectItem>
+                    <SelectItem value="disponível">Disponível</SelectItem>
+                    <SelectItem value="reservado">Reservado</SelectItem>
+                    <SelectItem value="vendido">Vendido</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center space-x-2 pt-2">
+                <Checkbox
+                  id="show-sold"
+                  checked={showSoldItems}
+                  onCheckedChange={(checked) => setShowSoldItems(!!checked)}
+                />
+                <Label htmlFor="show-sold">Mostrar itens vendidos</Label>
+              </div>
 
               {/* Filtro de Tipos */}
               <div className="space-y-2">
@@ -357,6 +438,8 @@ const ExploreListings = () => {
                   setPriceRange([0, 500]);
                   setSelectedCategory(null);
                   setSelectedType(null);
+                  setSelectedStatus(null);
+                  setShowSoldItems(true);
                 }}
               >
                 Limpar Filtros

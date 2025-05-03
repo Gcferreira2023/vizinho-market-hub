@@ -1,6 +1,7 @@
 
 import ListingCard from "../listings/ListingCard";
 import { Link } from "react-router-dom";
+import { ListingStatus } from "../listings/StatusBadge";
 
 // Dados de exemplo (mockup)
 const mockRecentListings = [
@@ -12,7 +13,8 @@ const mockRecentListings = [
     category: "Alimentos",
     type: "produto" as const,
     rating: 4.7,
-    location: "Bloco A, 302"
+    location: "Bloco A, 302",
+    status: "disponível" as ListingStatus
   },
   {
     id: "6",
@@ -22,7 +24,8 @@ const mockRecentListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 4.9,
-    location: "Bloco B, 105"
+    location: "Bloco B, 105",
+    status: "disponível" as ListingStatus
   },
   {
     id: "7",
@@ -32,7 +35,8 @@ const mockRecentListings = [
     category: "Produtos Gerais",
     type: "produto" as const,
     rating: 4.3,
-    location: "Bloco C, 408"
+    location: "Bloco C, 408",
+    status: "reservado" as ListingStatus
   },
   {
     id: "8",
@@ -42,11 +46,17 @@ const mockRecentListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 4.8,
-    location: "Bloco D, 201"
+    location: "Bloco D, 201",
+    status: "disponível" as ListingStatus
   },
 ];
 
 const RecentListings = () => {
+  // Filtrar para apenas mostrar anúncios disponíveis ou reservados na página inicial
+  const availableListings = mockRecentListings.filter(
+    listing => listing.status !== "vendido"
+  );
+  
   return (
     <section className="py-10 bg-secondary">
       <div className="container mx-auto px-4">
@@ -58,7 +68,7 @@ const RecentListings = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {mockRecentListings.map((listing) => (
+          {availableListings.map((listing) => (
             <ListingCard key={listing.id} {...listing} />
           ))}
         </div>

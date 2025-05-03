@@ -1,65 +1,96 @@
 
 import { useState } from "react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import StatusBadge, { ListingStatus } from "./StatusBadge";
 
 interface ListingImageGalleryProps {
   images: string[];
   title: string;
+  status?: ListingStatus;
 }
 
-const ListingImageGallery = ({ images, title }: ListingImageGalleryProps) => {
-  const [activeImage, setActiveImage] = useState(0);
+const ListingImageGallery = ({ images, title, status = "disponível" }: ListingImageGalleryProps) => {
+  const [currentImage, setCurrentImage] = useState(0);
+  
+  const nextImage = () => {
+    setCurrentImage((prev) => (prev + 1) % images.length);
+  };
+  
+  const prevImage = () => {
+    setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+  };
+  
+  const getOverlayStyle = () => {
+    if (status === "vendido") {
+      return "absolute inset-0 bg-gray-900/50 flex items-center justify-center z-10";
+    } else if (status === "reservado") {
+      return "absolute inset-0 bg-yellow-900/30 flex items-center justify-center z-10";
+    }
+    return "";
+  };
 
   return (
     <div className="mb-6">
-      <Carousel className="w-full">
-        <CarouselContent>
-          {images.map((image, index) => (
-            <CarouselItem key={index}>
-              <div className="aspect-[4/3] w-full overflow-hidden rounded-lg">
-                <img
-                  src={image}
-                  alt={`${title} - Imagem ${index + 1}`}
-                  className="w-full h-full object-cover cursor-zoom-in transition-all hover:scale-105"
-                  onClick={() => {
-                    // Em uma versão real, abriria um modal para zoom
-                    console.log("Zoom da imagem", index);
-                  }}
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="left-2" />
-        <CarouselNext className="right-2" />
-      </Carousel>
-
-      {/* Miniaturas das imagens */}
-      <div className="flex mt-4 gap-2 overflow-x-auto pb-2">
-        {images.map((image, index) => (
-          <button
-            key={index}
-            className={`w-20 h-20 overflow-hidden rounded-md transition-all ${
-              activeImage === index
-                ? "border-2 border-primary ring-2 ring-primary/30"
-                : "border border-gray-200 opacity-70 hover:opacity-100"
-            }`}
-            onClick={() => setActiveImage(index)}
-          >
-            <img
-              src={image}
-              alt={`Miniatura ${index + 1}`}
-              className="w-full h-full object-cover"
+      {/* Imagem Principal */}
+      <div className="relative w-full h-96 overflow-hidden bg-gray-100 rounded-lg mb-2">
+        {status !== "disponível" && (
+          <div className={getOverlayStyle()}>
+            <StatusBadge 
+              status={status} 
+              className="transform scale-150 bg-white/90 text-lg px-6 py-2"
             />
-          </button>
-        ))}
+          </div>
+        )}
+        <img
+          src={images[currentImage]}
+          alt={`${title} - Imagem ${currentImage + 1}`}
+          className={`w-full h-full object-contain ${status === "vendido" ? "opacity-80" : ""}`}
+        />
+        {images.length > 1 && (
+          <>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
+              onClick={prevImage}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
+              onClick={nextImage}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
       </div>
+
+      {/* Miniaturas */}
+      {images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {images.map((image, index) => (
+            <button
+              key={index}
+              className={`relative w-20 h-20 flex-shrink-0 rounded ${
+                currentImage === index
+                  ? "ring-2 ring-primary ring-offset-2"
+                  : "opacity-70"
+              }`}
+              onClick={() => setCurrentImage(index)}
+            >
+              <img
+                src={image}
+                alt={`${title} - Miniatura ${index + 1}`}
+                className="w-full h-full object-cover rounded"
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -3,16 +3,18 @@ import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import StatusBadge, { ListingStatus } from "./StatusBadge";
 
 interface ListingCardProps {
   id: string;
   title: string;
-  price: number | string;  // Updated to accept any string, not just "A combinar"
+  price: number | string;
   imageUrl: string;
   category: string;
   type: "produto" | "serviço";
   rating?: number;
   location: string;
+  status?: ListingStatus;
 }
 
 const ListingCard = ({
@@ -24,6 +26,7 @@ const ListingCard = ({
   type,
   rating,
   location,
+  status = "disponível",
 }: ListingCardProps) => {
   return (
     <Link to={`/anuncio/${id}`} className="block">
@@ -32,7 +35,7 @@ const ListingCard = ({
           <img
             src={imageUrl}
             alt={title}
-            className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+            className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 ${status === "vendido" ? "opacity-70" : ""}`}
           />
           <Badge
             className="absolute top-2 left-2"
@@ -40,13 +43,14 @@ const ListingCard = ({
           >
             {type}
           </Badge>
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 flex flex-col gap-2 items-end">
             <Badge 
               variant="outline" 
               className="bg-white/80 backdrop-blur-sm text-gray-800"
             >
               {category}
             </Badge>
+            <StatusBadge status={status} className="bg-white/80 backdrop-blur-sm" />
           </div>
         </div>
         <div className="p-4 flex flex-col flex-grow">

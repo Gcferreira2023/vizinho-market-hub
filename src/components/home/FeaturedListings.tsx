@@ -2,6 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ListingCard from "../listings/ListingCard";
 import { Link } from "react-router-dom";
+import { ListingStatus } from "../listings/StatusBadge";
 
 // Dados de exemplo (mockup)
 const mockListings = [
@@ -13,7 +14,8 @@ const mockListings = [
     category: "Alimentos",
     type: "produto" as const,
     rating: 4.8,
-    location: "Bloco A, 101"
+    location: "Bloco A, 101",
+    status: "disponível" as ListingStatus
   },
   {
     id: "2",
@@ -23,7 +25,8 @@ const mockListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 4.5,
-    location: "Bloco B, 304"
+    location: "Bloco B, 304",
+    status: "reservado" as ListingStatus
   },
   {
     id: "3",
@@ -33,7 +36,8 @@ const mockListings = [
     category: "Produtos Gerais",
     type: "produto" as const,
     rating: 4.2,
-    location: "Bloco C, 202"
+    location: "Bloco C, 202",
+    status: "disponível" as ListingStatus
   },
   {
     id: "4",
@@ -43,11 +47,17 @@ const mockListings = [
     category: "Serviços",
     type: "serviço" as const,
     rating: 5.0,
-    location: "Bloco D, 405"
+    location: "Bloco D, 405",
+    status: "disponível" as ListingStatus
   },
 ];
 
 const FeaturedListings = () => {
+  // Filtrar para apenas mostrar anúncios disponíveis ou reservados
+  const availableListings = mockListings.filter(
+    listing => listing.status !== "vendido"
+  );
+  
   return (
     <section className="py-10">
       <div className="container mx-auto px-4">
@@ -66,14 +76,14 @@ const FeaturedListings = () => {
           </TabsList>
           <TabsContent value="todos">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {mockListings.map((listing) => (
+              {availableListings.map((listing) => (
                 <ListingCard key={listing.id} {...listing} />
               ))}
             </div>
           </TabsContent>
           <TabsContent value="produtos">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {mockListings
+              {availableListings
                 .filter((listing) => listing.type === "produto")
                 .map((listing) => (
                   <ListingCard key={listing.id} {...listing} />
@@ -82,7 +92,7 @@ const FeaturedListings = () => {
           </TabsContent>
           <TabsContent value="servicos">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {mockListings
+              {availableListings
                 .filter((listing) => listing.type === "serviço")
                 .map((listing) => (
                   <ListingCard key={listing.id} {...listing} />

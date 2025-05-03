@@ -1,5 +1,7 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +10,7 @@ import { Star, Clock } from "lucide-react";
 import ListingCard from "@/components/listings/ListingCard";
 import ListingImageGallery from "@/components/listings/ListingImageGallery";
 import SellerInfo from "@/components/listings/SellerInfo";
+import StatusSelector, { ListingStatus } from "@/components/listings/StatusSelector";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 
@@ -27,6 +30,7 @@ const mockListing = {
   type: "produto" as const,
   rating: 4.8,
   location: "Bloco A, 101",
+  status: "disponível" as ListingStatus,
   seller: {
     id: "s1",
     name: "Maria Silva",
@@ -53,6 +57,7 @@ const mockSimilarListings = [
     type: "produto" as const,
     rating: 4.7,
     location: "Bloco A, 302",
+    status: "disponível" as ListingStatus,
   },
   {
     id: "9",
@@ -63,6 +68,7 @@ const mockSimilarListings = [
     type: "produto" as const,
     rating: 4.6,
     location: "Bloco B, 201",
+    status: "disponível" as ListingStatus,
   },
   {
     id: "10",
@@ -73,14 +79,30 @@ const mockSimilarListings = [
     type: "produto" as const,
     rating: 4.9,
     location: "Bloco C, 307",
+    status: "reservado" as ListingStatus,
   },
 ];
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const [listingStatus, setListingStatus] = useState<ListingStatus>("disponível");
 
   // Em uma aplicação real, buscaríamos os detalhes do anúncio pelo ID
   const listing = mockListing;
+  
+  useEffect(() => {
+    // Inicializa o estado com o status atual do anúncio
+    setListingStatus(listing.status);
+  }, [listing.status]);
+  
+  const handleStatusChange = (newStatus: ListingStatus) => {
+    setListingStatus(newStatus);
+    toast({
+      title: "Status atualizado",
+      description: `O anúncio agora está ${newStatus}.`,
+    });
+  };
 
   return (
     <Layout>
@@ -98,19 +120,32 @@ const ListingDetail = () => {
           {/* Coluna Esquerda - Imagens e Detalhes */}
           <div className="lg:col-span-2">
             {/* Galeria de imagens */}
-            <ListingImageGallery images={listing.images} title={listing.title} />
+            <ListingImageGallery 
+              images={listing.images} 
+              title={listing.title} 
+              status={listingStatus}
+            />
 
             {/* Detalhes do anúncio */}
             <Card className="p-6 mb-6">
               <div className="flex items-center justify-between mb-2">
-                <Badge
-                  variant={
-                    listing.type === "produto" ? "default" : "secondary"
-                  }
-                >
-                  {listing.type}
-                </Badge>
-                <span className="text-sm text-gray-500">{listing.category}</span>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={
+                      listing.type === "produto" ? "default" : "secondary"
+                    }
+                  >
+                    {listing.type}
+                  </Badge>
+                  <span className="text-sm text-gray-500">{listing.category}</span>
+                </div>
+                <StatusSelector 
+                  adId={listing.id}
+                  currentStatus={listingStatus}
+                  onStatusChange={handleStatusChange}
+                  userId={user?.id}
+                  ownerId={listing.seller.id}
+                />
               </div>
               <h1 className="text-2xl font-bold mb-2">{listing.title}</h1>
               <div className="flex items-center gap-2 mb-4">
