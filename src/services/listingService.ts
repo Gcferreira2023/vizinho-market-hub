@@ -69,28 +69,38 @@ export const deleteRemovedImages = async (listingId: string, existingImageIds: s
 
 // Fazer upload de uma nova imagem
 export const uploadImage = async (file: File, listingId: string, userId: string, position: number) => {
-  // Verificar e criar bucket se necessário
-  await utilsEnsureStorageBucket('ads');
-
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}-${Date.now()}-${position}.${fileExt}`;
-  const filePath = `ad-images/${listingId}/${fileName}`;
-  
-  // Upload da imagem
-  const { error: uploadError } = await supabase
-    .storage
-    .from('ads')
-    .upload(filePath, file);
+  try {
+    // Verificar se o bucket existe
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(bucket => bucket.name === 'ads');
     
-  if (uploadError) throw uploadError;
-  
-  // Obter URL pública
-  const { data: urlData } = supabase
-    .storage
-    .from('ads')
-    .getPublicUrl(filePath);
+    if (!bucketExists) {
+      throw new Error("O bucket de armazenamento 'ads' não está disponível");
+    }
     
-  return urlData.publicUrl;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}-${Date.now()}-${position}.${fileExt}`;
+    const filePath = `ad-images/${listingId}/${fileName}`;
+    
+    // Upload da imagem
+    const { error: uploadError } = await supabase
+      .storage
+      .from('ads')
+      .upload(filePath, file);
+      
+    if (uploadError) throw uploadError;
+    
+    // Obter URL pública
+    const { data: urlData } = supabase
+      .storage
+      .from('ads')
+      .getPublicUrl(filePath);
+      
+    return urlData.publicUrl;
+  } catch (error) {
+    console.error("Erro ao fazer upload da imagem:", error);
+    throw error;
+  }
 };
 
 // Salvar referência da imagem no banco
@@ -117,10 +127,23 @@ export const deleteListing = async (listingId: string) => {
 };
 
 // Verificar se o bucket existe
-export const ensureStorageBucket = async () => {
-  console.log("Verificando se o bucket 'ads' existe antes de prosseguir...");
-  await utilsEnsureStorageBucket('ads');
-  console.log("Bucket 'ads' verificado com sucesso.");
+export const checkStorageBucket = async (): Promise<boolean> => {
+  console.log("Verificando se o bucket 'ads' existe...");
+  try {
+    const { data: buckets, error } = await supabase.storage.listBuckets();
+    
+    if (error) {
+      console.error("Erro ao verificar buckets:", error);
+      return false;
+    }
+    
+    const bucketExists = buckets.some(bucket => bucket.name === 'ads');
+    console.log("Bucket 'ads' existe:", bucketExists);
+    return bucketExists;
+  } catch (error) {
+    console.error("Erro ao verificar bucket:", error);
+    return false;
+  }
 };
 
 // Verificar se o usuário existe e criar se necessário
@@ -201,15 +224,28 @@ export const createListing = async (formData: ListingFormData, userId: string): 
 
 // Upload e salvar múltiplas imagens para um anúncio
 export const uploadListingImages = async (images: File[], listingId: string, userId: string) => {
+  // Verifica se tem acesso ao storage
+  const hasStorageAccess = await checkStorageBucket();
+  
+  if (!hasStorageAccess) {
+    console.warn("Bucket de armazenamento não está acessível. Pulando upload de imagens.");
+    throw new Error("Não foi possível acessar o armazenamento de imagens. O anúncio foi criado, mas sem imagens.");
+  }
+  
   for (let i = 0; i < images.length; i++) {
     const file = images[i];
     console.log(`Enviando imagem ${i+1}/${images.length}`);
     
-    // Upload da imagem
-    const publicUrl = await uploadImage(file, listingId, userId, i);
-    console.log("URL pública da imagem:", publicUrl);
-    
-    // Salvar referência da imagem
-    await saveImageReference(listingId, publicUrl, i);
+    try {
+      // Upload da imagem
+      const publicUrl = await uploadImage(file, listingId, userId, i);
+      console.log("URL pública da imagem:", publicUrl);
+      
+      // Salvar referência da imagem
+      await saveImageReference(listingId, publicUrl, i);
+    } catch (error) {
+      console.error(`Erro ao processar imagem ${i+1}:`, error);
+      throw error;
+    }
   }
 };

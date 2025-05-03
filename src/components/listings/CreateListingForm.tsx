@@ -7,8 +7,14 @@ import { useCreateListing } from "@/hooks/useCreateListing";
 import { useNavigate } from "react-router-dom";
 import { useListingForm } from "@/hooks/listings/useListingForm";
 import { useListingImages } from "@/hooks/listings/useListingImages";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
-const CreateListingForm = () => {
+interface CreateListingFormProps {
+  storageAvailable?: boolean;
+}
+
+const CreateListingForm = ({ storageAvailable = true }: CreateListingFormProps) => {
   const navigate = useNavigate();
   
   const {
@@ -21,14 +27,21 @@ const CreateListingForm = () => {
   const {
     images,
     imageUrls,
-    handleImagesChange
+    handleImagesChange,
+    validateImages
   } = useListingImages();
   
   const { createListing, isLoading } = useCreateListing();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createListing(formData, images);
+    
+    // Skip image validation if storage is not available
+    if (storageAvailable && !validateImages()) {
+      return;
+    }
+    
+    await createListing(formData, storageAvailable ? images : []);
   };
   
   return (
@@ -40,11 +53,21 @@ const CreateListingForm = () => {
         handleCheckboxChange={handleCheckboxChange}
       />
       
-      <ListingImageManager
-        images={images}
-        imageUrls={imageUrls}
-        onImagesChange={handleImagesChange}
-      />
+      {storageAvailable ? (
+        <ListingImageManager
+          images={images}
+          imageUrls={imageUrls}
+          onImagesChange={handleImagesChange}
+        />
+      ) : (
+        <Alert className="bg-amber-50">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            O upload de imagens não está disponível no momento. Você pode criar o anúncio sem imagens
+            e adicioná-las mais tarde.
+          </AlertDescription>
+        </Alert>
+      )}
       
       {/* Botões de ação */}
       <div className="pt-4 flex gap-4">

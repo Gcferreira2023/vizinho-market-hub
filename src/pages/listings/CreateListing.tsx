@@ -9,53 +9,70 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import CreateListingForm from "@/components/listings/CreateListingForm";
-import { ensureStorageBucket } from "@/utils/storageUtils";
+import { checkStorageBucket } from "@/services/listingService";
 import { useToast } from "@/components/ui/use-toast";
 
 const CreateListing = () => {
   const [storageError, setStorageError] = useState<string | null>(null);
   const [isStorageReady, setIsStorageReady] = useState(false);
+  const [isCheckingStorage, setIsCheckingStorage] = useState(true);
   const { toast } = useToast();
   
-  // Ensure the storage bucket exists when the component mounts
+  // Check if the storage bucket exists when the component mounts
   useEffect(() => {
-    const setupStorage = async () => {
-      console.log("CreateListing: Verificando se o bucket existe...");
+    const checkStorage = async () => {
+      setIsCheckingStorage(true);
       try {
-        await ensureStorageBucket('ads');
-        console.log("CreateListing: Bucket verificado com sucesso");
-        setIsStorageReady(true);
+        const bucketExists = await checkStorageBucket();
+        
+        if (bucketExists) {
+          console.log("CreateListing: Bucket encontrado e acessível");
+          setIsStorageReady(true);
+          setStorageError(null);
+        } else {
+          console.warn("CreateListing: Bucket não acessível ou não existe");
+          setIsStorageReady(false);
+          setStorageError("Não foi possível acessar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
+          toast({
+            title: "Aviso",
+            description: "Você pode criar anúncios, mas a funcionalidade de imagens pode estar limitada.",
+            variant: "warning"
+          });
+        }
       } catch (err: any) {
-        console.error("CreateListing: Erro ao verificar/criar bucket:", err);
+        console.error("CreateListing: Erro ao verificar bucket:", err);
+        setIsStorageReady(false);
         setStorageError("Não foi possível configurar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
         toast({
-          title: "Erro de configuração",
-          description: "Não foi possível configurar o armazenamento de imagens. Tente novamente mais tarde.",
-          variant: "destructive"
+          title: "Aviso",
+          description: "Você pode criar anúncios, mas sem adicionar imagens no momento.",
+          variant: "warning"
         });
+      } finally {
+        setIsCheckingStorage(false);
       }
     };
     
-    setupStorage();
+    checkStorage();
   }, [toast]);
   
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {storageError && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="warning" className="mb-4">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Erro</AlertTitle>
+            <AlertTitle>Aviso</AlertTitle>
             <AlertDescription>{storageError}</AlertDescription>
           </Alert>
         )}
         
-        {!isStorageReady && !storageError && (
+        {!isStorageReady && !storageError && isCheckingStorage && (
           <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Configurando armazenamento</AlertTitle>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Verificando armazenamento</AlertTitle>
             <AlertDescription>Preparando o sistema de armazenamento de imagens...</AlertDescription>
           </Alert>
         )}
@@ -68,7 +85,7 @@ const CreateListing = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CreateListingForm />
+            <CreateListingForm storageAvailable={isStorageReady} />
           </CardContent>
         </Card>
       </div>

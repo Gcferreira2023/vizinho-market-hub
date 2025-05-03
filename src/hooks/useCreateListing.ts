@@ -25,34 +25,53 @@ export const useCreateListing = () => {
     
     console.log("Current user:", user);
     
-    if (images.length === 0) {
-      toast({
-        title: "Imagens obrigatórias",
-        description: "Adicione pelo menos uma imagem ao seu anúncio",
-        variant: "destructive"
-      });
-      return false;
+    // Only validate images if there are any to upload
+    if (images.length > 0) {
+      try {
+        const hasStorageAccess = await listingService.checkStorageBucket();
+        if (!hasStorageAccess) {
+          toast({
+            title: "Aviso",
+            description: "Armazenamento de imagens não disponível. Seu anúncio será criado sem imagens.",
+            variant: "warning"
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao verificar armazenamento:", error);
+      }
     }
     
     setIsLoading(true);
     
     try {
-      // Verify/create storage bucket
-      await listingService.ensureStorageBucket();
-      
       // Create user if doesn't exist
       const userId = await listingService.ensureUserExists(user);
       
       // Create the ad/listing
       const adId = await listingService.createListing(formData, userId);
       
-      // Upload images and save references
-      await listingService.uploadListingImages(images, adId, userId);
-      
-      toast({
-        title: "Anúncio criado",
-        description: "Seu anúncio foi publicado com sucesso!"
-      });
+      // Try to upload images if there are any
+      if (images.length > 0) {
+        try {
+          await listingService.uploadListingImages(images, adId, userId);
+          toast({
+            title: "Anúncio criado",
+            description: "Seu anúncio foi publicado com sucesso!"
+          });
+        } catch (imageError: any) {
+          console.error("Erro ao fazer upload de imagens:", imageError);
+          toast({
+            title: "Anúncio criado parcialmente",
+            description: "Seu anúncio foi criado, mas não foi possível adicionar as imagens.",
+            variant: "warning"
+          });
+        }
+      } else {
+        toast({
+          title: "Anúncio criado",
+          description: "Seu anúncio foi publicado com sucesso!"
+        });
+      }
       
       // Redirect to the ad page
       navigate(`/anuncio/${adId}`);
