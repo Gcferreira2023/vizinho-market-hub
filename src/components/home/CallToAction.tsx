@@ -2,8 +2,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CallToAction = () => {
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
+
   return (
     <section className="py-16 bg-primary text-white">
       <div className="container mx-auto px-4 text-center">
@@ -14,11 +18,16 @@ const CallToAction = () => {
           Tem algo para vender ou oferecer?
         </h2>
         <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-          Cadastre-se agora e comece a anunciar seus produtos e serviços para os moradores do seu condomínio.
+          {isLoggedIn 
+            ? "Comece a anunciar seus produtos e serviços para os moradores do seu condomínio."
+            : "Cadastre-se agora e comece a anunciar seus produtos e serviços para os moradores do seu condomínio."
+          }
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Button size="lg" variant="secondary" className="text-lg py-6" asChild>
-            <Link to="/anunciar">Anunciar Agora</Link>
+            <Link to={isLoggedIn ? "/criar-anuncio" : "/cadastro"}>
+              {isLoggedIn ? "Anunciar Agora" : "Cadastrar e Anunciar"}
+            </Link>
           </Button>
           <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary" asChild>
             <Link to="/como-funciona">Como funciona</Link>
