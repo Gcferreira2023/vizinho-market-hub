@@ -1,7 +1,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { MessageCircle, Phone, Star, User } from "lucide-react";
+import { MessageCircle, Star, User } from "lucide-react";
+import WhatsAppButton from "./WhatsAppButton";
+import { usePhoneMask } from "@/hooks/usePhoneMask";
+import { Link } from "react-router-dom";
 
 interface SellerInfoProps {
   seller: {
@@ -11,11 +14,14 @@ interface SellerInfoProps {
     block: string;
     rating: number;
     listings: number;
+    phone?: string;
   };
-  onContactWhatsApp: () => void;
 }
 
-const SellerInfo = ({ seller, onContactWhatsApp }: SellerInfoProps) => {
+const SellerInfo = ({ seller }: SellerInfoProps) => {
+  const defaultPhone = "5511999999999"; // Telefone padrão caso o vendedor não tenha cadastrado
+  const sellerPhone = seller.phone || defaultPhone;
+  
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -42,11 +48,15 @@ const SellerInfo = ({ seller, onContactWhatsApp }: SellerInfoProps) => {
         </div>
 
         <div className="pt-4 space-y-3">
-          <Button className="w-full" onClick={onContactWhatsApp}>
-            <Phone size={18} className="mr-2" /> Contato via WhatsApp
-          </Button>
-          <Button variant="outline" className="w-full">
-            <MessageCircle size={18} className="mr-2" /> Enviar mensagem
+          <WhatsAppButton 
+            phone={sellerPhone}
+            message={`Olá! Vi seu anúncio e gostaria de mais informações.`}
+            className="w-full"
+          />
+          <Button variant="outline" className="w-full" asChild>
+            <a href="mailto:suporte@seuapp.com">
+              <MessageCircle size={18} className="mr-2" /> Contato por Email
+            </a>
           </Button>
         </div>
       </CardContent>

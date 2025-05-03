@@ -5,7 +5,7 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, Clock, MessageCircle } from "lucide-react";
+import { Star, Clock } from "lucide-react";
 import ListingCard from "@/components/listings/ListingCard";
 import ListingImageGallery from "@/components/listings/ListingImageGallery";
 import SellerInfo from "@/components/listings/SellerInfo";
@@ -35,6 +35,7 @@ const mockListing = {
     block: "A",
     rating: 4.9,
     listings: 12,
+    phone: "5511999999999",
   },
   availability: "Segunda a Sexta, das 09h às 18h",
   delivery: true,
@@ -81,14 +82,6 @@ const ListingDetail = () => {
 
   // Em uma aplicação real, buscaríamos os detalhes do anúncio pelo ID
   const listing = mockListing;
-
-  const handleContactWhatsApp = () => {
-    // Simulando a ação (que seria integrada com o WhatsApp)
-    toast({
-      title: "Redirecionando para WhatsApp",
-      description: "Esta funcionalidade seria integrada com o WhatsApp real"
-    });
-  };
 
   return (
     <Layout>
@@ -176,18 +169,6 @@ const ListingDetail = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-              
-              <div className="mt-8">
-                <Button className="w-full sm:w-auto" onClick={() => {
-                  toast({
-                    title: "Pergunta enviada",
-                    description: "O vendedor responderá em breve!"
-                  });
-                }}>
-                  <MessageCircle className="mr-2" size={18} />
-                  Fazer uma pergunta
-                </Button>
-              </div>
             </Card>
           </div>
 
@@ -196,7 +177,6 @@ const ListingDetail = () => {
             {/* Informações do vendedor */}
             <SellerInfo 
               seller={listing.seller} 
-              onContactWhatsApp={handleContactWhatsApp}
             />
 
             {/* Segurança */}
