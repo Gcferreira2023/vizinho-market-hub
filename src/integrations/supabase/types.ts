@@ -40,33 +40,51 @@ export type Database = {
       }
       ads: {
         Row: {
+          availability: string | null
           category: string
           created_at: string | null
+          delivery: boolean | null
+          delivery_fee: number | null
           description: string
           id: string
+          payment_methods: string | null
           price: number
           status: string | null
           title: string
+          type: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          availability?: string | null
           category: string
           created_at?: string | null
+          delivery?: boolean | null
+          delivery_fee?: number | null
           description: string
           id?: string
+          payment_methods?: string | null
           price: number
           status?: string | null
           title: string
+          type?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          availability?: string | null
           category?: string
           created_at?: string | null
+          delivery?: boolean | null
+          delivery_fee?: number | null
           description?: string
           id?: string
+          payment_methods?: string | null
           price?: number
           status?: string | null
           title?: string
+          type?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
