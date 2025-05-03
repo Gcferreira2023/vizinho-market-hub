@@ -34,8 +34,8 @@ const ListingCard = ({
   const linkPath = linkTo || `/anuncio/${id}`;
   
   return (
-    <Link to={linkPath} className="block h-full">
-      <Card className="card-hover overflow-hidden h-full flex flex-col">
+    <Card className="card-hover overflow-hidden h-full flex flex-col">
+      <Link to={linkPath} className="block h-full">
         <div className="relative h-48 overflow-hidden">
           <img
             src={imageUrl}
@@ -81,8 +81,8 @@ const ListingCard = ({
             </div>
           </div>
         </div>
-      </Card>
-    </Link>
+      </Link>
+    </Card>
   );
 };
 
