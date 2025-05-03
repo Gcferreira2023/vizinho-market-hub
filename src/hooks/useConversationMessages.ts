@@ -3,26 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Message {
-  id: string;
-  content: string;
-  created_at: string;
-  read: boolean; // Changed from is_read to match database field
-  sender_id: string;
-  receiver_id: string;
-}
-
-interface AdInfo {
-  id: string;
-  title: string;
-  user_id: string;
-}
-
-interface UserInfo {
-  id: string;
-  name: string;
-}
+import { Message, AdInfo, UserInfo } from "@/types/messages";
 
 export const useConversationMessages = (adId?: string, otherId?: string | null) => {
   const { user } = useAuth();

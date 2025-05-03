@@ -1,15 +1,7 @@
 
 import { useRef, useEffect } from "react";
 import MessageItem from "./MessageItem";
-
-interface Message {
-  id: string;
-  content: string;
-  created_at: string;
-  is_read: boolean;
-  sender_id: string;
-  receiver_id: string;
-}
+import { Message } from "@/types/messages";
 
 interface MessagesListProps {
   messages: Message[];

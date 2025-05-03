@@ -1,12 +1,6 @@
 
 import { useAuth } from "@/contexts/AuthContext";
-
-interface Message {
-  id: string;
-  content: string;
-  created_at: string;
-  sender_id: string;
-}
+import { Message } from "@/types/messages";
 
 interface MessageItemProps {
   message: Message;
