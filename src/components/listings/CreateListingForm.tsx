@@ -7,6 +7,8 @@ import { useCreateListing } from "@/hooks/useCreateListing";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface CreateListingFormProps {
   storageAvailable?: boolean;
@@ -14,6 +16,7 @@ interface CreateListingFormProps {
 
 const CreateListingForm = ({ storageAvailable = true }: CreateListingFormProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const {
     formData,
@@ -26,6 +29,15 @@ const CreateListingForm = ({ storageAvailable = true }: CreateListingFormProps) 
     createListing,
     isLoading
   } = useCreateListing();
+  
+  // Notification when storage is available
+  useEffect(() => {
+    if (storageAvailable) {
+      console.log("Storage is available, image uploads enabled");
+    } else {
+      console.warn("Storage is not available, image uploads disabled");
+    }
+  }, [storageAvailable]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

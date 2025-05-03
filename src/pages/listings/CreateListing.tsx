@@ -25,30 +25,30 @@ const CreateListing = () => {
     const checkStorage = async () => {
       setIsCheckingStorage(true);
       try {
-        // Esta função agora tentará criar o bucket se não existir
+        // Verifica se o bucket existe
         const bucketExists = await checkStorageBucket();
         
         if (bucketExists) {
-          console.log("CreateListing: Bucket encontrado/criado e acessível");
+          console.log("CreateListing: Bucket 'ads' encontrado e acessível");
           setIsStorageReady(true);
           setStorageError(null);
         } else {
-          console.warn("CreateListing: Não foi possível acessar ou criar o bucket");
+          console.warn("CreateListing: Bucket 'ads' não encontrado ou não acessível");
           setIsStorageReady(false);
-          setStorageError("Não foi possível configurar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
+          setStorageError("O bucket de armazenamento 'ads' não está disponível. Você não poderá fazer upload de imagens.");
           toast({
             title: "Aviso",
-            description: "Você pode criar anúncios, mas a funcionalidade de imagens pode estar limitada.",
+            description: "Armazenamento de imagens não disponível. Você pode criar anúncios sem imagens.",
             variant: "warning"
           });
         }
       } catch (err: any) {
-        console.error("CreateListing: Erro ao verificar/criar bucket:", err);
+        console.error("CreateListing: Erro ao verificar bucket:", err);
         setIsStorageReady(false);
-        setStorageError("Não foi possível configurar o armazenamento de imagens. Algumas funcionalidades podem não estar disponíveis.");
+        setStorageError("Erro ao verificar armazenamento. Você não poderá fazer upload de imagens.");
         toast({
           title: "Aviso",
-          description: "Você pode criar anúncios, mas sem adicionar imagens no momento.",
+          description: "Armazenamento não disponível. Você pode criar anúncios sem imagens.",
           variant: "warning"
         });
       } finally {

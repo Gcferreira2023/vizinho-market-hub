@@ -6,11 +6,21 @@ import { ensureStorageBucket } from "@/utils/storageUtils";
 export const checkStorageBucket = async (): Promise<boolean> => {
   console.log("Verificando se o bucket 'ads' existe...");
   try {
-    // Tenta garantir que o bucket 'ads' exista
-    const result = await ensureStorageBucket('ads');
-    return result;
+    // Verificar se o bucket 'ads' existe
+    const { data: buckets, error } = await supabase.storage.listBuckets();
+    
+    if (error) {
+      console.error("Erro ao listar buckets:", error);
+      return false;
+    }
+    
+    // Verificar se o bucket 'ads' existe na lista
+    const bucketExists = buckets.some(bucket => bucket.name === 'ads');
+    console.log("Bucket 'ads' existe?", bucketExists);
+    
+    return bucketExists;
   } catch (error) {
-    console.error("Erro ao verificar/criar bucket:", error);
+    console.error("Erro ao verificar bucket:", error);
     return false;
   }
 };
