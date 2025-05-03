@@ -5,6 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { ListingFormData } from "@/types/listing";
 import * as listingService from "@/services";
+import { useListingForm } from "./listings/useListingForm";
+import { useListingImages } from "./listings/useListingImages";
+import { initialListingFormData } from "@/types/listing";
 
 export const useCreateListing = () => {
   const { user } = useAuth();
@@ -12,6 +15,12 @@ export const useCreateListing = () => {
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Use the form hook
+  const formHook = useListingForm(initialListingFormData);
+  
+  // Use the images hook
+  const imagesHook = useListingImages();
   
   const createListing = async (formData: ListingFormData, images: File[]) => {
     if (!user) {
@@ -39,6 +48,11 @@ export const useCreateListing = () => {
       } catch (error) {
         console.error("Erro ao verificar armazenamento:", error);
       }
+    }
+    
+    // Validate images
+    if (!imagesHook.validateImages()) {
+      return false;
     }
     
     setIsLoading(true);
@@ -91,6 +105,14 @@ export const useCreateListing = () => {
   };
   
   return {
+    formData: formHook.formData,
+    handleChange: formHook.handleChange,
+    handleSelectChange: formHook.handleSelectChange,
+    handleCheckboxChange: formHook.handleCheckboxChange,
+    imageUrls: imagesHook.imageUrls,
+    images: imagesHook.images,
+    handleImagesChange: imagesHook.handleImagesChange,
+    validateImages: imagesHook.validateImages,
     createListing,
     isLoading
   };

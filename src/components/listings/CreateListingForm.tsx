@@ -5,8 +5,6 @@ import ListingImageManager from "@/components/listings/ListingImageManager";
 import ListingFormSections from "@/components/listings/ListingFormSections";
 import { useCreateListing } from "@/hooks/useCreateListing";
 import { useNavigate } from "react-router-dom";
-import { useListingForm } from "@/hooks/listings/useListingForm";
-import { useListingImages } from "@/hooks/listings/useListingImages";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 
@@ -21,25 +19,16 @@ const CreateListingForm = ({ storageAvailable = true }: CreateListingFormProps) 
     formData,
     handleChange,
     handleSelectChange,
-    handleCheckboxChange
-  } = useListingForm(initialListingFormData);
-  
-  const {
+    handleCheckboxChange,
     images,
     imageUrls,
     handleImagesChange,
-    validateImages
-  } = useListingImages();
-  
-  const { createListing, isLoading } = useCreateListing();
+    createListing,
+    isLoading
+  } = useCreateListing();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Skip image validation if storage is not available
-    if (storageAvailable && !validateImages()) {
-      return;
-    }
     
     await createListing(formData, storageAvailable ? images : []);
   };
