@@ -1,8 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { ensureStorageBucket } from "@/utils/storageUtils";
 import { ListingFormData } from "@/types/listing";
+import { ensureStorageBucket as utilsEnsureStorageBucket } from "@/utils/storageUtils";
 
 // Buscar dados de um anúncio
 export const fetchListing = async (listingId: string) => {
@@ -70,7 +70,7 @@ export const deleteRemovedImages = async (listingId: string, existingImageIds: s
 // Fazer upload de uma nova imagem
 export const uploadImage = async (file: File, listingId: string, userId: string, position: number) => {
   // Verificar e criar bucket se necessário
-  await ensureStorageBucket('ads');
+  await utilsEnsureStorageBucket('ads');
 
   const fileExt = file.name.split('.').pop();
   const fileName = `${userId}-${Date.now()}-${position}.${fileExt}`;
@@ -119,7 +119,7 @@ export const deleteListing = async (listingId: string) => {
 // Verificar se o bucket existe
 export const ensureStorageBucket = async () => {
   console.log("Verificando se o bucket 'ads' existe antes de prosseguir...");
-  await ensureStorageBucket('ads');
+  await utilsEnsureStorageBucket('ads');
   console.log("Bucket 'ads' verificado com sucesso.");
 };
 
