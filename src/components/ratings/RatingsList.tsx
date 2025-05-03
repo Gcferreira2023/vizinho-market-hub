@@ -42,11 +42,11 @@ const RatingsList = ({ userId, limit = 5, showAllRatings = false }: RatingsListP
         
         if (reviewerIds.length > 0) {
           // Vamos usar um método mais simples para obter informações do usuário
-          // já que o método admin.listUsers não está disponível em todos os contextos
+          // de forma correta usando a tabela users que existe no schema
           const usersPromises = reviewerIds.map(async (id) => {
             const { data: userData } = await supabase
-              .from('profiles') // Assumindo que existe uma tabela de perfis
-              .select('id, full_name')
+              .from('users')
+              .select('id, name')
               .eq('id', id)
               .single();
               
@@ -58,7 +58,7 @@ const RatingsList = ({ userId, limit = 5, showAllRatings = false }: RatingsListP
           const userMap = new Map();
           usersData.forEach(user => {
             if (user) {
-              userMap.set(user.id, user.full_name || 'Usuário');
+              userMap.set(user.id, user.name || 'Usuário');
             }
           });
           
