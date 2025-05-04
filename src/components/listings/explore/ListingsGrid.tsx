@@ -1,6 +1,7 @@
 
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import ListingCard from "@/components/listings/ListingCard";
+import EmptyListingsState from "./EmptyListingsState";
 
 interface Listing {
   id: string;
@@ -16,20 +17,12 @@ interface Listing {
 
 interface ListingsGridProps {
   listings: Listing[];
+  searchTerm?: string;
 }
 
-const ListingsGrid = ({ listings }: ListingsGridProps) => {
+const ListingsGrid = ({ listings, searchTerm }: ListingsGridProps) => {
   if (listings.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <h3 className="text-xl font-semibold mb-2">
-          Nenhum anúncio encontrado
-        </h3>
-        <p className="text-gray-500">
-          Tente ajustar seus filtros ou busque por outro termo.
-        </p>
-      </div>
-    );
+    return <EmptyListingsState searchTerm={searchTerm} />;
   }
 
   return (
