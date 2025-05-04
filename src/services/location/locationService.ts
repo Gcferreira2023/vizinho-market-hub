@@ -21,7 +21,7 @@ export const fetchStates = async (): Promise<State[]> => {
 export const fetchCitiesByState = async (stateId: string): Promise<City[]> => {
   const { data, error } = await supabase
     .from('cities')
-    .select('*')
+    .select('*, states(*)')
     .eq('state_id', stateId)
     .order('name');
   
@@ -37,7 +37,7 @@ export const fetchCitiesByState = async (stateId: string): Promise<City[]> => {
 export const fetchCondominiumsByCity = async (cityId: string): Promise<Condominium[]> => {
   const { data, error } = await supabase
     .from('condominiums')
-    .select('*')
+    .select('*, cities(*, states(*))')
     .eq('city_id', cityId)
     .eq('approved', true)
     .order('name');
@@ -97,7 +97,7 @@ export const fetchLocationDetailsById = async (
     if (cityId) {
       const { data: city } = await supabase
         .from('cities')
-        .select('*')
+        .select('*, states(*)')
         .eq('id', cityId)
         .single();
       
@@ -107,7 +107,7 @@ export const fetchLocationDetailsById = async (
     if (condominiumId) {
       const { data: condominium } = await supabase
         .from('condominiums')
-        .select('*')
+        .select('*, cities(*, states(*))')
         .eq('id', condominiumId)
         .single();
       
