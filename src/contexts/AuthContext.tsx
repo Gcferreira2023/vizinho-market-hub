@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Notificação atualizada para informar sobre a confirmação de email
         toast({
           title: "Conta criada com sucesso",
-          description: "Verifique seu email para confirmar o cadastro antes de fazer login.",
+          description: "É necessário verificar seu email antes de fazer login. Por favor, verifique sua caixa de entrada.",
         });
       }
       
