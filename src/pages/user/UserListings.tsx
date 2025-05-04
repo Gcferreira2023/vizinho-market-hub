@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { format, differenceInDays } from "date-fns";
@@ -35,6 +34,26 @@ interface Listing {
   view_count?: number;
 }
 
+// Define the raw data type from Supabase to handle the type casting
+interface RawListing {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  type: string;
+  availability: string;
+  status: string;
+  delivery: boolean;
+  delivery_fee: number | null;
+  payment_methods: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  condominium_id: string | null;
+  view_count?: number; // This might or might not exist in the raw data
+}
+
 const UserListings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -62,11 +81,11 @@ const UserListings = () => {
         console.log("Listings fetched:", listings);
         
         if (listings) {
-          // Add view_count property if it doesn't exist
-          const listingsWithViewCount = listings.map(listing => ({
+          // Transform the raw listings to include view_count property safely
+          const listingsWithViewCount: Listing[] = listings.map((listing: RawListing) => ({
             ...listing,
             view_count: listing.view_count || 0
-          })) as Listing[];
+          }));
           
           setUserListings(listingsWithViewCount);
           
