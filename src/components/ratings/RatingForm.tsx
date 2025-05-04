@@ -38,7 +38,7 @@ const RatingForm: React.FC<RatingFormProps> = ({
     
     if (success && onSuccess) {
       onSuccess();
-      // Reset form
+      // Reset do formulário
       setRating(0);
       setComment('');
     }

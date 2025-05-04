@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  // Use the hook to scroll to top on route changes
+  // Use o hook para rolar para o topo nas mudanças de rota
   useScrollToTop();
   
   return (

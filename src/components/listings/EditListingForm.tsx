@@ -59,7 +59,7 @@ const EditListingForm = ({
         onImagesChange={onImagesChange}
       />
       
-      {/* Action buttons */}
+      {/* Botões de ação */}
       <div className="pt-4 flex gap-4">
         <Button
           type="button"

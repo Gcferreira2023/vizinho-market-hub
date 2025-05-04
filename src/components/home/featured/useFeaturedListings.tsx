@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingStatus } from "../../listings/StatusBadge";
@@ -30,7 +31,6 @@ const mockListings = [
     id: "3",
     title: "Fones de Ouvido Bluetooth - Seminovo",
     price: 120.00,
-    // Atualizando URL da imagem para Produtos Gerais para uma mais confiável
     imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
     category: "Produtos Gerais",
     type: "produto" as const,

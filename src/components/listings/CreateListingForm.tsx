@@ -30,12 +30,12 @@ const CreateListingForm = ({ storageAvailable = true }: CreateListingFormProps) 
     isLoading
   } = useCreateListing();
   
-  // Notification when storage is available
+  // Notificação quando o armazenamento estiver disponível
   useEffect(() => {
     if (storageAvailable) {
-      console.log("Storage is available, image uploads enabled");
+      console.log("Armazenamento disponível, upload de imagens ativado");
     } else {
-      console.warn("Storage is not available, image uploads disabled");
+      console.warn("Armazenamento não disponível, upload de imagens desativado");
     }
   }, [storageAvailable]);
   

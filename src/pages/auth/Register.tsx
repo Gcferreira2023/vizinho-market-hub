@@ -34,7 +34,7 @@ const Register = () => {
   const onFinalSubmit = async (stepData: Step2FormData) => {
     console.log("Tentando finalizar cadastro");
     
-    // Make sure we have step1Data before proceeding
+    // Verificar se temos os dados do primeiro passo antes de prosseguir
     if (!step1Data) {
       console.error("Dados do primeiro passo não encontrados");
       toast({

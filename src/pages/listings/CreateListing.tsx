@@ -22,12 +22,12 @@ const CreateListing = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Check if the storage bucket exists when the component mounts
+  // Verificar se o bucket de armazenamento existe quando o componente é montado
   useEffect(() => {
     const checkStorage = async () => {
       setIsCheckingStorage(true);
       
-      // Check authentication first
+      // Verificar a autenticação primeiro
       if (!user) {
         console.log("CreateListing: Usuário não autenticado, verificando bucket apenas para leitura");
       }
