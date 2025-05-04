@@ -81,7 +81,7 @@ const Register = () => {
 
       toast({
         title: "Cadastro realizado!",
-        description: "Sua conta foi criada com sucesso. Faça login para continuar.",
+        description: "Sua conta foi criada com sucesso. Verifique seu email para confirmar o cadastro antes de fazer login.",
       });
       
       // Redireciona para a página de login após cadastro bem-sucedido
