@@ -37,13 +37,21 @@ const CondominiumFilter = ({
         
         const { data, error } = await supabase
           .from('condominiums')
-          .select('*, cities(name, states(name))')
+          .select(`
+            *,
+            cities(
+              id, 
+              name, 
+              state_id, 
+              states(id, name)
+            )
+          `)
           .eq('id', condominiumId)
           .single();
           
         if (error) throw error;
         
-        setCondominium(data);
+        setCondominium(data as Condominium);
       } catch (error) {
         console.error('Erro ao buscar condomínio:', error);
       } finally {
