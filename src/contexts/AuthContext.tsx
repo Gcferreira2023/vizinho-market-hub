@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             block: userData.block,
             phone: userData.phone,
           },
+          emailRedirectTo: `${window.location.origin}/login`, // Adicionando URL de redirecionamento para confirmação de email
         },
       });
       
