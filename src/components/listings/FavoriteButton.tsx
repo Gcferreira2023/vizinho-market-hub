@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Heart, HeartOff } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,8 +23,19 @@ const FavoriteButton = ({
 }: FavoriteButtonProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Usar try/catch para obter o contexto de autenticação
+  let authContext;
+  try {
+    authContext = useAuth();
+  } catch (error) {
+    // Se o contexto não estiver disponível, continuamos sem ele
+    console.log("AuthContext não disponível para FavoriteButton");
+  }
+  
+  // Extrair o usuário do contexto de autenticação, se disponível
+  const user = authContext?.user || null;
 
   useEffect(() => {
     if (user) {

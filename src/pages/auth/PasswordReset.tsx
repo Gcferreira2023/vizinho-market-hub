@@ -14,26 +14,47 @@ import {
 } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext"; 
 
 const PasswordReset = () => {
   const { toast } = useToast();
+  const { resetPassword } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulando uma recuperação de senha
-    setTimeout(() => {
+    try {
+      const { error } = await resetPassword(email);
+      
+      if (error) {
+        toast({
+          title: "Erro ao solicitar redefinição",
+          description: error.message || "Não foi possível enviar o email de redefinição. Tente novamente.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       toast({
         title: "Email enviado",
         description: "Verifique sua caixa de entrada para redefinir sua senha.",
       });
-      setIsLoading(false);
       setSubmitted(true);
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: "Erro no sistema",
+        description: "Ocorreu um erro inesperado. Tente novamente mais tarde.",
+        variant: "destructive"
+      });
+      console.error("Erro ao resetar senha:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
