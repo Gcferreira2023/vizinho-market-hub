@@ -26,6 +26,14 @@ import UserFavorites from "./pages/user/UserFavorites";
 import EditProfile from "./pages/user/EditProfile";
 import HowItWorksPage from "./pages/HowItWorksPage";
 
+// Redirecionamento para categorias
+import ExploreByCategory from "./pages/listings/ExploreByCategory";
+
+// Páginas de informação
+import TermsPage from "./pages/info/TermsPage";
+import PrivacyPage from "./pages/info/PrivacyPage";
+import ContactPage from "./pages/info/ContactPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -45,6 +53,15 @@ const App = () => (
             <Route path="/explorar" element={<ExploreListings />} />
             <Route path="/anuncio/:id" element={<ListingDetail />} />
             <Route path="/como-funciona" element={<HowItWorksPage />} />
+            
+            {/* Rotas de categorias */}
+            <Route path="/categoria/:categoryId" element={<ExploreByCategory />} />
+            
+            {/* Rotas de informações */}
+            <Route path="/termos" element={<TermsPage />} />
+            <Route path="/privacidade" element={<PrivacyPage />} />
+            <Route path="/contato" element={<ContactPage />} />
+            <Route path="/sobre" element={<HowItWorksPage />} />
             
             {/* Rotas protegidas (requer autenticação) */}
             <Route path="/criar-anuncio" element={
