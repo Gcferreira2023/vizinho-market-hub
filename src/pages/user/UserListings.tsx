@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { format, differenceInDays } from "date-fns";
@@ -14,10 +15,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
 import { Badge } from "@/components/ui/badge";
 
+// Define an interface for the listing with view_count as an optional property
+interface Listing {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  type: string;
+  availability: string;
+  status: string;
+  delivery: boolean;
+  delivery_fee: number | null;
+  payment_methods: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  condominium_id: string | null;
+  view_count?: number;
+}
+
 const UserListings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [userListings, setUserListings] = useState<any[]>([]);
+  const [userListings, setUserListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [listingImages, setListingImages] = useState<Record<string, string>>({});
   const [listingStats, setListingStats] = useState<Record<string, { views: number, days: number, contacts: number }>>({});
@@ -45,7 +66,7 @@ const UserListings = () => {
           const listingsWithViewCount = listings.map(listing => ({
             ...listing,
             view_count: listing.view_count || 0
-          }));
+          })) as Listing[];
           
           setUserListings(listingsWithViewCount);
           
