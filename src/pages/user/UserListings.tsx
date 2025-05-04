@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { format, differenceInDays } from "date-fns";
@@ -10,9 +9,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ListingCard from "@/components/listings/ListingCard";
 import SimpleStats from "@/components/listings/stats/SimpleStats";
-import { Loader2, Edit, BarChart2 } from "lucide-react";
+import { Loader2, Edit, BarChart2, Eye } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
+import { Badge } from "@/components/ui/badge";
 
 const UserListings = () => {
   const { user } = useAuth();
@@ -41,12 +41,18 @@ const UserListings = () => {
         console.log("Listings fetched:", listings);
         
         if (listings) {
-          setUserListings(listings);
+          // Add view_count property if it doesn't exist
+          const listingsWithViewCount = listings.map(listing => ({
+            ...listing,
+            view_count: listing.view_count || 0
+          }));
+          
+          setUserListings(listingsWithViewCount);
           
           // Calculate stats for each listing
           const stats: Record<string, { views: number, days: number, contacts: number }> = {};
           
-          listings.forEach(listing => {
+          listingsWithViewCount.forEach(listing => {
             const createdDate = new Date(listing.created_at);
             const daysSinceCreation = differenceInDays(new Date(), createdDate);
             
