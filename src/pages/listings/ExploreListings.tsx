@@ -10,11 +10,16 @@ import { useListingsFilter } from "@/hooks/useListingsFilter";
 import { fetchListings } from "@/services/listings/listingService";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ExploreListings = () => {
   const [listings, setListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
 
   const {
     searchTerm,
@@ -123,6 +128,16 @@ const ExploreListings = () => {
           />
         </div>
 
+        {/* Alerta de não necessidade de cadastro */}
+        {!isLoggedIn && (
+          <Alert className="mb-6 bg-green-50 border-green-200 text-green-700">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Navegue e contate vendedores <strong>sem precisar se cadastrar</strong>. Apenas anunciantes precisam criar conta.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <SearchListingsForm
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -168,6 +183,12 @@ const ExploreListings = () => {
                   const location = listing.users 
                     ? `${listing.users.block || ''} ${listing.users.apartment || ''}` 
                     : '';
+                  
+                  // Verifica se o anúncio é do mesmo condomínio do usuário logado
+                  const isUserCondominium = user?.user_metadata?.condominiumId === listing.condominium_id;
+                  
+                  // Obtém o nome do condomínio, se disponível
+                  const condominiumName = listing.condominiums?.name || "Desconhecido";
                     
                   return {
                     id: listing.id,
@@ -178,7 +199,10 @@ const ExploreListings = () => {
                     type: listing.type as "produto" | "serviço",
                     location: location.trim(),
                     status: listing.status === "active" ? "disponível" : 
-                            listing.status === "reserved" ? "reservado" : "vendido"
+                            listing.status === "reserved" ? "reservado" : "vendido",
+                    condominiumName: condominiumName,
+                    isUserCondominium: isUserCondominium,
+                    viewCount: Math.floor(Math.random() * 30) + 2 // Simulated view count for now
                   };
                 })}
                 searchTerm={searchTerm} 

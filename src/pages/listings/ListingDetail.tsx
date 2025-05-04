@@ -11,7 +11,7 @@ const ListingDetail = () => {
   return (
     <Layout>
       <ListingDataFetcher id={id}>
-        {({ listing, displayListing, listingImages, listingStatus, isLoading, handleStatusChange }) => {
+        {({ listing, displayListing, listingImages, listingStatus, isLoading, handleStatusChange, viewCount }) => {
           if (isLoading) {
             return <LoadingSpinner message="Carregando anúncio..." />;
           }
@@ -24,6 +24,7 @@ const ListingDetail = () => {
               listingStatus={listingStatus}
               id={id}
               handleStatusChange={handleStatusChange}
+              viewCount={viewCount}
             />
           );
         }}

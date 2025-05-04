@@ -10,6 +10,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { AlertCircle } from "lucide-react";
 
 // Dados de exemplo para o banner
 const bannerItems = [
@@ -40,11 +42,21 @@ const bannerItems = [
 ];
 
 const HeroBanner = () => {
+  const { user } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const isLoggedIn = !!user;
 
   return (
     <section className="py-6">
       <div className="container mx-auto px-4">
+        {/* Alerta de não necessidade de cadastro */}
+        {!isLoggedIn && (
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-700 p-3 rounded-md flex items-center gap-2">
+            <AlertCircle size={16} className="text-green-700" />
+            <p>Navegue e contate vendedores <strong>sem precisar se cadastrar</strong>. Apenas anunciantes precisam criar conta.</p>
+          </div>
+        )}
+        
         <Carousel 
           className="w-full"
           onSelect={(index) => {

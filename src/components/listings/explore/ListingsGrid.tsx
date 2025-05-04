@@ -13,6 +13,9 @@ interface Listing {
   rating?: number;
   location: string;
   status: ListingStatus;
+  condominiumName?: string;
+  isUserCondominium?: boolean;
+  viewCount?: number;
 }
 
 interface ListingsGridProps {

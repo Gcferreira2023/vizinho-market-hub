@@ -1,5 +1,5 @@
 
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatusSelector from "@/components/listings/StatusSelector";
 import { ListingStatus } from "@/components/listings/StatusBadge";
@@ -15,6 +15,8 @@ interface ListingHeaderProps {
   userId?: string;
   ownerId?: string;
   onStatusChange: (newStatus: ListingStatus) => void;
+  condominiumName?: string;
+  isUserCondominium?: boolean;
 }
 
 const ListingHeader = ({
@@ -27,7 +29,9 @@ const ListingHeader = ({
   adId,
   userId,
   ownerId,
-  onStatusChange
+  onStatusChange,
+  condominiumName,
+  isUserCondominium = false
 }: ListingHeaderProps) => {
   return (
     <>

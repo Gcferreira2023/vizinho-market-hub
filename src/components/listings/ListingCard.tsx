@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import StatusBadge, { ListingStatus } from "./StatusBadge";
@@ -19,6 +19,9 @@ interface ListingCardProps {
   status?: ListingStatus;
   linkTo?: string; // Optional custom link path
   isMockListing?: boolean; // New prop to identify mock listings
+  condominiumName?: string; // Added condominium name
+  isUserCondominium?: boolean; // Flag if this is user's condominium
+  viewCount?: number; // Added view count
 }
 
 const ListingCard = ({
@@ -33,6 +36,9 @@ const ListingCard = ({
   status = "disponível",
   linkTo, // Use custom link if provided
   isMockListing = false, // Default to false
+  condominiumName,
+  isUserCondominium = false,
+  viewCount = 0
 }: ListingCardProps) => {
   const [imgError, setImgError] = useState(false);
   
@@ -82,6 +88,25 @@ const ListingCard = ({
               className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
             />
           </div>
+          
+          {/* Badge de condomínio destacado */}
+          {condominiumName && (
+            <div className="absolute bottom-2 left-2">
+              <Badge 
+                variant="outline" 
+                className={`text-xs py-1 px-2 flex items-center gap-1 
+                  ${isUserCondominium 
+                    ? 'bg-primary/20 text-primary border-primary/30' 
+                    : 'bg-white/80 text-gray-700 border-gray-300'}`}
+              >
+                <MapPin className="h-3 w-3" />
+                {condominiumName}
+                {isUserCondominium && (
+                  <span className="bg-primary/20 text-primary text-[10px] px-1 rounded">Seu</span>
+                )}
+              </Badge>
+            </div>
+          )}
         </div>
         
         <div className="p-4 flex flex-col flex-grow">
@@ -99,7 +124,14 @@ const ListingCard = ({
               <span className="font-bold text-lg text-primary">
                 {typeof price === "number" ? `R$ ${price.toFixed(2)}` : price}
               </span>
-              <span className="text-xs text-gray-500">{location}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">{location}</span>
+                {viewCount > 0 && (
+                  <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                    {viewCount} {viewCount === 1 ? 'visualização' : 'visualizações'}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>

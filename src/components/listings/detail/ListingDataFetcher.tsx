@@ -15,6 +15,7 @@ interface ListingDataFetcherProps {
     listingStatus: ListingStatus;
     isLoading: boolean;
     handleStatusChange: (newStatus: ListingStatus) => void;
+    viewCount: number;
   }) => React.ReactNode;
 }
 
@@ -23,8 +24,20 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
   const [listingImages, setListingImages] = useState<string[]>([]);
   const [listingStatus, setListingStatus] = useState<ListingStatus>("disponível");
   const [isLoading, setIsLoading] = useState(true);
+  const [viewCount, setViewCount] = useState(0);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Função para incrementar visualização
+  const incrementViewCount = async (adId: string) => {
+    try {
+      // Implemente aqui a lógica para incrementar a contagem de visualizações
+      // Esta é uma simulação simples - em produção, você armazenaria isso no banco de dados
+      setViewCount(prevCount => prevCount + 1);
+    } catch (error) {
+      console.error("Erro ao atualizar contagem de visualizações:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchListingDetails = async () => {
@@ -41,7 +54,7 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
           throw new Error("ID de anúncio inválido");
         }
         
-        // Fetch the listing data with user information
+        // Fetch the listing data with user information and condominium info
         const { data: listingData, error: listingError } = await supabase
           .from('ads')
           .select(`
@@ -51,7 +64,12 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
               name,
               apartment,
               block,
-              phone
+              phone,
+              condominium_id
+            ),
+            condominium:condominium_id (
+              id, 
+              name
             )
           `)
           .eq('id', id)
@@ -68,7 +86,13 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
         console.log("Listing data:", listingData);
         
         if (listingData) {
-          setListing(listingData);
+          // Adicionar nome do condomínio ao objeto de listagem
+          const listingWithCondominium = {
+            ...listingData,
+            condominium_name: listingData.condominium?.name || "Desconhecido"
+          };
+          
+          setListing(listingWithCondominium);
           
           // Map status
           const status = translateStatus(listingData.status);
@@ -91,6 +115,14 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
               : ['/placeholder.svg'];
             setListingImages(images);
           }
+          
+          // Incrementar contador de visualizações (somente se não for o próprio usuário)
+          if (user?.id !== listingData.user_id) {
+            incrementViewCount(id);
+          }
+          
+          // Simulação de quantidade de visualizações - remover em produção
+          setViewCount(Math.floor(Math.random() * 50) + 5);
         }
       } catch (error) {
         console.error("Error fetching listing details:", error);
@@ -111,7 +143,7 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
     };
     
     fetchListingDetails();
-  }, [id, navigate]);
+  }, [id, navigate, user?.id]);
   
   // Map status from English to Portuguese
   function translateStatus(status: string): ListingStatus {
@@ -135,7 +167,7 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
     });
   };
 
-  // Prepare seller data 
+  // Prepare seller data with condominium info
   const seller = listing?.user ? {
     id: listing.user.id,
     name: listing.user.name,
@@ -144,6 +176,10 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
     rating: 0, // Could fetch from ratings table if needed
     listings: 0, // Could count user's listings if needed
     phone: listing.user.phone || "",
+    condominium: {
+      name: listing.condominium_name || "Desconhecido",
+      id: listing.condominium_id || listing.user.condominium_id || ""
+    }
   } : {
     id: "",
     name: "Carregando...",
@@ -152,6 +188,10 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
     rating: 0,
     listings: 0,
     phone: "",
+    condominium: {
+      name: "Desconhecido",
+      id: ""
+    }
   };
 
   // Use dados reais se disponíveis, caso contrário use mock data
@@ -188,7 +228,8 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
         listingImages,
         listingStatus,
         isLoading,
-        handleStatusChange
+        handleStatusChange,
+        viewCount
       })}
     </>
   );

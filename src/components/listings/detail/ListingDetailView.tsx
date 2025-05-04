@@ -11,6 +11,8 @@ import ListingHeader from "@/components/listings/detail/ListingHeader";
 import SimilarListings from "@/components/listings/similar/SimilarListings";
 import FavoriteButton from "@/components/listings/FavoriteButton";
 import { ListingStatus } from "@/components/listings/StatusBadge";
+import { Badge } from "@/components/ui/badge";
+import { MapPin } from "lucide-react";
 
 interface ListingDetailViewProps {
   listing: any;
@@ -19,6 +21,7 @@ interface ListingDetailViewProps {
   listingStatus: ListingStatus;
   id?: string;
   handleStatusChange: (newStatus: ListingStatus) => void;
+  viewCount?: number;
 }
 
 const ListingDetailView = ({
@@ -27,7 +30,8 @@ const ListingDetailView = ({
   listingImages,
   listingStatus,
   id,
-  handleStatusChange
+  handleStatusChange,
+  viewCount = 0
 }: ListingDetailViewProps) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -44,9 +48,18 @@ const ListingDetailView = ({
     rating: 0,
     listings: 0,
     phone: "",
+    condominium: {
+      name: displayListing?.condominium_name || "Desconhecido",
+      id: displayListing?.condominium_id || ""
+    }
   };
 
+  // Verificar se o anúncio é do mesmo condomínio do usuário logado
+  const isUserCondominium = user?.user_metadata?.condominiumId === listing?.condominium_id;
   const isOwner = user?.id === listing?.user_id;
+  
+  // Obter o nome do condomínio do anúncio
+  const condominiumName = listing?.condominium_name || seller?.condominium?.name;
 
   return (
     <div className="container mx-auto px-4 py-4 md:py-8">
@@ -57,9 +70,35 @@ const ListingDetailView = ({
         ]}
       />
 
+      {/* Banner de condomínio */}
+      {condominiumName && (
+        <div className={`mb-4 p-3 rounded-md flex items-center gap-2 ${
+          isUserCondominium 
+            ? 'bg-primary/10 text-primary border border-primary/20' 
+            : 'bg-gray-100 text-gray-700'
+        }`}>
+          <MapPin size={18} />
+          <div>
+            <span className="font-medium">Condomínio: {condominiumName}</span>
+            {isUserCondominium && (
+              <Badge className="ml-2 bg-primary/20 text-primary border-primary/30">
+                Seu condomínio
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
         {/* Coluna Esquerda - Imagens e Detalhes */}
         <div className="lg:col-span-2">
+          {/* Alerta de não necessidade de cadastro */}
+          {!user && (
+            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 p-3 rounded-md text-sm flex items-center justify-between">
+              <p>Navegue e contate vendedores sem precisar se cadastrar. Apenas anunciantes precisam criar conta.</p>
+            </div>
+          )}
+          
           {/* Galeria de imagens */}
           <ListingImageGallery 
             images={images} 
@@ -81,6 +120,8 @@ const ListingDetailView = ({
                 userId={user?.id}
                 ownerId={listing?.user_id || seller?.id || ""}
                 onStatusChange={handleStatusChange}
+                condominiumName={condominiumName}
+                isUserCondominium={isUserCondominium}
               />
               {id && (
                 <FavoriteButton 
@@ -109,6 +150,7 @@ const ListingDetailView = ({
                 seller={seller} 
                 adId={id || ""}
                 isOwner={isOwner}
+                viewCount={viewCount}
               />
               <SecurityInfo />
             </div>
@@ -123,6 +165,7 @@ const ListingDetailView = ({
               seller={seller} 
               adId={id || ""}
               isOwner={isOwner}
+              viewCount={viewCount}
             />
 
             {/* Segurança */}

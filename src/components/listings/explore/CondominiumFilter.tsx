@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Condominium } from "@/types/location";
 import { supabase } from "@/integrations/supabase/client";
-import { Home } from "lucide-react";
+import { Home, MapPin } from "lucide-react";
 
 interface CondominiumFilterProps {
   isCondominiumFilter: boolean;
@@ -69,33 +69,52 @@ const CondominiumFilter = ({
   }
 
   return (
-    <div className="bg-muted/50 rounded-lg p-4 mb-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <Home className="h-5 w-5 text-primary mr-2" />
-          <h3 className="font-medium text-sm">Meu Condomínio</h3>
+    <div className={`rounded-lg p-4 mb-6 flex items-center justify-between ${
+      isCondominiumFilter 
+        ? 'bg-primary/20 border border-primary/30' 
+        : 'bg-muted/50'
+    }`}>
+      <div className="flex items-center">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
+          isCondominiumFilter ? 'bg-primary/20' : 'bg-gray-100'
+        }`}>
+          <MapPin className={`h-5 w-5 ${isCondominiumFilter ? 'text-primary' : 'text-gray-500'}`} />
         </div>
         
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="condominium-filter" className="text-xs">
-            Mostrar apenas
-          </Label>
-          <Switch
-            id="condominium-filter"
-            checked={isCondominiumFilter}
-            onCheckedChange={onToggleCondominiumFilter}
-          />
+        <div>
+          <div className="flex items-center">
+            <h3 className={`font-medium text-sm ${isCondominiumFilter ? 'text-primary' : ''}`}>
+              Meu Condomínio
+            </h3>
+            
+            {isCondominiumFilter && (
+              <Badge className="ml-2 bg-primary/30 text-primary border-0">
+                Filtro ativo
+              </Badge>
+            )}
+          </div>
+          
+          <p className="text-sm text-gray-600 mt-0.5">
+            {condominium.name}
+            {condominium.cities && (
+              <span className="ml-1 text-gray-500">
+                ({condominium.cities.name})
+              </span>
+            )}
+          </p>
         </div>
       </div>
       
-      <Badge variant="outline" className="mt-2 text-xs p-1 px-2 bg-background">
-        {condominium.name}
-        {condominium.cities && (
-          <span className="ml-1 text-muted-foreground">
-            ({condominium.cities.name})
-          </span>
-        )}
-      </Badge>
+      <div className="flex items-center gap-3">
+        <Label htmlFor="condominium-filter" className={`text-sm ${isCondominiumFilter ? 'font-medium' : ''}`}>
+          {isCondominiumFilter ? 'Mostrando apenas anúncios do seu condomínio' : 'Mostrar apenas do meu condomínio'}
+        </Label>
+        <Switch
+          id="condominium-filter"
+          checked={isCondominiumFilter}
+          onCheckedChange={onToggleCondominiumFilter}
+        />
+      </div>
     </div>
   );
 };
