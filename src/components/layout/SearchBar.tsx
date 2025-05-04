@@ -26,7 +26,7 @@ const SearchBar = ({ className = "" }: SearchBarProps) => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/explorar?search=${encodeURIComponent(searchTerm.trim())}`);
+      navigate(`/explorar?search=${encodeURIComponent(searchTerm.trim().toLowerCase())}`);
       setSearchTerm("");
     }
   };
@@ -102,7 +102,7 @@ const SearchBar = ({ className = "" }: SearchBarProps) => {
             <CommandItem
               onSelect={() => {
                 if (searchTerm.trim()) {
-                  navigate(`/explorar?search=${encodeURIComponent(searchTerm.trim())}`);
+                  navigate(`/explorar?search=${encodeURIComponent(searchTerm.trim().toLowerCase())}`);
                   setOpen(false);
                   setSearchTerm("");
                 }

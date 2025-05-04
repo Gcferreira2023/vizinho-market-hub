@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import ListingCard from "@/components/listings/ListingCard";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { fetchListings } from "@/services/listings/listingService";
 
 const categoryTitles: Record<string, string> = {
   alimentos: "Alimentos",
@@ -25,26 +25,14 @@ const ExploreByCategory = () => {
   const categoryTitle = categoryTitles[categoryId || ""] || "Categoria";
 
   useEffect(() => {
-    const fetchListings = async () => {
+    const loadListings = async () => {
       setIsLoading(true);
       try {
-        let query = supabase
-          .from("ads")
-          .select(`
-            *,
-            ad_images (*)
-          `)
-          .eq("status", "active");
-          
-        // Filtrar por categoria se houver uma
-        if (categoryId) {
-          query = query.eq("category", categoryId);
-        }
+        const data = await fetchListings({ 
+          category: categoryId,
+          status: "active"
+        });
         
-        const { data, error } = await query
-          .order("created_at", { ascending: false });
-          
-        if (error) throw error;
         setListings(data || []);
       } catch (error) {
         console.error("Erro ao carregar anúncios:", error);
@@ -53,7 +41,7 @@ const ExploreByCategory = () => {
       }
     };
     
-    fetchListings();
+    loadListings();
   }, [categoryId]);
 
   return (

@@ -18,6 +18,62 @@ export const fetchListing = async (listingId: string) => {
   return adData;
 };
 
+// Buscar listagens com filtro de pesquisa
+export const fetchListings = async (searchParams: {
+  search?: string;
+  category?: string;
+  type?: string;
+  status?: string;
+  priceRange?: [number, number];
+}) => {
+  // Inicia a query básica
+  let query = supabase
+    .from("ads")
+    .select(`
+      *,
+      ad_images (*)
+    `);
+
+  // Adiciona filtro por status (ativo por padrão)
+  if (searchParams.status) {
+    query = query.eq("status", searchParams.status);
+  } else {
+    query = query.eq("status", "active");
+  }
+  
+  // Adiciona filtro por categoria se houver
+  if (searchParams.category) {
+    query = query.eq("category", searchParams.category);
+  }
+  
+  // Adiciona filtro por tipo se houver
+  if (searchParams.type) {
+    query = query.eq("type", searchParams.type);
+  }
+  
+  // Adiciona filtro de busca por texto se houver
+  if (searchParams.search && searchParams.search.trim() !== "") {
+    const searchTerm = searchParams.search.trim().toLowerCase();
+    query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+  }
+  
+  // Adiciona filtro por faixa de preço se houver
+  if (searchParams.priceRange) {
+    const [minPrice, maxPrice] = searchParams.priceRange;
+    query = query.gte('price', minPrice).lte('price', maxPrice);
+  }
+
+  // Ordena por data de criação (mais recentes primeiro)
+  const { data, error } = await query.order("created_at", { ascending: false });
+  
+  if (error) {
+    console.error("Erro ao buscar anúncios:", error);
+    throw error;
+  }
+  
+  return data || [];
+};
+
 // Criar um novo anúncio
 export const createListing = async (formData: ListingFormData, userId: string): Promise<string> => {
   console.log("Inserindo anúncio com user_id:", userId);
