@@ -77,7 +77,12 @@ const FeaturedListings = () => {
           <TabsContent value="todos">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {availableListings.map((listing) => (
-                <ListingCard key={listing.id} {...listing} />
+                <ListingCard 
+                  key={listing.id} 
+                  {...listing} 
+                  isMockListing={true}
+                  linkTo="/explorar"
+                />
               ))}
             </div>
           </TabsContent>
@@ -86,7 +91,12 @@ const FeaturedListings = () => {
               {availableListings
                 .filter((listing) => listing.type === "produto")
                 .map((listing) => (
-                  <ListingCard key={listing.id} {...listing} />
+                  <ListingCard 
+                    key={listing.id} 
+                    {...listing} 
+                    isMockListing={true}
+                    linkTo="/explorar"
+                  />
                 ))}
             </div>
           </TabsContent>
@@ -95,7 +105,12 @@ const FeaturedListings = () => {
               {availableListings
                 .filter((listing) => listing.type === "serviço")
                 .map((listing) => (
-                  <ListingCard key={listing.id} {...listing} />
+                  <ListingCard 
+                    key={listing.id} 
+                    {...listing} 
+                    isMockListing={true}
+                    linkTo="/explorar" 
+                  />
                 ))}
             </div>
           </TabsContent>

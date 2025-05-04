@@ -17,6 +17,7 @@ interface ListingCardProps {
   location: string;
   status?: ListingStatus;
   linkTo?: string; // Optional custom link path
+  isMockListing?: boolean; // New prop to identify mock listings
 }
 
 const ListingCard = ({
@@ -30,9 +31,10 @@ const ListingCard = ({
   location,
   status = "disponível",
   linkTo, // Use custom link if provided
+  isMockListing = false, // Default to false
 }: ListingCardProps) => {
-  // Use the provided linkTo or default to the listing detail page
-  const linkPath = linkTo || `/anuncio/${id}`;
+  // Use the provided linkTo or determine based on whether it's a mock listing
+  const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
   return (
     <Card className="card-hover overflow-hidden h-full flex flex-col">

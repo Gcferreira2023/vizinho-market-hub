@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface ListingDataFetcherProps {
   id?: string;
@@ -23,6 +24,7 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
   const [listingStatus, setListingStatus] = useState<ListingStatus>("disponível");
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchListingDetails = async () => {
@@ -31,6 +33,13 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
       try {
         console.log("Fetching listing details for ID:", id);
         setIsLoading(true);
+        
+        // Verify if the ID is a valid UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(id)) {
+          console.error("Invalid listing ID format, not a UUID:", id);
+          throw new Error("ID de anúncio inválido");
+        }
         
         // Fetch the listing data with user information
         const { data: listingData, error: listingError } = await supabase
@@ -50,6 +59,10 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
           
         if (listingError) {
           throw listingError;
+        }
+        
+        if (!listingData) {
+          throw new Error("Anúncio não encontrado");
         }
         
         console.log("Listing data:", listingData);
@@ -87,13 +100,18 @@ const ListingDataFetcher = ({ id, children }: ListingDataFetcherProps) => {
           variant: "destructive"
         });
         setListingImages([]);
+        
+        // Redirect to explore page after showing the error toast
+        setTimeout(() => {
+          navigate('/explorar');
+        }, 2000);
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchListingDetails();
-  }, [id]);
+  }, [id, navigate]);
   
   // Map status from English to Portuguese
   function translateStatus(status: string): ListingStatus {
