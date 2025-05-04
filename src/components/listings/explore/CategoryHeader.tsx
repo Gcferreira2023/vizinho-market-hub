@@ -4,15 +4,20 @@ import { Button } from "@/components/ui/button";
 
 interface CategoryHeaderProps {
   categoryTitle: string;
+  searchTerm?: string;
 }
 
-const CategoryHeader = ({ categoryTitle }: CategoryHeaderProps) => {
+const CategoryHeader = ({ categoryTitle, searchTerm }: CategoryHeaderProps) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">{categoryTitle}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          {searchTerm ? `Resultados para "${searchTerm}"` : categoryTitle}
+        </h1>
         <p className="text-gray-600 mt-1">
-          Explore anúncios da categoria {categoryTitle.toLowerCase()}
+          {searchTerm 
+            ? `Exibindo resultados em ${categoryTitle.toLowerCase()}`
+            : `Explore anúncios da categoria ${categoryTitle.toLowerCase()}`}
         </p>
       </div>
       

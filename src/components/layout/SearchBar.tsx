@@ -12,6 +12,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SearchBarProps {
   className?: string;
@@ -21,12 +22,20 @@ const SearchBar = ({ className = "" }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Handle basic search submission
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
+      console.log(`Executando busca por: ${searchTerm.trim()}`);
       navigate(`/explorar?search=${encodeURIComponent(searchTerm.trim().toLowerCase())}`);
+      
+      toast({
+        title: "Buscando",
+        description: `Procurando por "${searchTerm.trim()}"`,
+      });
+      
       setSearchTerm("");
     }
   };

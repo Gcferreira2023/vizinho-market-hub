@@ -31,7 +31,8 @@ export const fetchListings = async (searchParams: {
     .from("ads")
     .select(`
       *,
-      ad_images (*)
+      ad_images (*),
+      users!ads_user_id_fkey (name, block, apartment)
     `);
 
   // Adiciona filtro por status (ativo por padrão)
@@ -54,7 +55,10 @@ export const fetchListings = async (searchParams: {
   // Adiciona filtro de busca por texto se houver
   if (searchParams.search && searchParams.search.trim() !== "") {
     const searchTerm = searchParams.search.trim().toLowerCase();
+    // Melhora a busca para encontrar termos parciais no título ou descrição
     query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+    
+    console.log(`Buscando por: "${searchTerm}"`);
   }
   
   // Adiciona filtro por faixa de preço se houver
@@ -69,6 +73,11 @@ export const fetchListings = async (searchParams: {
   if (error) {
     console.error("Erro ao buscar anúncios:", error);
     throw error;
+  }
+  
+  console.log(`Resultados encontrados: ${data?.length || 0}`);
+  if (data && data.length > 0) {
+    console.log("Primeiro resultado:", data[0].title);
   }
   
   return data || [];
