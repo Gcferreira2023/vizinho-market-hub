@@ -39,11 +39,11 @@ const CondominiumFilter = ({
           .from('condominiums')
           .select(`
             *,
-            cities(
+            cities!inner(
               id, 
               name, 
               state_id, 
-              states(id, name)
+              states(id, name, uf)
             )
           `)
           .eq('id', condominiumId)
@@ -51,7 +51,8 @@ const CondominiumFilter = ({
           
         if (error) throw error;
         
-        setCondominium(data as Condominium);
+        // Ensure proper typing for the condominium data
+        setCondominium(data as unknown as Condominium);
       } catch (error) {
         console.error('Erro ao buscar condomínio:', error);
       } finally {

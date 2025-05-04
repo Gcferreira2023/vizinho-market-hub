@@ -37,7 +37,7 @@ export const fetchCitiesByState = async (stateId: string): Promise<City[]> => {
 export const fetchCondominiumsByCity = async (cityId: string): Promise<Condominium[]> => {
   const { data, error } = await supabase
     .from('condominiums')
-    .select('*, cities(*, states(*))')
+    .select('*, cities!inner(*, states(*))')
     .eq('city_id', cityId)
     .eq('approved', true)
     .order('name');
@@ -47,7 +47,16 @@ export const fetchCondominiumsByCity = async (cityId: string): Promise<Condomini
     throw error;
   }
   
-  return data as Condominium[];
+  // Ensure proper typing for nested objects
+  const typedData = data?.map(condo => ({
+    ...condo,
+    cities: condo.cities ? {
+      ...condo.cities,
+      states: condo.cities.states
+    } : undefined
+  })) as Condominium[];
+  
+  return typedData;
 };
 
 // Sugerir um novo condomínio
@@ -107,11 +116,19 @@ export const fetchLocationDetailsById = async (
     if (condominiumId) {
       const { data: condominium } = await supabase
         .from('condominiums')
-        .select('*, cities(*, states(*))')
+        .select('*, cities!inner(*, states(*))')
         .eq('id', condominiumId)
         .single();
       
-      result.condominium = condominium as Condominium;
+      if (condominium) {
+        result.condominium = {
+          ...condominium,
+          cities: condominium.cities ? {
+            ...condominium.cities,
+            states: condominium.cities.states
+          } : undefined
+        } as Condominium;
+      }
     }
 
     return result;

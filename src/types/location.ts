@@ -18,7 +18,9 @@ export interface Condominium {
   city_id: string;
   address?: string;
   approved: boolean;
-  cities?: City & { states?: State }; // Optional nested city data with state
+  cities?: City & { 
+    states?: State 
+  }; // Optional nested city data with state
 }
 
 export interface LocationFormData {
