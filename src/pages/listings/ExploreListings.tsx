@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import ListingCard from "@/components/listings/ListingCard";
 import { Input } from "@/components/ui/input";
@@ -118,13 +119,24 @@ const mockAllListings = [
 ];
 
 const ExploreListings = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const urlSearchTerm = queryParams.get("search");
+
+  const [searchTerm, setSearchTerm] = useState(urlSearchTerm || "");
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ListingStatus | null>(null);
   const [showSoldItems, setShowSoldItems] = useState(true);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
+  // Update search term when URL parameters change
+  useEffect(() => {
+    if (urlSearchTerm) {
+      setSearchTerm(urlSearchTerm);
+    }
+  }, [urlSearchTerm]);
 
   // Filtros simulados
   const filteredListings = mockAllListings.filter((listing) => {
@@ -169,7 +181,7 @@ const ExploreListings = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Pesquisa já está sendo aplicada no filtro
+    // Search is handled through the URL and useEffect above
   };
 
   return (
@@ -316,8 +328,14 @@ const ExploreListings = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Search
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
               size={18}
+              onClick={(e) => {
+                const form = (e.target as HTMLElement).closest('form');
+                if (form) {
+                  form.requestSubmit();
+                }
+              }}
             />
           </form>
         </div>
