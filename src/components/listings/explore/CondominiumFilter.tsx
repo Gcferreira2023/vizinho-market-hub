@@ -53,8 +53,7 @@ const CondominiumFilter = ({
           
         if (error) throw error;
         
-        // Ensure proper typing for the condominium data
-        setCondominium(data as unknown as Condominium);
+        setCondominium(data as Condominium);
 
         // Se acabou de fazer login, ativa o filtro por condomínio
         if (!filtersApplied) {
