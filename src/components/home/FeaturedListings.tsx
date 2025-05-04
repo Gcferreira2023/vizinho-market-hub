@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ListingCard from "../listings/ListingCard";
@@ -86,7 +85,8 @@ const FeaturedListings = () => {
             id: item.id,
             title: item.title,
             price: item.price,
-            imageUrl: item.image_url || "https://images.unsplash.com/photo-1586769852836-bc069f19e1dc", // imagem padrão se não tiver
+            // A propriedade image_url não existe diretamente no item, devemos usar uma URL padrão
+            imageUrl: "https://images.unsplash.com/photo-1586769852836-bc069f19e1dc", // imagem padrão se não tiver
             category: item.category,
             type: item.type,
             location: item.users ? `${item.users.block}, ${item.users.apartment}` : "Localização não disponível",

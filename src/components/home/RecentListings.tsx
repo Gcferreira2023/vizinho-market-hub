@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import ListingCard from "../listings/ListingCard";
 import { Link } from "react-router-dom";
@@ -85,7 +84,7 @@ const RecentListings = () => {
             id: item.id,
             title: item.title,
             price: item.price,
-            imageUrl: item.image_url || "https://images.unsplash.com/photo-1586769852836-bc069f19e1dc", // imagem padrão se não tiver
+            imageUrl: "https://images.unsplash.com/photo-1586769852836-bc069f19e1dc", // imagem padrão se não tiver
             category: item.category,
             type: item.type,
             location: item.users ? `${item.users.block}, ${item.users.apartment}` : "Localização não disponível",
