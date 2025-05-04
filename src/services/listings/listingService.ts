@@ -25,6 +25,7 @@ export const fetchListings = async (searchParams: {
   type?: string;
   status?: string;
   priceRange?: [number, number];
+  condominiumId?: string; // Novo parâmetro para filtrar por condomínio
 }) => {
   // Inicia a query básica
   let query = supabase
@@ -50,6 +51,11 @@ export const fetchListings = async (searchParams: {
   // Adiciona filtro por tipo se houver
   if (searchParams.type) {
     query = query.eq("type", searchParams.type);
+  }
+  
+  // Adiciona filtro por condomínio se houver
+  if (searchParams.condominiumId) {
+    query = query.eq("condominium_id", searchParams.condominiumId);
   }
   
   // Adiciona filtro de busca por texto se houver
@@ -87,6 +93,20 @@ export const fetchListings = async (searchParams: {
 export const createListing = async (formData: ListingFormData, userId: string): Promise<string> => {
   console.log("Inserindo anúncio com user_id:", userId);
   
+  // Buscar o condomínio do usuário
+  const { data: userData, error: userError } = await supabase
+    .from('users')
+    .select('condominium_id')
+    .eq('id', userId)
+    .single();
+    
+  if (userError) {
+    console.error("Erro ao buscar dados do usuário:", userError);
+    throw userError;
+  }
+  
+  const condominiumId = userData?.condominium_id;
+  
   const { data: adData, error: adError } = await supabase
     .from('ads')
     .insert({
@@ -100,6 +120,7 @@ export const createListing = async (formData: ListingFormData, userId: string): 
       delivery: formData.delivery,
       delivery_fee: formData.delivery ? parseFloat(formData.deliveryFee) : null,
       payment_methods: formData.paymentMethods,
+      condominium_id: condominiumId,
     })
     .select('id')
     .single();

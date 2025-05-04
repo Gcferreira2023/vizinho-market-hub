@@ -75,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             apartment: userData.apartment,
             block: userData.block,
             phone: userData.phone,
+            condominiumId: userData.condominiumId,
           },
           emailRedirectTo: `${window.location.origin}/login`, // Adicionando URL de redirecionamento para confirmação de email
         },
@@ -134,6 +135,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       console.log("Atualizando perfil para:", user.email, userData);
+      
+      // Atualizar condomínio do usuário na tabela users se fornecido
+      if (userData.condominiumId) {
+        const { error: userUpdateError } = await supabase
+          .from('users')
+          .update({ condominium_id: userData.condominiumId })
+          .eq('id', user.id);
+          
+        if (userUpdateError) {
+          console.error("Erro ao atualizar condomínio do usuário:", userUpdateError);
+          return { error: userUpdateError, data: null };
+        }
+      }
+      
       // Atualiza os metadados do usuário
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
@@ -141,6 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           apartment: userData.apartment,
           block: userData.block,
           phone: userData.phone,
+          condominiumId: userData.condominiumId || user.user_metadata.condominiumId,
         }
       });
 

@@ -42,6 +42,7 @@ export type Database = {
         Row: {
           availability: string | null
           category: string
+          condominium_id: string | null
           created_at: string | null
           delivery: boolean | null
           delivery_fee: number | null
@@ -58,6 +59,7 @@ export type Database = {
         Insert: {
           availability?: string | null
           category: string
+          condominium_id?: string | null
           created_at?: string | null
           delivery?: boolean | null
           delivery_fee?: number | null
@@ -74,6 +76,7 @@ export type Database = {
         Update: {
           availability?: string | null
           category?: string
+          condominium_id?: string | null
           created_at?: string | null
           delivery?: boolean | null
           delivery_fee?: number | null
@@ -88,6 +91,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ads_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ads_user_id_fkey"
             columns: ["user_id"]
@@ -114,6 +124,70 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      cities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          state_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          state_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          state_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cities_state_id_fkey"
+            columns: ["state_id"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      condominiums: {
+        Row: {
+          address: string | null
+          approved: boolean
+          city_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          approved?: boolean
+          city_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          address?: string | null
+          approved?: boolean
+          city_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "condominiums_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       favorites: {
         Row: {
@@ -266,10 +340,32 @@ export type Database = {
           },
         ]
       }
+      states: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          uf: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          uf: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          uf?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           apartment: string | null
           block: string | null
+          condominium_id: string | null
           created_at: string | null
           email: string
           id: string
@@ -281,6 +377,7 @@ export type Database = {
         Insert: {
           apartment?: string | null
           block?: string | null
+          condominium_id?: string | null
           created_at?: string | null
           email: string
           id?: string
@@ -292,6 +389,7 @@ export type Database = {
         Update: {
           apartment?: string | null
           block?: string | null
+          condominium_id?: string | null
           created_at?: string | null
           email?: string
           id?: string
@@ -300,14 +398,25 @@ export type Database = {
           phone?: string | null
           profile_picture?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      suggest_condominium: {
+        Args: { p_city_id: string; p_name: string; p_address?: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

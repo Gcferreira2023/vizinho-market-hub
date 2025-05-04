@@ -24,7 +24,7 @@ export const step1SchemaWithValidation = step1Schema.refine(
   }
 );
 
-// Define step 2 schema separately
+// Define step 2 schema separately with location added
 export const step2Schema = z.object({
   apartment: z.string()
     .min(1, "Número do apartamento é obrigatório")
@@ -33,6 +33,12 @@ export const step2Schema = z.object({
     .min(1, "Bloco/Torre é obrigatório"),
   phone: z.string()
     .min(14, "Telefone incompleto"),
+  stateId: z.string()
+    .min(1, "Selecione um estado"),
+  cityId: z.string()
+    .min(1, "Selecione uma cidade"),
+  condominiumId: z.string()
+    .min(1, "Selecione um condomínio"),
   terms: z.boolean()
     .refine(value => value === true, {
       message: "Você precisa concordar com os Termos de Uso e Política de Privacidade",

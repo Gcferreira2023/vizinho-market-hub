@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Step2FormData, step2Schema } from "./RegisterFormSchemas";
 import { usePhoneMask } from "@/hooks/usePhoneMask";
+import LocationSelector from "./LocationSelector";
+import { Card, CardContent } from "../ui/card";
 
 interface RegisterStep2FormProps {
   onSubmit: (data: Step2FormData) => void;
@@ -31,6 +33,9 @@ const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormPro
       apartment: "",
       block: "",
       phone: "",
+      stateId: "",
+      cityId: "",
+      condominiumId: "",
       terms: false,
     },
     mode: "onChange",
@@ -41,62 +46,98 @@ const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormPro
     form.setValue("phone", value);
   };
 
+  const handleLocationSelected = (location: {
+    stateId: string;
+    cityId: string;
+    condominiumId: string;
+  }) => {
+    form.setValue("stateId", location.stateId);
+    form.setValue("cityId", location.cityId);
+    form.setValue("condominiumId", location.condominiumId);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="apartment"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Número do Apartamento</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="101"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="apartment"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número do Apartamento</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="101"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="block"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bloco/Torre</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="A"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefone (WhatsApp)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="(11) 99999-9999"
+                    {...field}
+                    onChange={(e) => {
+                      handlePhoneChange(e);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
-        <FormField
-          control={form.control}
-          name="block"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bloco/Torre</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="A"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telefone (WhatsApp)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="(11) 99999-9999"
-                  {...field}
-                  onChange={(e) => {
-                    handlePhoneChange(e);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="text-sm font-medium mb-4">Localização</h3>
+            <LocationSelector onLocationSelected={handleLocationSelected} />
+            <FormField
+              control={form.control}
+              name="stateId"
+              render={() => <></>}
+            />
+            <FormField
+              control={form.control}
+              name="cityId"
+              render={() => <></>}
+            />
+            <FormField
+              control={form.control}
+              name="condominiumId"
+              render={() => (
+                <FormMessage />
+              )}
+            />
+          </CardContent>
+        </Card>
         
         <FormField
           control={form.control}

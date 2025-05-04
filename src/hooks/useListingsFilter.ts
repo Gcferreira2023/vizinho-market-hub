@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { ListingStatus } from "@/components/listings/StatusBadge";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function useListingsFilter(initialListings: any[] = []) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const urlSearchTerm = queryParams.get("search");
+  const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState(urlSearchTerm || "");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
@@ -15,6 +17,10 @@ export function useListingsFilter(initialListings: any[] = []) {
   const [selectedStatus, setSelectedStatus] = useState<ListingStatus | null>(null);
   const [showSoldItems, setShowSoldItems] = useState(true);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isCondominiumFilter, setIsCondominiumFilter] = useState(true);
+
+  // Obter o ID do condomínio do usuário dos metadados
+  const userCondominiumId = user?.user_metadata?.condominiumId;
 
   // Atualiza o termo de pesquisa quando os parâmetros da URL mudam
   useEffect(() => {
@@ -30,6 +36,7 @@ export function useListingsFilter(initialListings: any[] = []) {
     setSelectedType(null);
     setSelectedStatus(null);
     setShowSoldItems(true);
+    setIsCondominiumFilter(true);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -50,6 +57,9 @@ export function useListingsFilter(initialListings: any[] = []) {
     setSelectedStatus,
     showSoldItems, 
     setShowSoldItems,
+    isCondominiumFilter,
+    setIsCondominiumFilter,
+    userCondominiumId,
     filteredListings: initialListings, // Isso não é mais usado diretamente
     isFilterSheetOpen,
     setIsFilterSheetOpen,

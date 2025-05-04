@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
-import { ListingStatus } from "@/components/listings/StatusBadge";
 import FilterSidebar from "@/components/listings/explore/FilterSidebar";
 import MobileFilterSheet from "@/components/listings/explore/MobileFilterSheet";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
 import ListingsGrid from "@/components/listings/explore/ListingsGrid";
+import CondominiumFilter from "@/components/listings/explore/CondominiumFilter";
 import { useListingsFilter } from "@/hooks/useListingsFilter";
 import { fetchListings } from "@/services/listings/listingService";
 import LoadingSpinner from "@/components/ui/loading-spinner";
@@ -28,6 +29,9 @@ const ExploreListings = () => {
     setSelectedStatus,
     showSoldItems,
     setShowSoldItems,
+    isCondominiumFilter,
+    setIsCondominiumFilter,
+    userCondominiumId,
     isFilterSheetOpen,
     setIsFilterSheetOpen,
     resetFilters,
@@ -58,6 +62,11 @@ const ExploreListings = () => {
           searchParams.status = selectedStatus;
         } else if (!showSoldItems) {
           searchParams.status = "active";
+        }
+        
+        // Adicionar filtro de condomínio se estiver ativado
+        if (isCondominiumFilter && userCondominiumId) {
+          searchParams.condominiumId = userCondominiumId;
         }
         
         if (priceRange && priceRange[0] !== 0 && priceRange[1] !== 500) {
@@ -91,7 +100,7 @@ const ExploreListings = () => {
     };
     
     loadListings();
-  }, [searchTerm, selectedCategory, selectedType, selectedStatus, showSoldItems, priceRange, toast]);
+  }, [searchTerm, selectedCategory, selectedType, selectedStatus, showSoldItems, priceRange, isCondominiumFilter, userCondominiumId, toast]);
 
   return (
     <Layout>
@@ -119,6 +128,13 @@ const ExploreListings = () => {
           setSearchTerm={setSearchTerm}
           handleSearch={handleSearch}
         />
+        
+        {userCondominiumId && (
+          <CondominiumFilter 
+            isCondominiumFilter={isCondominiumFilter}
+            onToggleCondominiumFilter={setIsCondominiumFilter}
+          />
+        )}
 
         <div className="flex flex-col md:flex-row gap-6">
           <FilterSidebar 
@@ -159,7 +175,7 @@ const ExploreListings = () => {
                     price: listing.price,
                     imageUrl: imageUrl,
                     category: listing.category,
-                    type: listing.type,
+                    type: listing.type as "produto" | "serviço",
                     location: location.trim(),
                     status: listing.status === "active" ? "disponível" : 
                             listing.status === "reserved" ? "reservado" : "vendido"

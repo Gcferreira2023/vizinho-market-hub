@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { usePhoneMask } from "@/hooks/usePhoneMask";
+import LocationSelector from "@/components/auth/LocationSelector";
 
 const EditProfile = () => {
   const { user, updateProfile } = useAuth();
@@ -21,7 +22,8 @@ const EditProfile = () => {
     fullName: "",
     apartment: "",
     block: "",
-    phone: ""
+    phone: "",
+    condominiumId: ""
   });
   
   useEffect(() => {
@@ -31,7 +33,8 @@ const EditProfile = () => {
         fullName: metadata.full_name || "",
         apartment: metadata.apartment || "",
         block: metadata.block || "",
-        phone: metadata.phone || ""
+        phone: metadata.phone || "",
+        condominiumId: metadata.condominiumId || ""
       });
     }
   }, [user]);
@@ -49,6 +52,17 @@ const EditProfile = () => {
     setFormData(prev => ({
       ...prev,
       phone: value
+    }));
+  };
+  
+  const handleLocationSelected = (location: {
+    stateId: string;
+    cityId: string;
+    condominiumId: string;
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      condominiumId: location.condominiumId
     }));
   };
   
@@ -134,6 +148,18 @@ const EditProfile = () => {
                   required
                 />
               </div>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-sm font-medium mb-4">Localização</h3>
+                  <LocationSelector 
+                    onLocationSelected={handleLocationSelected}
+                    initialValues={{
+                      condominiumId: formData.condominiumId
+                    }}
+                  />
+                </CardContent>
+              </Card>
               
               <div className="flex gap-4 pt-4">
                 <Button

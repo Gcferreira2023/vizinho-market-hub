@@ -5,7 +5,7 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, PenSquare, LogOut } from "lucide-react";
+import { User, PenSquare, LogOut, MapPin } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,8 @@ import { useFavorites } from "@/hooks/useFavorites";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import ListingCard from "@/components/listings/ListingCard";
 import { ListingStatus } from "@/components/listings/StatusBadge";
+import { Condominium } from "@/types/location";
+import { Badge } from "@/components/ui/badge";
 
 const UserProfile = () => {
   const { user, signOut } = useAuth();
@@ -20,6 +22,8 @@ const UserProfile = () => {
   const [userListings, setUserListings] = useState<any[]>([]);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
   const { favorites, isLoading: isLoadingFavorites } = useFavorites();
+  const [condominium, setCondominium] = useState<Condominium | null>(null);
+  const [isLoadingCondominium, setIsLoadingCondominium] = useState(false);
 
   useEffect(() => {
     const fetchUserListings = async () => {
@@ -47,7 +51,41 @@ const UserProfile = () => {
       }
     };
     
+    // Buscar informações do condomínio
+    const fetchCondominium = async () => {
+      if (!user || !user.user_metadata?.condominiumId) return;
+      
+      try {
+        setIsLoadingCondominium(true);
+        const condominiumId = user.user_metadata.condominiumId;
+        
+        const { data, error } = await supabase
+          .from('condominiums')
+          .select(`
+            *,
+            cities (
+              name,
+              states (name, uf)
+            )
+          `)
+          .eq('id', condominiumId)
+          .single();
+          
+        if (error) {
+          console.error('Erro ao buscar condomínio:', error);
+          return;
+        }
+        
+        setCondominium(data);
+      } catch (error) {
+        console.error('Erro ao buscar condomínio:', error);
+      } finally {
+        setIsLoadingCondominium(false);
+      }
+    };
+    
     fetchUserListings();
+    fetchCondominium();
   }, [user, toast]);
 
   const handleSignOut = async () => {
@@ -95,6 +133,33 @@ const UserProfile = () => {
                 <div>
                   <p className="text-sm text-gray-500">Telefone</p>
                   <p>{userData.phone || "Não informado"}</p>
+                </div>
+                
+                {/* Informações do condomínio */}
+                <div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <p className="text-sm text-gray-500">Condomínio</p>
+                  </div>
+                  
+                  {isLoadingCondominium ? (
+                    <div className="flex justify-center py-2">
+                      <LoadingSpinner size="sm" />
+                    </div>
+                  ) : condominium ? (
+                    <div className="mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        {condominium.name}
+                      </Badge>
+                      {condominium.cities && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          {condominium.cities.name} - {condominium.cities.states?.uf}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="italic text-sm text-gray-400">Não configurado</p>
+                  )}
                 </div>
                 
                 <div className="pt-4 flex flex-col space-y-2">

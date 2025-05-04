@@ -1,101 +1,91 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { Step1FormData, Step2FormData } from "@/components/auth/RegisterFormSchemas";
 import RegisterStep1Form from "@/components/auth/RegisterStep1Form";
 import RegisterStep2Form from "@/components/auth/RegisterStep2Form";
-import { Step1FormData, Step2FormData } from "@/components/auth/RegisterFormSchemas";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const Register = () => {
-  const { toast } = useToast();
-  const { signUp } = useAuth();
-  const navigate = useNavigate();
+  const [step, setStep] = useState<1 | 2>(1);
+  const [formData, setFormData] = useState<Partial<Step1FormData & Step2FormData>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(1);
-  const [step1Data, setStep1Data] = useState<Step1FormData | null>(null);
+  const { signUp, user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Função para lidar com o envio do primeiro passo
-  const onFirstStepSubmit = (data: Step1FormData) => {
-    console.log("Primeiro passo validado com sucesso, avançando...", data);
-    setStep1Data(data);
+  // Redireciona se o usuário já estiver logado
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  const handleStep1Complete = (data: Step1FormData) => {
+    setFormData(prev => ({ ...prev, ...data }));
     setStep(2);
   };
 
-  const onFinalSubmit = async (stepData: Step2FormData) => {
-    console.log("Tentando finalizar cadastro");
-    
-    // Verificar se temos os dados do primeiro passo antes de prosseguir
-    if (!step1Data) {
-      console.error("Dados do primeiro passo não encontrados");
-      toast({
-        title: "Erro de registro",
-        description: "Por favor, volte e preencha novamente o primeiro passo.",
-        variant: "destructive"
-      });
-      setStep(1);
-      return;
-    }
-    
+  const handleStep2Complete = async (data: Step2FormData) => {
     setIsLoading(true);
     
     try {
-      const userData = {
-        fullName: step1Data.fullName,
-        apartment: stepData.apartment,
-        block: stepData.block,
-        phone: stepData.phone
+      // Combinando os dados dos dois passos
+      const completeData = {
+        ...formData,
+        ...data
       };
-
-      console.log("Enviando dados para signUp:", step1Data.email, "senha:", "***", userData);
-      const { error } = await signUp(step1Data.email, step1Data.password, userData);
+      
+      const userData = {
+        fullName: completeData.fullName,
+        apartment: completeData.apartment,
+        block: completeData.block,
+        phone: completeData.phone,
+        condominiumId: completeData.condominiumId,
+      };
+      
+      const { error } = await signUp(completeData.email!, completeData.password!, userData);
       
       if (error) {
-        console.error("Erro ao cadastrar:", error);
-        
-        if (error.message && error.message.includes("User already registered")) {
+        if (error.message.includes("already registered")) {
           toast({
             title: "Email já cadastrado",
-            description: "Este email já está sendo usado. Tente fazer login ou use outro email.",
+            description: "Este email já está em uso. Tente fazer login ou recuperar sua senha.",
             variant: "destructive"
           });
         } else {
           toast({
-            title: "Erro ao cadastrar",
-            description: error.message || "Ocorreu um erro ao criar sua conta. Tente novamente.",
+            title: "Erro no cadastro",
+            description: error.message || "Ocorreu um erro durante o cadastro. Tente novamente.",
             variant: "destructive"
           });
         }
-        setIsLoading(false);
         return;
       }
-
+      
       toast({
-        title: "Cadastro realizado!",
-        description: "Sua conta foi criada com sucesso. É necessário verificar seu email antes de fazer login. Por favor, verifique sua caixa de entrada.",
+        title: "Cadastro realizado com sucesso",
+        description: "Por favor, verifique seu email para confirmar sua conta."
       });
       
-      // Redireciona para a página de login após cadastro bem-sucedido
+      // Redireciona para página de login após o cadastro
       navigate("/login");
-    } catch (err) {
-      console.error("Erro geral:", err);
+    } catch (err: any) {
       toast({
-        title: "Erro ao cadastrar",
-        description: "Ocorreu um erro ao criar sua conta. Tente novamente mais tarde.",
+        title: "Erro no cadastro",
+        description: err.message || "Ocorreu um erro durante o cadastro. Tente novamente.",
         variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBack = () => {
+    setStep(1);
   };
 
   return (
@@ -108,32 +98,33 @@ const Register = () => {
             </div>
             <span className="text-xl font-bold text-primary">VizinhoMarket</span>
           </Link>
-          <CardTitle className="text-2xl">Criar Conta</CardTitle>
-          <CardDescription>
-            {step === 1 ? "Seus dados pessoais" : "Informações do condomínio"}
-          </CardDescription>
+          <h1 className="text-2xl font-bold">Criar uma conta</h1>
+          <p className="text-sm text-gray-500">
+            {step === 1
+              ? "Insira seus dados pessoais abaixo"
+              : "Complete seu cadastro com sua localização"}
+          </p>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           {step === 1 ? (
-            <RegisterStep1Form onSubmit={onFirstStepSubmit} />
+            <RegisterStep1Form onSubmit={handleStep1Complete} />
           ) : (
             <RegisterStep2Form 
-              onSubmit={onFinalSubmit} 
-              onBack={() => setStep(1)}
+              onSubmit={handleStep2Complete} 
+              onBack={handleBack}
               isLoading={isLoading}
             />
           )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <div className="text-center text-sm">
-            Já tem uma conta?{" "}
-            <Link to="/login" className="text-primary hover:underline">
-              Entrar
-            </Link>
+          <div className="text-center">
+            <span className="text-sm text-gray-500">
+              Já tem uma conta?{" "}
+              <Link to="/login" className="text-primary hover:underline">
+                Fazer login
+              </Link>
+            </span>
           </div>
-          <Link to="/" className="text-sm text-center text-muted-foreground hover:underline">
-            Voltar para o início
-          </Link>
         </CardFooter>
       </Card>
     </div>

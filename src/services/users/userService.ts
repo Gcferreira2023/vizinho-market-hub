@@ -35,6 +35,7 @@ export const ensureUserExists = async (user: User): Promise<string> => {
         apartment: userMeta.apartment || null,
         block: userMeta.block || null,
         phone: userMeta.phone || null,
+        condominium_id: userMeta.condominiumId || null,
       });
     
     if (createUserError) {
