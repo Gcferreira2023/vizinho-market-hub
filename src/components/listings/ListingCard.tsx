@@ -1,11 +1,12 @@
 
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import StatusBadge, { ListingStatus } from "./StatusBadge";
 import FavoriteButton from "./FavoriteButton";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ListingCardProps {
   id: string;
@@ -17,11 +18,13 @@ interface ListingCardProps {
   rating?: number;
   location: string;
   status?: ListingStatus;
-  linkTo?: string; // Optional custom link path
-  isMockListing?: boolean; // New prop to identify mock listings
-  condominiumName?: string; // Added condominium name
-  isUserCondominium?: boolean; // Flag if this is user's condominium
-  viewCount?: number; // Added view count
+  linkTo?: string;
+  isMockListing?: boolean;
+  condominiumName?: string;
+  isUserCondominium?: boolean;
+  viewCount?: number;
+  lazyLoad?: boolean;
+  onImageLoad?: () => void;
 }
 
 const ListingCard = ({
@@ -34,42 +37,85 @@ const ListingCard = ({
   rating,
   location,
   status = "disponível",
-  linkTo, // Use custom link if provided
-  isMockListing = false, // Default to false
+  linkTo,
+  isMockListing = false,
   condominiumName,
   isUserCondominium = false,
-  viewCount = 0
+  viewCount = 0,
+  lazyLoad = false,
+  onImageLoad
 }: ListingCardProps) => {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [isVisible, setIsVisible] = useState(!lazyLoad);
+  
+  // Lazy loading observer
+  useEffect(() => {
+    if (!lazyLoad) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentCard = document.getElementById(`listing-card-${id}`);
+    if (currentCard) {
+      observer.observe(currentCard);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [id, lazyLoad]);
+  
+  const handleImageLoad = () => {
+    setImgLoaded(true);
+    if (onImageLoad) onImageLoad();
+  };
   
   // Use the provided linkTo or determine based on whether it's a mock listing
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
   return (
-    <Card className="card-hover overflow-hidden h-full flex flex-col">
+    <Card id={`listing-card-${id}`} className="card-hover overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-md">
       <Link to={linkPath} className="block h-full no-underline">
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={imgError ? "/placeholder.svg" : imageUrl}
-            alt={title}
-            className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 ${status === "vendido" ? "opacity-70" : ""}`}
-            style={{
-              width: '100%',
-              height: '200px',
-              objectFit: 'cover'
-            }}
-            onError={(e) => {
-              console.log(`Image error loading ${imageUrl}, using placeholder`);
-              setImgError(true);
-            }}
-          />
+        <div className="relative h-48 overflow-hidden bg-gray-100">
+          {(!imgLoaded && isVisible) && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Skeleton className="w-full h-full absolute" />
+            </div>
+          )}
+          
+          {isVisible && (
+            <img
+              src={imgError ? "/placeholder.svg" : imageUrl}
+              alt={title}
+              className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 
+                ${status === "vendido" ? "opacity-70" : ""}
+                ${!imgLoaded ? "opacity-0" : "opacity-100"}`}
+              loading={lazyLoad ? "lazy" : "eager"}
+              onLoad={handleImageLoad}
+              onError={(e) => {
+                console.log(`Image error loading ${imageUrl}, using placeholder`);
+                setImgError(true);
+                handleImageLoad();
+              }}
+            />
+          )}
+          
           <Badge
-            className="absolute top-2 left-2"
+            className="absolute top-2 left-2 z-10"
             variant={type === "produto" ? "default" : "secondary"}
           >
             {type}
           </Badge>
-          <div className="absolute top-2 right-2 flex flex-col gap-2 items-end">
+          
+          <div className="absolute top-2 right-2 flex flex-col gap-2 items-end z-10">
             <Badge 
               variant="outline" 
               className="bg-white/80 backdrop-blur-sm text-gray-800"
@@ -80,7 +126,7 @@ const ListingCard = ({
           </div>
           
           {/* Botão de favorito */}
-          <div className="absolute bottom-2 right-2">
+          <div className="absolute bottom-2 right-2 z-10">
             <FavoriteButton
               listingId={id}
               size="sm"
@@ -91,7 +137,7 @@ const ListingCard = ({
           
           {/* Badge de condomínio destacado */}
           {condominiumName && (
-            <div className="absolute bottom-2 left-2">
+            <div className="absolute bottom-2 left-2 z-10">
               <Badge 
                 variant="outline" 
                 className={`text-xs py-1 px-2 flex items-center gap-1 
@@ -127,7 +173,8 @@ const ListingCard = ({
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">{location}</span>
                 {viewCount > 0 && (
-                  <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    <Eye size={12} />
                     {viewCount} {viewCount === 1 ? 'visualização' : 'visualizações'}
                   </span>
                 )}
