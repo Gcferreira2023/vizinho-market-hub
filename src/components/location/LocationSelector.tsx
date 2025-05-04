@@ -17,7 +17,7 @@ interface LocationSelectorProps {
   };
 }
 
-const LocationSelector = ({ onLocationSelected, initialValues }: LocationSelectorProps) => {
+const LocationSelector = ({ onLocationSelected, initialValues = {} }: LocationSelectorProps) => {
   const { toast } = useToast();
   const [isNewCondominiumDialogOpen, setIsNewCondominiumDialogOpen] = useState(false);
   

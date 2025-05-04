@@ -36,7 +36,7 @@ interface UseLocationDataProps {
   }) => void;
 }
 
-export const useLocationData = ({ initialValues, onLocationSelected }: UseLocationDataProps = {}) => {
+export const useLocationData = ({ initialValues = {}, onLocationSelected }: UseLocationDataProps = {}) => {
   const { toast } = useToast();
   const [data, setData] = useState<LocationDataState>({
     states: [],

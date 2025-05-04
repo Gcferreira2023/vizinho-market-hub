@@ -118,7 +118,7 @@ const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormPro
         <Card>
           <CardContent className="pt-6">
             <h3 className="text-sm font-medium mb-4">Localização</h3>
-            <LocationSelector onLocationSelected={handleLocationSelected} />
+            <LocationSelector onLocationSelected={handleLocationSelected} initialValues={{}} />
             <FormField
               control={form.control}
               name="stateId"
