@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import StatusBadge, { ListingStatus } from "./StatusBadge";
 import FavoriteButton from "./FavoriteButton";
+import { useState } from "react";
 
 interface ListingCardProps {
   id: string;
@@ -33,6 +34,8 @@ const ListingCard = ({
   linkTo, // Use custom link if provided
   isMockListing = false, // Default to false
 }: ListingCardProps) => {
+  const [imgError, setImgError] = useState(false);
+  
   // Use the provided linkTo or determine based on whether it's a mock listing
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
@@ -41,7 +44,7 @@ const ListingCard = ({
       <Link to={linkPath} className="block h-full no-underline">
         <div className="relative h-48 overflow-hidden">
           <img
-            src={imageUrl}
+            src={imgError ? "/placeholder.svg" : imageUrl}
             alt={title}
             className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 ${status === "vendido" ? "opacity-70" : ""}`}
             style={{
@@ -51,7 +54,7 @@ const ListingCard = ({
             }}
             onError={(e) => {
               console.log(`Image error loading ${imageUrl}, using placeholder`);
-              (e.target as HTMLImageElement).src = '/placeholder.svg';
+              setImgError(true);
             }}
           />
           <Badge

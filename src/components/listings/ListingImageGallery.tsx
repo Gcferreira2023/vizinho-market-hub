@@ -18,6 +18,7 @@ const ListingImageGallery = ({
   status = "disponível" 
 }: ListingImageGalleryProps) => {
   const [currentImage, setCurrentImage] = useState(0);
+  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
   const isMobile = useIsMobile();
   
   // Garanta que temos uma matriz de imagens válida, usando um placeholder como fallback
@@ -40,6 +41,10 @@ const ListingImageGallery = ({
     return "";
   };
 
+  const handleImageError = (index: number) => {
+    setImgErrors(prev => ({...prev, [index]: true}));
+  };
+
   return (
     <div className="mb-6">
       {/* Imagem Principal */}
@@ -54,9 +59,10 @@ const ListingImageGallery = ({
             </div>
           )}
           <img
-            src={displayImages[currentImage]}
+            src={imgErrors[currentImage] ? "/placeholder.svg" : displayImages[currentImage]}
             alt={`${title} - Imagem ${currentImage + 1}`}
             className="w-full h-full object-contain"
+            onError={() => handleImageError(currentImage)}
           />
           {displayImages.length > 1 && (
             <>
@@ -95,9 +101,10 @@ const ListingImageGallery = ({
               onClick={() => setCurrentImage(index)}
             >
               <img
-                src={image}
+                src={imgErrors[index] ? "/placeholder.svg" : image}
                 alt={`${title} - Miniatura ${index + 1}`}
                 className="w-full h-full object-cover rounded"
+                onError={() => handleImageError(index)}
               />
             </button>
           ))}

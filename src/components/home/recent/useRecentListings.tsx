@@ -64,6 +64,7 @@ export const useRecentListings = () => {
           .from("ads")
           .select(`
             *,
+            ad_images (*),
             users!ads_user_id_fkey (name, block, apartment)
           `)
           .eq("status", "active")
@@ -77,11 +78,18 @@ export const useRecentListings = () => {
 
         // Transform database data to the format expected by ListingCard
         const formattedData = data?.map(item => {
+          // Get the first image from ad_images or use default
+          let imageUrl = "/placeholder.svg";
+          
+          if (item.ad_images && item.ad_images.length > 0) {
+            imageUrl = item.ad_images[0].image_url;
+          }
+          
           return {
             id: item.id,
             title: item.title,
             price: item.price,
-            imageUrl: "https://images.unsplash.com/photo-1586769852836-bc069f19e1dc", // default image if none available
+            imageUrl: imageUrl,
             category: item.category,
             type: item.type,
             location: item.users ? `${item.users.block}, ${item.users.apartment}` : "Localização não disponível",
