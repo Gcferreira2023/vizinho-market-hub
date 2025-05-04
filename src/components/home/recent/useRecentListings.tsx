@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingStatus } from "../../listings/StatusBadge";
@@ -31,7 +30,7 @@ const mockRecentListings = [
     id: "7",
     title: "Plantas de Interior - Variadas",
     price: 25.00,
-    imageUrl: "https://images.unsplash.com/photo-1610189378457-7c1a76b4361c",
+    imageUrl: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3",
     category: "Produtos Gerais",
     type: "produto" as const,
     rating: 4.3,
