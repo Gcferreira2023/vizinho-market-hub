@@ -58,7 +58,7 @@ const MyCondominiumListings = () => {
             city_id: condominiumData.city_id,
             address: condominiumData.address,
             approved: condominiumData.approved,
-            created_at: condominiumData.created_at,
+            // Remove the created_at property since it's not in the Condominium type
             cities: condominiumData.cities ? {
               id: condominiumData.cities.id,
               name: condominiumData.cities.name,
