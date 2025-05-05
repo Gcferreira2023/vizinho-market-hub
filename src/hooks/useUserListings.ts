@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInDays } from "date-fns";
-import { Listing } from "@/types/listing";
+import { Listing as ListingType } from "@/types/listing";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 
 // Interface for the listing statistics
@@ -14,10 +14,13 @@ export interface ListingStats {
   contacts: number;
 }
 
+// Re-export the Listing type from types/listing.ts
+export type { ListingType as Listing };
+
 export const useUserListings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [userListings, setUserListings] = useState<Listing[]>([]);
+  const [userListings, setUserListings] = useState<ListingType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [listingImages, setListingImages] = useState<Record<string, string>>({});
   const [listingStats, setListingStats] = useState<Record<string, ListingStats>>({});

@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Edit, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Listing } from "@/hooks/useUserListings";
+import { Listing } from "@/types/listing";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 
 interface ListingListViewProps {
@@ -39,7 +39,7 @@ const ListingListView = ({ listings, images, formatDate, translateStatus }: List
                     <span>Editar</span>
                   </Link>
                 </div>
-                <p className="text-sm text-gray-500">{formatDate(listing.created_at)}</p>
+                <p className="text-sm text-gray-500">{formatDate(listing.created_at || '')}</p>
               </div>
               
               <div className="flex flex-wrap gap-2 mb-3">
@@ -54,7 +54,7 @@ const ListingListView = ({ listings, images, formatDate, translateStatus }: List
                   listing.status === "reserved" ? "secondary" : 
                   "destructive"
                 }>
-                  {translateStatus(listing.status)}
+                  {translateStatus(listing.status as string)}
                 </Badge>
               </div>
               
