@@ -51,7 +51,7 @@ const CondominiumSelect = ({
 
   // Handle condominium selection
   const handleCondominiumChange = (value: string) => {
-    setSelectedCondominiumId(value || null);
+    setSelectedCondominiumId(value === "all" ? null : value);
   };
 
   if (!selectedCityId && !isLoading) {
@@ -65,14 +65,14 @@ const CondominiumSelect = ({
         <Skeleton className="h-10 w-full" />
       ) : (
         <Select 
-          value={selectedCondominiumId || ""} 
+          value={selectedCondominiumId || "all"} 
           onValueChange={handleCondominiumChange}
         >
           <SelectTrigger id="condominium-select">
             <SelectValue placeholder="Selecione um condomínio" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os condomínios</SelectItem>
+            <SelectItem value="all">Todos os condomínios</SelectItem>
             {condominiums.map((condominium) => (
               <SelectItem key={condominium.id} value={condominium.id}>
                 {condominium.name}

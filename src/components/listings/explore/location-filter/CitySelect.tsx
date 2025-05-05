@@ -47,7 +47,7 @@ const CitySelect = ({ selectedStateId, selectedCityId, setSelectedCityId }: City
 
   // Handle city selection
   const handleCityChange = (value: string) => {
-    setSelectedCityId(value || null);
+    setSelectedCityId(value === "all" ? null : value);
   };
 
   if (!selectedStateId && !isLoading) {
@@ -61,14 +61,14 @@ const CitySelect = ({ selectedStateId, selectedCityId, setSelectedCityId }: City
         <Skeleton className="h-10 w-full" />
       ) : (
         <Select 
-          value={selectedCityId || ""} 
+          value={selectedCityId || "all"} 
           onValueChange={handleCityChange}
         >
           <SelectTrigger id="city-select">
             <SelectValue placeholder="Selecione uma cidade" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas as cidades</SelectItem>
+            <SelectItem value="all">Todas as cidades</SelectItem>
             {cities.map((city) => (
               <SelectItem key={city.id} value={city.id}>
                 {city.name}

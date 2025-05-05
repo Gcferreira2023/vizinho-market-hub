@@ -40,7 +40,7 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
 
   // Handle state selection
   const handleStateChange = (value: string) => {
-    setSelectedStateId(value || null);
+    setSelectedStateId(value === "all" ? null : value);
   };
 
   return (
@@ -50,14 +50,14 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
         <Skeleton className="h-10 w-full" />
       ) : (
         <Select 
-          value={selectedStateId || ""} 
+          value={selectedStateId || "all"} 
           onValueChange={handleStateChange}
         >
           <SelectTrigger id="state-select">
             <SelectValue placeholder="Selecione um estado" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os estados</SelectItem>
+            <SelectItem value="all">Todos os estados</SelectItem>
             {states.map((state) => (
               <SelectItem key={state.id} value={state.id}>
                 {state.name} ({state.uf})
