@@ -91,17 +91,22 @@ export const useRecentListings = () => {
           throw error;
         }
         
+        console.log("Recent listings raw data:", data);
+        
         // Get user condominium ID to flag which listings are from the same condominium
         const userCondominiumId = user?.user_metadata?.condominiumId;
         
         // Transform data to match our component's expected format
         const transformedData = data?.map(item => {
-          const imageUrl = item.ad_images && item.ad_images.length > 0
-            ? item.ad_images[0].image_url
-            : '/placeholder.svg';
+          // Get image URL from ad_images if available
+          let imageUrl = '/placeholder.svg';
+          if (item.ad_images && item.ad_images.length > 0) {
+            imageUrl = item.ad_images[0].image_url;
+            console.log(`Found image for listing ${item.id}:`, imageUrl);
+          } else {
+            console.log(`No images found for listing ${item.id}, using placeholder`);
+          }
             
-          console.log(`Listing ${item.id} image URL:`, imageUrl);
-          
           return {
             id: item.id,
             title: item.title,
@@ -111,14 +116,14 @@ export const useRecentListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            // Using item.view_count if it exists or default to 0
-            viewCount: 0, // Database doesn't have view_count or viewCount field yet, default to 0
+            viewCount: 0, // Database doesn't have viewCount field yet, default to 0
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
           };
         }) || [];
         
+        console.log("Recent listings transformed data:", transformedData);
         setRealListings(transformedData);
         
         // If we have some real listings, use them, otherwise use mock data

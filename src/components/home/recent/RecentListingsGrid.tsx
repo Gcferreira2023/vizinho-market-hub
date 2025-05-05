@@ -1,7 +1,5 @@
 
 import ListingCard from "../../listings/ListingCard";
-import { Link } from "react-router-dom";
-import { ListingStatus } from "../../listings/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
 
@@ -32,12 +30,15 @@ const RecentListingsGrid = ({
     );
   }
 
+  console.log("RecentListingsGrid listings:", listings);
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {listings.map((listing) => {
           // Check if this is a mock listing
           const isMockListing = !realListings.some(real => real.id === listing.id);
+          console.log(`Listing ${listing.id} is mock: ${isMockListing}, image URL: ${listing.imageUrl}`);
           
           return (
             <div key={listing.id} className="relative">

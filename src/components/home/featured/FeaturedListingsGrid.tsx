@@ -26,6 +26,8 @@ const FeaturedListingsGrid = ({
       ? realListings.filter(item => item.type === filterType)
       : realListings;
       
+    console.log(`FeaturedListingsGrid: ${filteredReal.length} real listings after filtering by ${filterType || 'all types'}`);
+      
     // Se tiver 4 ou mais anúncios reais da categoria, mostrar apenas os reais
     if (filteredReal.length >= 4) {
       return filteredReal.slice(0, 4);
@@ -56,6 +58,7 @@ const FeaturedListingsGrid = ({
         {listings.map((listing) => {
           // Verificar se é um anúncio mockup
           const isMockListing = !realListings.some(real => real.id === listing.id);
+          console.log(`Listing ${listing.id} is mock: ${isMockListing}, image URL: ${listing.imageUrl}`);
           
           return (
             <div key={listing.id} className="relative">

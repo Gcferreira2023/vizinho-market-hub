@@ -81,12 +81,15 @@ const ListingCard = ({
   // Use the provided linkTo or determine based on whether it's a mock listing
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
-  // Log the image URL for debugging
+  // Debug for image loading
   useEffect(() => {
-    if (isVisible && imageUrl) {
-      console.log(`Card ${id} loading image: ${imageUrl}`);
+    if (isVisible) {
+      console.log(`Card ${id} loading image:`, imageUrl || "/placeholder.svg");
     }
   }, [isVisible, imageUrl, id]);
+  
+  // Ensure imageUrl has a value, use placeholder as fallback
+  const actualImageUrl = imageUrl || "/placeholder.svg";
   
   return (
     <Card id={`listing-card-${id}`} className="card-hover overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-md">
@@ -100,7 +103,7 @@ const ListingCard = ({
           
           {isVisible && (
             <img
-              src={imgError ? "/placeholder.svg" : imageUrl}
+              src={imgError ? "/placeholder.svg" : actualImageUrl}
               alt={title}
               className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 
                 ${status === "vendido" ? "opacity-70" : ""}
@@ -108,7 +111,7 @@ const ListingCard = ({
               loading={lazyLoad ? "lazy" : "eager"}
               onLoad={handleImageLoad}
               onError={(e) => {
-                console.error(`Image error loading ${imageUrl}, using placeholder`);
+                console.error(`Image error loading ${actualImageUrl}, using placeholder`);
                 setImgError(true);
                 handleImageLoad();
               }}
