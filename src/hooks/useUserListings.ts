@@ -45,7 +45,7 @@ export const useUserListings = () => {
         
         if (listings) {
           // Transform raw data to include view_count safely
-          const listingsWithViewCount: Listing[] = listings.map((listing: any) => ({
+          const listingsWithViewCount: ListingType[] = listings.map((listing: any) => ({
             id: listing.id,
             title: listing.title,
             description: listing.description,

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Edit, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Listing } from "@/types/listing";
-import { ListingStatus } from "@/components/listings/StatusBadge";
+import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
 
 interface ListingListViewProps {
   listings: Listing[];
@@ -50,8 +50,8 @@ const ListingListView = ({ listings, images, formatDate, translateStatus }: List
                   {listing.type}
                 </Badge>
                 <Badge variant={
-                  listing.status === "active" ? "outline" : 
-                  listing.status === "reserved" ? "secondary" : 
+                  mapStatusFromDB(listing.status as string) === "disponível" ? "outline" : 
+                  mapStatusFromDB(listing.status as string) === "reservado" ? "secondary" : 
                   "destructive"
                 }>
                   {translateStatus(listing.status as string)}
