@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/listings/ListingCard";
 import { Listing } from "@/types/listing";
-import { Condominium } from "@/types/location";
+import { Condominium, City, State } from "@/types/location";
 import { supabase } from "@/integrations/supabase/client";
 
 const MyCondominiumListings = () => {
@@ -35,8 +35,11 @@ const MyCondominiumListings = () => {
           .select(`
             *,
             cities (
+              id,
               name,
+              state_id,
               states (
+                id,
                 name,
                 uf
               )
@@ -47,7 +50,25 @@ const MyCondominiumListings = () => {
           
         if (condoError) throw condoError;
         
-        setCondominium(condominiumData);
+        // Properly cast the data to match the Condominium type
+        if (condominiumData) {
+          const typedCondominium: Condominium = {
+            id: condominiumData.id,
+            name: condominiumData.name,
+            city_id: condominiumData.city_id,
+            address: condominiumData.address,
+            approved: condominiumData.approved,
+            created_at: condominiumData.created_at,
+            cities: condominiumData.cities ? {
+              id: condominiumData.cities.id,
+              name: condominiumData.cities.name,
+              state_id: condominiumData.cities.state_id,
+              states: condominiumData.cities.states
+            } as City & { states?: State } : undefined
+          };
+          
+          setCondominium(typedCondominium);
+        }
         
         // Fetch listings from this condominium
         const { data: listingsData, error } = await supabase
