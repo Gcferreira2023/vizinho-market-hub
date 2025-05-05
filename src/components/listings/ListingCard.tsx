@@ -135,7 +135,7 @@ const ListingCard = ({
             />
           </div>
           
-          {/* Badge de condomínio destacado */}
+          {/* Badge de condomínio (adicionado) */}
           {condominiumName && (
             <div className="absolute bottom-2 left-2 z-10">
               <Badge 
@@ -148,7 +148,7 @@ const ListingCard = ({
                 <MapPin className="h-3 w-3" />
                 {condominiumName}
                 {isUserCondominium && (
-                  <span className="bg-primary/20 text-primary text-[10px] px-1 rounded">Seu</span>
+                  <span className="bg-primary/20 text-primary text-[10px] px-1 rounded ml-1">Seu</span>
                 )}
               </Badge>
             </div>

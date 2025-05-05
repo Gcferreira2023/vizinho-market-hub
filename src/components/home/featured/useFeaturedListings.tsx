@@ -1,116 +1,156 @@
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { ListingStatus } from "../../listings/StatusBadge";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { ListingStatus } from '@/components/listings/StatusBadge';
 
-// Dados de exemplo (mockup)
+// Dados de listagem de exemplo para quando não há anúncios reais
 const mockListings = [
   {
-    id: "1",
-    title: "Bolo de Chocolate Caseiro",
+    id: 'mock1',
+    title: 'Bolo de Chocolate Caseiro',
     price: 35.90,
-    imageUrl: "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
-    category: "Alimentos",
-    type: "produto" as const,
+    imageUrl: '/placeholder.svg',
+    category: 'Alimentos',
+    type: 'produto',
     rating: 4.8,
-    location: "Bloco A, 101",
-    status: "disponível" as ListingStatus
+    location: 'Bloco A, 101',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Recanto Verde',
+    isUserCondominium: false
   },
   {
-    id: "2",
-    title: "Serviço de Passeio com Pets",
-    price: "A combinar",
-    imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb",
-    category: "Serviços",
-    type: "serviço" as const,
+    id: 'mock2',
+    title: 'Serviço de Passeio com Pets',
+    price: 'A combinar',
+    imageUrl: '/placeholder.svg',
+    category: 'Serviços',
+    type: 'serviço',
     rating: 4.5,
-    location: "Bloco B, 304",
-    status: "reservado" as ListingStatus
+    location: 'Bloco B, 304',
+    status: 'reservado' as ListingStatus,
+    condominiumName: 'Condomínio Solar das Paineiras',
+    isUserCondominium: false
   },
   {
-    id: "3",
-    title: "Fones de Ouvido Bluetooth - Seminovo",
+    id: 'mock3',
+    title: 'Fones de Ouvido Bluetooth - Seminovo',
     price: 120.00,
-    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
-    category: "Produtos Gerais",
-    type: "produto" as const,
+    imageUrl: '/placeholder.svg',
+    category: 'Produtos Gerais',
+    type: 'produto',
     rating: 4.2,
-    location: "Bloco C, 202",
-    status: "disponível" as ListingStatus
+    location: 'Bloco C, 202',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Parque das Flores',
+    isUserCondominium: false
   },
   {
-    id: "4",
-    title: "Aulas de Inglês Online",
+    id: 'mock4',
+    title: 'Aulas de Inglês Online',
     price: 50.00,
-    imageUrl: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d",
-    category: "Serviços",
-    type: "serviço" as const,
+    imageUrl: '/placeholder.svg',
+    category: 'Serviços',
+    type: 'serviço',
     rating: 5.0,
-    location: "Bloco D, 405",
-    status: "disponível" as ListingStatus
+    location: 'Bloco D, 405',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Jardim das Acácias',
+    isUserCondominium: false
   },
+  {
+    id: 'mock5',
+    title: 'Raquete de Tênis - Nova',
+    price: 280.00,
+    imageUrl: '/placeholder.svg',
+    category: 'Esportes',
+    type: 'produto',
+    rating: 4.7,
+    location: 'Bloco E, 102',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Bosque da Serra',
+    isUserCondominium: false
+  },
+  {
+    id: 'mock6',
+    title: 'Conserto de Eletrodomésticos',
+    price: 'A partir de R$ 80,00',
+    imageUrl: '/placeholder.svg',
+    category: 'Manutenção',
+    type: 'serviço',
+    rating: 4.9,
+    location: 'Bloco F, 201',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Vila dos Lagos',
+    isUserCondominium: false
+  }
 ];
 
 export const useFeaturedListings = () => {
   const [realListings, setRealListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Buscar anúncios reais do banco de dados
+  const { user } = useAuth();
+  
+  // Fetching real listings from database
   useEffect(() => {
     const fetchRealListings = async () => {
       try {
         setIsLoading(true);
+        
+        // Fetch real listings from database
         const { data, error } = await supabase
-          .from("ads")
+          .from('ads')
           .select(`
             *,
-            ad_images (*),
-            users!ads_user_id_fkey (name, block, apartment)
+            ad_images(*),
+            users(name, block, apartment),
+            condominiums(name, city_id)
           `)
-          .eq("status", "active")
-          .order("created_at", { ascending: false });
-
+          .eq('status', 'active')
+          .order('view_count', { ascending: false })
+          .limit(6);
+          
         if (error) {
-          console.error("Erro ao buscar anúncios em destaque:", error);
-          return;
+          console.error('Error fetching featured listings:', error);
+          throw error;
         }
-
-        // Transformar os dados do banco para o formato esperado pelo ListingCard
-        const formattedData = data?.map(item => {
-          // Get the first image from ad_images or use default
-          let imageUrl = "/placeholder.svg";
-          
-          if (item.ad_images && item.ad_images.length > 0) {
-            imageUrl = item.ad_images[0].image_url;
-          }
-          
+        
+        // Get user condominium ID to flag which listings are from the same condominium
+        const userCondominiumId = user?.user_metadata?.condominiumId;
+        
+        // Transform data to match our component's expected format
+        const transformedData = data?.map(item => {
           return {
             id: item.id,
             title: item.title,
             price: item.price,
-            imageUrl: imageUrl,
+            imageUrl: item.ad_images?.[0]?.image_url || '/placeholder.svg',
             category: item.category,
             type: item.type,
-            location: item.users ? `${item.users.block}, ${item.users.apartment}` : "Localização não disponível",
-            status: item.status === "active" ? "disponível" as ListingStatus : "vendido" as ListingStatus,
+            location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
+            status: 'disponível' as ListingStatus,
+            view_count: item.view_count || 0,
+            condominiums: item.condominiums,
+            condominiumName: item.condominiums?.name || "Condomínio",
+            isUserCondominium: item.condominium_id === userCondominiumId
           };
         }) || [];
-
-        setRealListings(formattedData);
-      } catch (error) {
-        console.error("Erro ao processar anúncios em destaque:", error);
+        
+        setRealListings(transformedData);
+      } catch (err) {
+        console.error("Error in fetchRealListings:", err);
+        setRealListings([]);
       } finally {
         setIsLoading(false);
       }
     };
-
+    
     fetchRealListings();
-  }, []);
-
-  // Filtrar para apenas mostrar anúncios disponíveis ou reservados
-  const availableMockListings = mockListings.filter(
-    listing => listing.status !== "vendido"
-  );
-
-  return { realListings, isLoading, mockListings: availableMockListings };
+  }, [user]);
+  
+  return {
+    realListings,
+    isLoading,
+    mockListings
+  };
 };

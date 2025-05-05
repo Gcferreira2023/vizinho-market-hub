@@ -1,141 +1,143 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { ListingStatus } from "../../listings/StatusBadge";
 
-// Mock data for when there aren't enough real listings
-const mockRecentListings = [
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { ListingStatus } from '@/components/listings/StatusBadge';
+
+// Dados de listagem de exemplo para quando não há anúncios reais
+const mockListings = [
   {
-    id: "5",
-    title: "Pão Artesanal de Fermentação Natural",
-    price: 15.90,
-    imageUrl: "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04",
-    category: "Alimentos",
-    type: "produto" as const,
-    rating: 4.7,
-    location: "Bloco A, 302",
-    status: "disponível" as ListingStatus
-  },
-  {
-    id: "6",
-    title: "Conserto de Eletrônicos",
-    price: "A combinar",
-    imageUrl: "https://images.unsplash.com/photo-1601524909162-ae8725290836",
-    category: "Serviços",
-    type: "serviço" as const,
-    rating: 4.9,
-    location: "Bloco B, 105",
-    status: "disponível" as ListingStatus
-  },
-  {
-    id: "7",
-    title: "Plantas de Interior - Variadas",
-    price: 25.00,
-    imageUrl: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3",
-    category: "Produtos Gerais",
-    type: "produto" as const,
-    rating: 4.3,
-    location: "Bloco C, 408",
-    status: "reservado" as ListingStatus
-  },
-  {
-    id: "8",
-    title: "Aulas de Yoga em Domicílio",
-    price: 60.00,
-    imageUrl: "https://images.unsplash.com/photo-1545205597-3d9d02c29597",
-    category: "Serviços",
-    type: "serviço" as const,
+    id: 'mock1',
+    title: 'Bolo de Chocolate Caseiro',
+    price: 35.90,
+    imageUrl: '/placeholder.svg',
+    category: 'Alimentos',
+    type: 'produto',
     rating: 4.8,
-    location: "Bloco D, 201",
-    status: "disponível" as ListingStatus
+    location: 'Bloco A, 101',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Recanto Verde',
+    isUserCondominium: false
   },
+  {
+    id: 'mock2',
+    title: 'Serviço de Passeio com Pets',
+    price: 'A combinar',
+    imageUrl: '/placeholder.svg',
+    category: 'Serviços',
+    type: 'serviço',
+    rating: 4.5,
+    location: 'Bloco B, 304',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Solar das Paineiras',
+    isUserCondominium: false
+  },
+  {
+    id: 'mock3',
+    title: 'Fones de Ouvido Bluetooth - Seminovo',
+    price: 120.00,
+    imageUrl: '/placeholder.svg',
+    category: 'Produtos Gerais',
+    type: 'produto',
+    rating: 4.2,
+    location: 'Bloco C, 202',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Parque das Flores',
+    isUserCondominium: false
+  },
+  {
+    id: 'mock4',
+    title: 'Aulas de Inglês Online',
+    price: 50.00,
+    imageUrl: '/placeholder.svg',
+    category: 'Serviços',
+    type: 'serviço',
+    rating: 5.0,
+    location: 'Bloco D, 405',
+    status: 'disponível' as ListingStatus,
+    condominiumName: 'Condomínio Jardim das Acácias',
+    isUserCondominium: false
+  }
 ];
 
 export const useRecentListings = () => {
   const [realListings, setRealListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Fetch real listings from database
+  const [combinedListings, setCombinedListings] = useState<any[]>([]);
+  const [showIllustrativeMessage, setShowIllustrativeMessage] = useState(false);
+  const { user, isLogged } = useAuth();
+  
+  // Fetching real listings from database
   useEffect(() => {
     const fetchRealListings = async () => {
       try {
         setIsLoading(true);
+        
+        // Fetch real listings from database
         const { data, error } = await supabase
-          .from("ads")
+          .from('ads')
           .select(`
             *,
-            ad_images (*),
-            users!ads_user_id_fkey (name, block, apartment)
+            ad_images(*),
+            users(name, block, apartment),
+            condominiums(name, city_id)
           `)
-          .eq("status", "active")
-          .order("created_at", { ascending: false })
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
           .limit(4);
-
+          
         if (error) {
-          console.error("Erro ao buscar anúncios recentes:", error);
-          return;
+          console.error('Error fetching recent listings:', error);
+          throw error;
         }
-
-        // Transform database data to the format expected by ListingCard
-        const formattedData = data?.map(item => {
-          // Get the first image from ad_images or use default
-          let imageUrl = "/placeholder.svg";
-          
-          if (item.ad_images && item.ad_images.length > 0) {
-            imageUrl = item.ad_images[0].image_url;
-          }
-          
+        
+        // Get user condominium ID to flag which listings are from the same condominium
+        const userCondominiumId = user?.user_metadata?.condominiumId;
+        
+        // Transform data to match our component's expected format
+        const transformedData = data?.map(item => {
           return {
             id: item.id,
             title: item.title,
             price: item.price,
-            imageUrl: imageUrl,
+            imageUrl: item.ad_images?.[0]?.image_url || '/placeholder.svg',
             category: item.category,
             type: item.type,
-            location: item.users ? `${item.users.block}, ${item.users.apartment}` : "Localização não disponível",
-            status: item.status === "active" ? "disponível" as ListingStatus : "vendido" as ListingStatus,
+            location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
+            status: 'disponível' as ListingStatus,
+            view_count: item.view_count || 0,
+            condominiums: item.condominiums,
+            condominiumName: item.condominiums?.name || "Condomínio",
+            isUserCondominium: item.condominium_id === userCondominiumId
           };
         }) || [];
-
-        setRealListings(formattedData);
-      } catch (error) {
-        console.error("Erro ao processar anúncios recentes:", error);
+        
+        setRealListings(transformedData);
+        
+        // If we have some real listings, use them, otherwise use mock data
+        if (transformedData.length > 0) {
+          setCombinedListings(transformedData);
+          setShowIllustrativeMessage(false);
+        } else {
+          setCombinedListings(mockListings);
+          setShowIllustrativeMessage(true);
+        }
+      } catch (err) {
+        console.error("Error in fetchRealListings:", err);
+        setCombinedListings(mockListings);
+        setShowIllustrativeMessage(true);
       } finally {
         setIsLoading(false);
       }
     };
-
+    
     fetchRealListings();
-  }, []);
-
-  // Filter to only show available or reserved listings on the home page
-  const availableMockListings = mockRecentListings.filter(
-    listing => listing.status !== "vendido"
-  );
-
-  // Combine real listings with mock listings to fill empty spaces
-  const combinedListings = () => {
-    if (realListings.length >= 4) {
-      // If we have 4 or more real listings, show only the real ones
-      return realListings.slice(0, 4);
-    } else {
-      // If we have fewer than 4, complement with mockups from different categories
-      const usedCategories = new Set(realListings.map(item => item.category));
-      
-      // Filter mockups to avoid repeating categories already present in real listings
-      const filteredMockups = availableMockListings.filter(
-        mock => !usedCategories.has(mock.category)
-      );
-      
-      // Combine real listings with complementary mockups
-      return [...realListings, ...filteredMockups].slice(0, 4);
-    }
-  };
-
+  }, [user]);
+  
   return {
     realListings,
-    combinedListings: combinedListings(),
+    combinedListings,
     isLoading,
-    mockListings: availableMockListings,
-    showIllustrativeMessage: realListings.length === 0
+    showIllustrativeMessage
   };
 };
