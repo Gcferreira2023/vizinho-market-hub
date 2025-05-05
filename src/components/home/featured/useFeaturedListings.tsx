@@ -107,7 +107,7 @@ export const useFeaturedListings = () => {
             condominiums(name, city_id)
           `)
           .eq('status', 'active')
-          .order('view_count', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(6);
           
         if (error) {
@@ -129,7 +129,7 @@ export const useFeaturedListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: item.view_count || 0,
+            viewCount: item.view_count !== undefined ? item.view_count : 0, // Handle possible undefined
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
