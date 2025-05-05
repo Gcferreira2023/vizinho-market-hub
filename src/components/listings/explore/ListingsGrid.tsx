@@ -18,6 +18,20 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
   const userCondominiumId = user?.user_metadata?.condominiumId;
   
   useEffect(() => {
+    // Log all listings for debugging
+    console.log("ListingsGrid - Full listings data:", listings);
+    if (listings.length > 0) {
+      listings.forEach(listing => {
+        const imageUrl = listing.ad_images && 
+                        listing.ad_images.length > 0 ? 
+                        listing.ad_images[0].image_url : 
+                        '/placeholder.svg';
+        console.log(`Explore listing ${listing.id}, Images:`, listing.ad_images, `Using URL: ${imageUrl}`);
+      });
+    }
+  }, [listings]);
+  
+  useEffect(() => {
     // Fetch condominium info for listings if needed
     const fetchCondominiumData = async () => {
       const details: Record<string, any> = {};
@@ -97,8 +111,8 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
                          listing.ad_images.length > 0 ? 
                          listing.ad_images[0].image_url : 
                          '/placeholder.svg';
-                         
-        console.log(`Listing ${listing.id} image URL:`, imageUrl);
+        
+        console.log(`Rendering listing ${listing.id} with image URL:`, imageUrl);
         
         return (
           <ListingCard
@@ -111,7 +125,7 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
             type={listing.type as "produto" | "serviço"}
             location={location}
             status={mapStatusFromDB(listing.status as string)}
-            viewCount={listing.viewCount}
+            viewCount={listing.viewCount || 0}
             condominiumName={condoName}
             isUserCondominium={isUserCondominium}
             lazyLoad={true}

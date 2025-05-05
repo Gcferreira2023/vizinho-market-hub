@@ -3,7 +3,7 @@ import ListingCard from "../../listings/ListingCard";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
 import { ListingStatus } from "../../listings/StatusBadge";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 interface FeaturedListingsGridProps {
   isLoading: boolean;
@@ -48,6 +48,14 @@ const FeaturedListingsGrid = ({
     return [...filteredReal, ...filteredMockups].slice(0, 4);
   }, [filterType, realListings, mockListings]);
 
+  // Debug logs
+  useEffect(() => {
+    console.log("FeaturedListingsGrid - listings data:", listings);
+    listings.forEach(listing => {
+      console.log(`Listing ID: ${listing.id}, Image URL: ${listing.imageUrl}, Type: ${typeof listing.imageUrl}`);
+    });
+  }, [listings]);
+
   if (isLoading) {
     return <LoadingGrid />;
   }
@@ -58,19 +66,17 @@ const FeaturedListingsGrid = ({
         {listings.map((listing) => {
           // Verificar se é um anúncio mockup
           const isMockListing = !realListings.some(real => real.id === listing.id);
-          console.log(`Listing ${listing.id} is mock: ${isMockListing}, image URL: ${listing.imageUrl}`);
           
           return (
             <div key={listing.id} className="relative">
               <ListingCard 
                 {...listing} 
                 isMockListing={isMockListing}
-                linkTo={isMockListing ? "/explorar" : `/anuncio/${listing.id}`}
               />
               
               {isMockListing && (
                 <Badge 
-                  className="absolute top-2 left-2 z-10 bg-orange-100 text-orange-800 flex items-center gap-1"
+                  className="absolute top-2 left-2 z-20 bg-orange-100 text-orange-800 flex items-center gap-1"
                   variant="outline"
                 >
                   <AlertCircle size={12} />

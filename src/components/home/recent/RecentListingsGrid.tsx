@@ -2,6 +2,7 @@
 import ListingCard from "../../listings/ListingCard";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
+import { useEffect } from "react";
 
 interface RecentListingsGridProps {
   listings: any[];
@@ -16,6 +17,15 @@ const RecentListingsGrid = ({
   realListings,
   showIllustrativeMessage
 }: RecentListingsGridProps) => {
+  
+  useEffect(() => {
+    // Log the listings for debugging
+    console.log("RecentListingsGrid - listings data:", listings);
+    listings.forEach(listing => {
+      console.log(`Listing ID: ${listing.id}, Image URL: ${listing.imageUrl}, Type: ${typeof listing.imageUrl}`);
+    });
+  }, [listings]);
+  
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -30,27 +40,23 @@ const RecentListingsGrid = ({
     );
   }
 
-  console.log("RecentListingsGrid listings:", listings);
-
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {listings.map((listing) => {
           // Check if this is a mock listing
           const isMockListing = !realListings.some(real => real.id === listing.id);
-          console.log(`Listing ${listing.id} is mock: ${isMockListing}, image URL: ${listing.imageUrl}`);
           
           return (
             <div key={listing.id} className="relative">
               <ListingCard 
                 {...listing} 
                 isMockListing={isMockListing}
-                linkTo={isMockListing ? "/explorar" : `/anuncio/${listing.id}`}
               />
               
               {isMockListing && (
                 <Badge 
-                  className="absolute top-2 left-2 z-10 bg-orange-100 text-orange-800 flex items-center gap-1"
+                  className="absolute top-2 left-2 z-20 bg-orange-100 text-orange-800 flex items-center gap-1"
                   variant="outline"
                 >
                   <AlertCircle size={12} />

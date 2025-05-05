@@ -88,8 +88,10 @@ const ListingCard = ({
     }
   }, [isVisible, imageUrl, id]);
   
-  // Ensure imageUrl has a value, use placeholder as fallback
-  const actualImageUrl = imageUrl || "/placeholder.svg";
+  // Always use a placeholder for mock listings
+  const actualImageUrl = isMockListing 
+    ? "/placeholder.svg" 
+    : (imageUrl || "/placeholder.svg");
   
   return (
     <Card id={`listing-card-${id}`} className="card-hover overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-md">
