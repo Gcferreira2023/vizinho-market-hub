@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Edit, Eye } from "lucide-react";
+import { Edit, Eye, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Listing } from "@/types/listing";
 import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
@@ -10,21 +10,45 @@ interface ListingListViewProps {
   images: Record<string, string>;
   formatDate: (date: string) => string;
   translateStatus: (status: string) => ListingStatus;
+  condominiumName?: string;
+  isUserCondominium?: boolean;
 }
 
-const ListingListView = ({ listings, images, formatDate, translateStatus }: ListingListViewProps) => {
+const ListingListView = ({ 
+  listings, 
+  images, 
+  formatDate, 
+  translateStatus,
+  condominiumName,
+  isUserCondominium = true 
+}: ListingListViewProps) => {
   return (
     <div className="space-y-4">
       {listings.map((listing) => (
         <div key={listing.id} className="bg-white rounded-lg border shadow-sm overflow-hidden">
           <div className="flex flex-col md:flex-row">
-            <div className="w-full md:w-1/4">
+            <div className="w-full md:w-1/4 relative">
               <img 
                 src={images[listing.id] || '/placeholder.svg'} 
                 alt={listing.title}
                 className="w-full h-48 md:h-full object-cover"
                 loading="lazy"
               />
+              {condominiumName && (
+                <Badge 
+                  variant="outline" 
+                  className={`absolute bottom-2 left-2 text-xs py-1 px-2 flex items-center gap-1 
+                    ${isUserCondominium 
+                      ? 'bg-primary/20 text-primary border-primary/30' 
+                      : 'bg-white/80 text-gray-700 border-gray-300'}`}
+                >
+                  <MapPin className="h-3 w-3" />
+                  {condominiumName}
+                  {isUserCondominium && (
+                    <span className="bg-primary/20 text-primary text-[10px] px-1 rounded">Seu</span>
+                  )}
+                </Badge>
+              )}
             </div>
             
             <div className="p-4 flex-1">

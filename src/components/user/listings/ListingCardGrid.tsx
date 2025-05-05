@@ -10,9 +10,18 @@ interface ListingCardGridProps {
   images: Record<string, string>;
   userLocation: string;
   translateStatus: (status: string) => ListingStatus;
+  condominiumName?: string;
+  isUserCondominium?: boolean;
 }
 
-const ListingCardGrid = ({ listings, images, userLocation, translateStatus }: ListingCardGridProps) => {
+const ListingCardGrid = ({ 
+  listings, 
+  images, 
+  userLocation, 
+  translateStatus,
+  condominiumName,
+  isUserCondominium = true
+}: ListingCardGridProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {listings.map((listing) => (
@@ -28,6 +37,8 @@ const ListingCardGrid = ({ listings, images, userLocation, translateStatus }: Li
             status={translateStatus(listing.status as string)}
             linkTo={`/anuncio/${listing.id}`}
             viewCount={listing.view_count}
+            condominiumName={condominiumName}
+            isUserCondominium={isUserCondominium}
             lazyLoad={true}
           />
           <Link 

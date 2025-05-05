@@ -30,6 +30,7 @@ export type Listing = {
   viewCount?: number;
   created_at?: string;
   view_count?: number;
+  condominium_id?: string;
 };
 
 // Type for editing a listing

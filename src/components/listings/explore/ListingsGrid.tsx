@@ -80,17 +80,23 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
                           listing.condominiums?.name || 
                           "Não informado";
         
-        // Get first image or use placeholder
-        const imageUrl = listing.ad_images && 
-                         listing.ad_images.length > 0 ? 
-                         listing.ad_images[0].image_url : 
-                         '/placeholder.svg';
+        // Get the city name if available
+        const cityName = condoInfo?.cities?.name || listing.condominiums?.cities?.name || "";
         
         // For location display in card
         let location = "";
         if (listing.users) {
           location = listing.users.block ? `Bloco ${listing.users.block}` : "";
+          if (listing.users.apartment) {
+            location += location ? `, Ap ${listing.users.apartment}` : `Ap ${listing.users.apartment}`;
+          }
         }
+        
+        // Get first image or use placeholder
+        const imageUrl = listing.ad_images && 
+                         listing.ad_images.length > 0 ? 
+                         listing.ad_images[0].image_url : 
+                         '/placeholder.svg';
         
         return (
           <ListingCard
