@@ -63,8 +63,6 @@ const FeaturedListingsGrid = ({
                 {...listing} 
                 isMockListing={isMockListing}
                 linkTo={isMockListing ? "/explorar" : `/anuncio/${listing.id}`}
-                condominiumName={listing.condominiumName || (listing.condominiums ? listing.condominiums.name : isMockListing ? "Condomínio Exemplo" : "")}
-                isUserCondominium={Boolean(listing.isUserCondominium)}
               />
               
               {isMockListing && (

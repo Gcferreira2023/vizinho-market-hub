@@ -97,8 +97,10 @@ export const useUserListings = () => {
               }
               
               if (imageData && imageData.length > 0) {
+                console.log(`Found images for listing ${listing.id}:`, imageData);
                 newImageMap[listing.id] = imageData[0].image_url;
               } else {
+                console.log(`No images found for listing ${listing.id}, using placeholder`);
                 newImageMap[listing.id] = '/placeholder.svg';
               }
             } catch (error) {
@@ -107,6 +109,7 @@ export const useUserListings = () => {
             }
           }
           
+          console.log("Final image map:", newImageMap);
           setListingImages(newImageMap);
         }
       } catch (error: any) {

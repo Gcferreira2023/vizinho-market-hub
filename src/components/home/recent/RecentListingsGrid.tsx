@@ -45,8 +45,6 @@ const RecentListingsGrid = ({
                 {...listing} 
                 isMockListing={isMockListing}
                 linkTo={isMockListing ? "/explorar" : `/anuncio/${listing.id}`}
-                condominiumName={listing.condominiumName || (listing.condominiums ? listing.condominiums.name : "Condomínio")}
-                isUserCondominium={Boolean(listing.isUserCondominium)}
               />
               
               {isMockListing && (

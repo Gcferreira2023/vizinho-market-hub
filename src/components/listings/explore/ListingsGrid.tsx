@@ -97,6 +97,8 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
                          listing.ad_images.length > 0 ? 
                          listing.ad_images[0].image_url : 
                          '/placeholder.svg';
+                         
+        console.log(`Listing ${listing.id} image URL:`, imageUrl);
         
         return (
           <ListingCard
@@ -109,7 +111,7 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
             type={listing.type as "produto" | "serviço"}
             location={location}
             status={mapStatusFromDB(listing.status as string)}
-            viewCount={listing.view_count}
+            viewCount={listing.viewCount}
             condominiumName={condoName}
             isUserCondominium={isUserCondominium}
             lazyLoad={true}

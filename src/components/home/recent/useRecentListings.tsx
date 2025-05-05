@@ -96,16 +96,22 @@ export const useRecentListings = () => {
         
         // Transform data to match our component's expected format
         const transformedData = data?.map(item => {
+          const imageUrl = item.ad_images && item.ad_images.length > 0
+            ? item.ad_images[0].image_url
+            : '/placeholder.svg';
+            
+          console.log(`Listing ${item.id} image URL:`, imageUrl);
+          
           return {
             id: item.id,
             title: item.title,
             price: item.price,
-            imageUrl: item.ad_images?.[0]?.image_url || '/placeholder.svg',
+            imageUrl: imageUrl,
             category: item.category,
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: 0, // Set a default value since view_count doesn't exist in the database
+            viewCount: item.viewCount || 0,
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId

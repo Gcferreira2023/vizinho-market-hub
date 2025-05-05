@@ -81,6 +81,13 @@ const ListingCard = ({
   // Use the provided linkTo or determine based on whether it's a mock listing
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
+  // Log the image URL for debugging
+  useEffect(() => {
+    if (isVisible && imageUrl) {
+      console.log(`Card ${id} loading image: ${imageUrl}`);
+    }
+  }, [isVisible, imageUrl, id]);
+  
   return (
     <Card id={`listing-card-${id}`} className="card-hover overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-md">
       <Link to={linkPath} className="block h-full no-underline">
@@ -101,7 +108,7 @@ const ListingCard = ({
               loading={lazyLoad ? "lazy" : "eager"}
               onLoad={handleImageLoad}
               onError={(e) => {
-                console.log(`Image error loading ${imageUrl}, using placeholder`);
+                console.error(`Image error loading ${imageUrl}, using placeholder`);
                 setImgError(true);
                 handleImageLoad();
               }}
