@@ -135,7 +135,8 @@ export const useFeaturedListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: item.viewCount || 0,
+            // Using item.view_count if it exists or default to 0
+            viewCount: 0, // Database doesn't have view_count or viewCount field yet, default to 0
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
