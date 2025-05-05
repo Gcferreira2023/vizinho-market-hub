@@ -1,4 +1,6 @@
 
+import { ListingStatus } from "@/components/listings/StatusBadge";
+
 // Types for listing data
 export type ListingFormData = {
   title: string;
@@ -10,6 +12,24 @@ export type ListingFormData = {
   delivery: boolean;
   deliveryFee: string;
   paymentMethods: string;
+};
+
+// Type for a listing from the database
+export type Listing = {
+  id: string;
+  title: string;
+  description?: string;
+  price: number | string;
+  category: string;
+  type: "produto" | "serviço";
+  status: ListingStatus;
+  imageUrl?: string;
+  location?: string;
+  condominiumName?: string;
+  isUserCondominium?: boolean;
+  viewCount?: number;
+  created_at?: string;
+  view_count?: number;
 };
 
 // Type for editing a listing

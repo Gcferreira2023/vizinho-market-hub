@@ -1,6 +1,7 @@
 
 import { FC } from "react";
 import MobileFilterSheet from "@/components/listings/explore/MobileFilterSheet";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 interface ExploreHeaderProps {
   isFilterSheetOpen: boolean;
@@ -9,8 +10,8 @@ interface ExploreHeaderProps {
   setSelectedCategory: (category: string | null) => void;
   selectedType: string | null;
   setSelectedType: (type: string | null) => void;
-  selectedStatus: string | null;
-  setSelectedStatus: (status: string | null) => void;
+  selectedStatus: ListingStatus | null;
+  setSelectedStatus: (status: ListingStatus | null) => void;
   showSoldItems: boolean;
   setShowSoldItems: (show: boolean) => void;
   priceRange: [number, number];

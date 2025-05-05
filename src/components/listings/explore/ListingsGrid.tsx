@@ -1,25 +1,10 @@
 
 import { useEffect, useState } from "react";
-import { ListingStatus } from "@/components/listings/StatusBadge";
 import ListingCard from "@/components/listings/ListingCard";
 import EmptyListingsState from "./EmptyListingsState";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Listing {
-  id: string;
-  title: string;
-  price: number | string;
-  imageUrl: string;
-  category: string;
-  type: "produto" | "serviço";
-  rating?: number;
-  location: string;
-  status: ListingStatus;
-  condominiumName?: string;
-  isUserCondominium?: boolean;
-  viewCount?: number;
-}
+import { Listing } from "@/types/listing";
 
 interface ListingsGridProps {
   listings: Listing[];

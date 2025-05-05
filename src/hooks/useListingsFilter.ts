@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { ListingStatus } from "@/components/listings/StatusBadge";
+import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function useListingsFilter(initialListings: any[] = []) {

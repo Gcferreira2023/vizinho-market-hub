@@ -3,6 +3,20 @@ import { Badge } from "@/components/ui/badge";
 
 export type ListingStatus = "disponível" | "reservado" | "vendido";
 
+// Map from database status to display status
+export const mapStatusFromDB = (status: string): ListingStatus => {
+  switch (status) {
+    case "active":
+      return "disponível";
+    case "reserved":
+      return "reservado";
+    case "sold":
+      return "vendido";
+    default:
+      return "disponível";
+  }
+};
+
 interface StatusBadgeProps {
   status: ListingStatus;
   className?: string;

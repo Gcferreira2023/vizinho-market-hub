@@ -4,7 +4,8 @@ import FilterSidebar from "@/components/listings/explore/FilterSidebar";
 import ListingsGrid from "@/components/listings/explore/ListingsGrid";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
-import { ListingStatus } from "@/components/listings/StatusBadge";
+import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
+import { Listing } from "@/types/listing";
 
 interface ExploreContentProps {
   listings: any[];
@@ -14,8 +15,8 @@ interface ExploreContentProps {
   setSelectedCategory: (category: string | null) => void;
   selectedType: string | null;
   setSelectedType: (type: string | null) => void;
-  selectedStatus: string | null;
-  setSelectedStatus: (status: string | null) => void;
+  selectedStatus: ListingStatus | null;
+  setSelectedStatus: (status: ListingStatus | null) => void;
   showSoldItems: boolean;
   setShowSoldItems: (show: boolean) => void;
   priceRange: [number, number];
@@ -42,7 +43,7 @@ const ExploreContent: FC<ExploreContentProps> = ({
   const { user } = useAuth();
   
   // Preparar os dados dos anúncios para o componente ListingCard
-  const formattedListings = listings.map(listing => {
+  const formattedListings: Listing[] = listings.map(listing => {
     // Preparar os dados do anúncio para o componente ListingCard
     const imageUrl = 
       listing.ad_images && 
@@ -69,8 +70,7 @@ const ExploreContent: FC<ExploreContentProps> = ({
       category: listing.category,
       type: listing.type as "produto" | "serviço",
       location: location.trim(),
-      status: listing.status === "active" ? "disponível" : 
-              listing.status === "reserved" ? "reservado" : "vendido",
+      status: mapStatusFromDB(listing.status),
       condominiumName: condominiumName,
       isUserCondominium: isUserCondominium,
       viewCount: Math.floor(Math.random() * 30) + 2 // Simulated view count for now

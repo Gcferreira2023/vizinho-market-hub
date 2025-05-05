@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { fetchListings } from "@/services/listings/listingService";
 import { useListingsFilter } from "@/hooks/useListingsFilter";
 import { useAuth } from "@/contexts/AuthContext";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 export function useExploreListings() {
   const [listings, setListings] = useState<any[]>([]);
@@ -55,7 +56,10 @@ export function useExploreListings() {
         }
         
         if (selectedStatus) {
-          searchParams.status = selectedStatus;
+          // Convert from UI status to DB status
+          if (selectedStatus === "disponível") searchParams.status = "active";
+          else if (selectedStatus === "reservado") searchParams.status = "reserved";
+          else if (selectedStatus === "vendido") searchParams.status = "sold";
         } else if (!showSoldItems) {
           searchParams.status = "active";
         }

@@ -2,8 +2,8 @@
 import { Link } from "react-router-dom";
 import { Edit } from "lucide-react";
 import ListingCard from "@/components/listings/ListingCard";
-import { ListingStatus } from "@/components/listings/StatusBadge";
-import { Listing } from "@/hooks/useUserListings";
+import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
+import { Listing } from "@/types/listing";
 
 interface ListingCardGridProps {
   listings: Listing[];
@@ -25,7 +25,7 @@ const ListingCardGrid = ({ listings, images, userLocation, translateStatus }: Li
             category={listing.category}
             type={listing.type as "produto" | "serviço"}
             location={userLocation}
-            status={translateStatus(listing.status)}
+            status={mapStatusFromDB(listing.status as string)}
             linkTo={`/anuncio/${listing.id}`}
             viewCount={listing.view_count}
             lazyLoad={true}
