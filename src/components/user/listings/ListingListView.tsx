@@ -90,7 +90,7 @@ const ListingListView = ({
                 <div className="flex gap-4 items-center text-sm">
                   <div className="flex items-center gap-1 text-gray-600">
                     <Eye size={16} />
-                    <span>{listing.view_count || 0} visualizações</span>
+                    <span>{listing.viewCount || 0} visualizações</span>
                   </div>
                   
                   <Link 
@@ -107,12 +107,12 @@ const ListingListView = ({
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div 
                     className="bg-primary h-2.5 rounded-full" 
-                    style={{ width: `${Math.min(100, listing.view_count ? (listing.view_count / 20) * 100 : 5)}%` }}
+                    style={{ width: `${Math.min(100, listing.viewCount ? (listing.viewCount / 20) * 100 : 5)}%` }}
                   ></div>
                 </div>
                 <div className="flex justify-between mt-1 text-xs text-gray-500">
                   <span>Desempenho do anúncio</span>
-                  <span>{Math.min(100, listing.view_count ? Math.round((listing.view_count / 20) * 100) : 5)}%</span>
+                  <span>{Math.min(100, listing.viewCount ? Math.round((listing.viewCount / 20) * 100) : 5)}%</span>
                 </div>
               </div>
             </div>

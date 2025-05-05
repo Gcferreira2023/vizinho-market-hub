@@ -44,7 +44,7 @@ export const useUserListings = () => {
         console.log("Listings fetched:", listings);
         
         if (listings) {
-          // Transform raw data to include view_count safely
+          // Transform raw data to include viewCount safely
           const listingsWithViewCount: ListingType[] = listings.map((listing: any) => ({
             id: listing.id,
             title: listing.title,
@@ -53,7 +53,7 @@ export const useUserListings = () => {
             category: listing.category,
             type: listing.type as "produto" | "serviço", // Ensure proper typing
             status: listing.status,
-            view_count: listing.view_count || 0,
+            viewCount: listing.view_count || 0,
             created_at: listing.created_at
           }));
           
@@ -67,10 +67,10 @@ export const useUserListings = () => {
             const daysSinceCreation = differenceInDays(new Date(), createdDate);
             
             stats[listing.id] = {
-              views: listing.view_count || 0,
+              views: listing.viewCount || 0,
               days: daysSinceCreation,
               // Simulate contacts based on views
-              contacts: Math.floor((listing.view_count || 0) * 0.3)
+              contacts: Math.floor((listing.viewCount || 0) * 0.3)
             };
           });
           
@@ -144,7 +144,7 @@ export const useUserListings = () => {
     : "Location not provided";
   
   // Calculate global statistics
-  const totalViews = userListings.reduce((sum, listing) => sum + (listing.view_count || 0), 0);
+  const totalViews = userListings.reduce((sum, listing) => sum + (listing.viewCount || 0), 0);
   const totalListings = userListings.length;
   
   // Format date for display
