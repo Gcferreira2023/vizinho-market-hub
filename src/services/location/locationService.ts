@@ -49,9 +49,15 @@ export const fetchCondominiumsByCity = async (cityId: string): Promise<Condomini
   
   // Ensure proper typing for nested objects
   const typedData = data?.map(condo => ({
-    ...condo,
+    id: condo.id,
+    name: condo.name,
+    city_id: condo.city_id,
+    address: condo.address,
+    approved: condo.approved,
     cities: condo.cities ? {
-      ...condo.cities,
+      id: condo.cities.id,
+      name: condo.cities.name,
+      state_id: condo.cities.state_id,
       states: condo.cities.states
     } : undefined
   })) as Condominium[];
@@ -122,9 +128,15 @@ export const fetchLocationDetailsById = async (
       
       if (condominium) {
         result.condominium = {
-          ...condominium,
+          id: condominium.id,
+          name: condominium.name,
+          city_id: condominium.city_id,
+          address: condominium.address,
+          approved: condominium.approved,
           cities: condominium.cities ? {
-            ...condominium.cities,
+            id: condominium.cities.id,
+            name: condominium.cities.name,
+            state_id: condominium.cities.state_id,
             states: condominium.cities.states
           } : undefined
         } as Condominium;

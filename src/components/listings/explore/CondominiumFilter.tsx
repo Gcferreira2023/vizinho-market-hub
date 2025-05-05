@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Condominium } from "@/types/location";
+import { Condominium, City, State } from "@/types/location";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, MapPin, Info } from "lucide-react";
+import { MapPin, Info } from "lucide-react";
 
 interface CondominiumFilterProps {
   isCondominiumFilter: boolean;
@@ -53,7 +53,24 @@ const CondominiumFilter = ({
           
         if (error) throw error;
         
-        setCondominium(data as Condominium);
+        // Properly cast the data to match the Condominium type
+        if (data) {
+          const typedCondominium: Condominium = {
+            id: data.id,
+            name: data.name,
+            city_id: data.city_id,
+            address: data.address,
+            approved: data.approved,
+            cities: data.cities ? {
+              id: data.cities.id,
+              name: data.cities.name,
+              state_id: data.cities.state_id,
+              states: data.cities.states
+            } as City & { states?: State } : undefined
+          };
+          
+          setCondominium(typedCondominium);
+        }
 
         // Se acabou de fazer login, ativa o filtro por condomínio
         if (!filtersApplied) {
