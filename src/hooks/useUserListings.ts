@@ -53,7 +53,7 @@ export const useUserListings = () => {
             category: listing.category,
             type: listing.type as "produto" | "serviço", // Ensure proper typing
             status: listing.status,
-            viewCount: listing.view_count || 0,
+            viewCount: listing.viewCount || 0,
             created_at: listing.created_at
           }));
           
