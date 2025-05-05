@@ -29,7 +29,6 @@ export type Listing = {
   isUserCondominium?: boolean;
   viewCount?: number;
   created_at?: string;
-  view_count?: number;
   condominium_id?: string;
 };
 

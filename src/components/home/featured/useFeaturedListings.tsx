@@ -129,7 +129,7 @@ export const useFeaturedListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: item.view_count !== undefined ? item.view_count : 0, // Handle possible undefined
+            viewCount: 0, // Set a default value since view_count doesn't exist
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
