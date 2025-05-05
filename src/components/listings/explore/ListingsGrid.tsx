@@ -60,10 +60,20 @@ const ListingsGrid = ({ listings, searchTerm, isLoading = false }: ListingsGridP
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {visibleListings.map((listing) => (
         <ListingCard 
-          key={listing.id} 
-          {...listing} 
-          onImageLoad={() => handleImageLoaded(listing.id)}
+          key={listing.id}
+          id={listing.id}
+          title={listing.title}
+          price={listing.price}
+          imageUrl={listing.imageUrl || '/placeholder.svg'}
+          category={listing.category}
+          type={listing.type}
+          status={listing.status}
+          location={listing.location || ""}
+          condominiumName={listing.condominiumName}
+          isUserCondominium={listing.isUserCondominium}
+          viewCount={listing.viewCount}
           lazyLoad={true}
+          onImageLoad={() => handleImageLoaded(listing.id)}
         />
       ))}
     </div>
