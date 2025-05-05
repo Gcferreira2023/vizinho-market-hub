@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ListingStatus } from "@/components/listings/StatusBadge";
+import LocationFilter from "./LocationFilter";
 
 interface FilterSidebarProps {
   selectedCategory: string | null;
@@ -19,6 +20,13 @@ interface FilterSidebarProps {
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
   resetFilters: () => void;
+  // Location filter props
+  selectedStateId: string | null;
+  setSelectedStateId: (stateId: string | null) => void;
+  selectedCityId: string | null;
+  setSelectedCityId: (cityId: string | null) => void;
+  selectedCondominiumId: string | null;
+  setSelectedCondominiumId: (condominiumId: string | null) => void;
 }
 
 const FilterSidebar = ({
@@ -32,12 +40,29 @@ const FilterSidebar = ({
   setShowSoldItems,
   priceRange,
   setPriceRange,
-  resetFilters
+  resetFilters,
+  // Location filter props
+  selectedStateId,
+  setSelectedStateId,
+  selectedCityId,
+  setSelectedCityId,
+  selectedCondominiumId,
+  setSelectedCondominiumId
 }: FilterSidebarProps) => {
   return (
     <div className="hidden md:block w-64 space-y-6">
       <div className="bg-white p-4 rounded-lg border space-y-5">
         <h3 className="font-semibold text-lg">Filtros</h3>
+
+        {/* Location Filter */}
+        <LocationFilter
+          selectedStateId={selectedStateId}
+          setSelectedStateId={setSelectedStateId}
+          selectedCityId={selectedCityId}
+          setSelectedCityId={setSelectedCityId}
+          selectedCondominiumId={selectedCondominiumId}
+          setSelectedCondominiumId={setSelectedCondominiumId}
+        />
 
         {/* Filtro de Categorias */}
         <div className="space-y-2">

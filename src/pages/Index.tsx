@@ -5,13 +5,16 @@ import HeroSection from "@/components/home/HeroSection";
 import CategorySection from "@/components/home/CategorySection";
 import FeaturedListings from "@/components/home/FeaturedListings";
 import RecentListings from "@/components/home/RecentListings";
+import MyCondominiumListings from "@/components/home/MyCondominiumListings";
 import HowItWorks from "@/components/home/HowItWorks";
 import CallToAction from "@/components/home/CallToAction";
 import { supabase } from "../integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
 const Index = () => {
-
+  const { user } = useAuth();
+  
   useEffect(() => {
     async function testarConexao() {
       try {
@@ -34,6 +37,7 @@ const Index = () => {
       <HeroSection />
       <HeroBanner />
       <CategorySection />
+      {user && <MyCondominiumListings />}
       <FeaturedListings />
       <RecentListings />
       <HowItWorks />

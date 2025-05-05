@@ -30,7 +30,14 @@ const ExploreListings = () => {
     isFilterSheetOpen,
     setIsFilterSheetOpen,
     resetFilters,
-    handleSearch
+    handleSearch,
+    // Location filters
+    selectedStateId,
+    setSelectedStateId,
+    selectedCityId,
+    setSelectedCityId,
+    selectedCondominiumId,
+    setSelectedCondominiumId
   } = useExploreListings();
 
   return (
@@ -49,6 +56,12 @@ const ExploreListings = () => {
           setShowSoldItems={setShowSoldItems}
           priceRange={priceRange}
           setPriceRange={setPriceRange}
+          selectedStateId={selectedStateId}
+          setSelectedStateId={setSelectedStateId}
+          selectedCityId={selectedCityId}
+          setSelectedCityId={setSelectedCityId}
+          selectedCondominiumId={selectedCondominiumId}
+          setSelectedCondominiumId={setSelectedCondominiumId}
         />
 
         {/* Alerta de não necessidade de cadastro */}
@@ -82,6 +95,12 @@ const ExploreListings = () => {
           priceRange={priceRange}
           setPriceRange={setPriceRange}
           resetFilters={resetFilters}
+          selectedStateId={selectedStateId}
+          setSelectedStateId={setSelectedStateId}
+          selectedCityId={selectedCityId}
+          setSelectedCityId={setSelectedCityId}
+          selectedCondominiumId={selectedCondominiumId}
+          setSelectedCondominiumId={setSelectedCondominiumId}
         />
       </div>
     </Layout>

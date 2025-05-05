@@ -32,7 +32,14 @@ export function useExploreListings() {
     isFilterSheetOpen,
     setIsFilterSheetOpen,
     resetFilters,
-    handleSearch
+    handleSearch,
+    // Location filters
+    selectedStateId,
+    setSelectedStateId,
+    selectedCityId,
+    setSelectedCityId,
+    selectedCondominiumId,
+    setSelectedCondominiumId
   } = useListingsFilter([]);
   
   // Efeito para buscar os anúncios do banco de dados
@@ -64,9 +71,18 @@ export function useExploreListings() {
           searchParams.status = "active";
         }
         
-        // Adicionar filtro de condomínio se estiver ativado
-        if (isCondominiumFilter && userCondominiumId) {
-          searchParams.condominiumId = userCondominiumId;
+        // Add location filters
+        if (selectedStateId) {
+          searchParams.stateId = selectedStateId;
+        }
+        
+        if (selectedCityId) {
+          searchParams.cityId = selectedCityId;
+        }
+        
+        // Add condominium filter - either from the location filter or from the user's filter
+        if (selectedCondominiumId || (isCondominiumFilter && userCondominiumId)) {
+          searchParams.condominiumId = selectedCondominiumId || userCondominiumId;
         }
         
         if (priceRange && priceRange[0] !== 0 && priceRange[1] !== 500) {
@@ -100,7 +116,20 @@ export function useExploreListings() {
     };
     
     loadListings();
-  }, [searchTerm, selectedCategory, selectedType, selectedStatus, showSoldItems, priceRange, isCondominiumFilter, userCondominiumId, toast]);
+  }, [
+    searchTerm, 
+    selectedCategory, 
+    selectedType, 
+    selectedStatus, 
+    showSoldItems, 
+    priceRange, 
+    isCondominiumFilter, 
+    userCondominiumId, 
+    selectedStateId,
+    selectedCityId,
+    selectedCondominiumId,
+    toast
+  ]);
 
   return {
     listings,
@@ -124,6 +153,13 @@ export function useExploreListings() {
     isFilterSheetOpen,
     setIsFilterSheetOpen,
     resetFilters,
-    handleSearch
+    handleSearch,
+    // Location filters
+    selectedStateId,
+    setSelectedStateId,
+    selectedCityId,
+    setSelectedCityId,
+    selectedCondominiumId,
+    setSelectedCondominiumId
   };
 }

@@ -8,6 +8,7 @@ export function useListingsFilter(initialListings: any[] = []) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const urlSearchTerm = queryParams.get("search");
+  const urlCondominiumId = queryParams.get("condominiumId");
   const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState(urlSearchTerm || "");
@@ -17,7 +18,12 @@ export function useListingsFilter(initialListings: any[] = []) {
   const [selectedStatus, setSelectedStatus] = useState<ListingStatus | null>(null);
   const [showSoldItems, setShowSoldItems] = useState(true);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [isCondominiumFilter, setIsCondominiumFilter] = useState(true);
+  const [isCondominiumFilter, setIsCondominiumFilter] = useState(urlCondominiumId ? true : false);
+  
+  // Location filters
+  const [selectedStateId, setSelectedStateId] = useState<string | null>(null);
+  const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
+  const [selectedCondominiumId, setSelectedCondominiumId] = useState<string | null>(urlCondominiumId);
 
   // Obter o ID do condomínio do usuário dos metadados
   const userCondominiumId = user?.user_metadata?.condominiumId;
@@ -27,7 +33,81 @@ export function useListingsFilter(initialListings: any[] = []) {
     if (urlSearchTerm) {
       setSearchTerm(urlSearchTerm);
     }
-  }, [urlSearchTerm]);
+    
+    if (urlCondominiumId) {
+      setSelectedCondominiumId(urlCondominiumId);
+      setIsCondominiumFilter(true);
+    }
+  }, [urlSearchTerm, urlCondominiumId]);
+
+  // Save filter preferences to localStorage
+  useEffect(() => {
+    const saveFiltersToLocalStorage = () => {
+      const filters = {
+        selectedStateId,
+        selectedCityId,
+        selectedCondominiumId,
+        isCondominiumFilter,
+        priceRange,
+        selectedCategory,
+        selectedType,
+        selectedStatus,
+        showSoldItems
+      };
+      
+      localStorage.setItem('listingFilters', JSON.stringify(filters));
+    };
+    
+    saveFiltersToLocalStorage();
+  }, [
+    selectedStateId,
+    selectedCityId,
+    selectedCondominiumId,
+    isCondominiumFilter,
+    priceRange,
+    selectedCategory,
+    selectedType,
+    selectedStatus,
+    showSoldItems
+  ]);
+
+  // Load filter preferences from localStorage on component mount
+  useEffect(() => {
+    const loadFiltersFromLocalStorage = () => {
+      const savedFilters = localStorage.getItem('listingFilters');
+      
+      if (savedFilters) {
+        const filters = JSON.parse(savedFilters);
+        
+        // Don't override URL parameters with localStorage values
+        if (!urlCondominiumId && !isCondominiumFilter) {
+          setSelectedStateId(filters.selectedStateId);
+          setSelectedCityId(filters.selectedCityId);
+          setSelectedCondominiumId(filters.selectedCondominiumId);
+          setIsCondominiumFilter(filters.isCondominiumFilter);
+        }
+        
+        if (!urlSearchTerm) {
+          setPriceRange(filters.priceRange);
+          setSelectedCategory(filters.selectedCategory);
+          setSelectedType(filters.selectedType);
+          setSelectedStatus(filters.selectedStatus);
+          setShowSoldItems(filters.showSoldItems);
+        }
+      }
+    };
+    
+    loadFiltersFromLocalStorage();
+  }, []);
+
+  // Set user's condominium ID when filter is toggled
+  useEffect(() => {
+    if (isCondominiumFilter && userCondominiumId) {
+      setSelectedCondominiumId(userCondominiumId);
+    } else if (!isCondominiumFilter && selectedCondominiumId === userCondominiumId) {
+      setSelectedCondominiumId(null);
+    }
+  }, [isCondominiumFilter, userCondominiumId]);
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -36,7 +116,10 @@ export function useListingsFilter(initialListings: any[] = []) {
     setSelectedType(null);
     setSelectedStatus(null);
     setShowSoldItems(true);
-    setIsCondominiumFilter(true);
+    setIsCondominiumFilter(false);
+    setSelectedStateId(null);
+    setSelectedCityId(null);
+    setSelectedCondominiumId(null);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -64,6 +147,13 @@ export function useListingsFilter(initialListings: any[] = []) {
     isFilterSheetOpen,
     setIsFilterSheetOpen,
     resetFilters,
-    handleSearch
+    handleSearch,
+    // Location filters
+    selectedStateId,
+    setSelectedStateId,
+    selectedCityId,
+    setSelectedCityId,
+    selectedCondominiumId,
+    setSelectedCondominiumId
   };
 }

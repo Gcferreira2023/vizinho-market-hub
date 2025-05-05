@@ -1,11 +1,8 @@
 
-import { FC } from "react";
-import FilterSidebar from "@/components/listings/explore/FilterSidebar";
-import ListingsGrid from "@/components/listings/explore/ListingsGrid";
-import LoadingSpinner from "@/components/ui/loading-spinner";
-import { useAuth } from "@/contexts/AuthContext";
-import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
-import { Listing } from "@/types/listing";
+import FilterSidebar from "./FilterSidebar";
+import ListingsGrid from "./ListingsGrid";
+import EmptyListingsState from "./EmptyListingsState";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 interface ExploreContentProps {
   listings: any[];
@@ -22,9 +19,16 @@ interface ExploreContentProps {
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
   resetFilters: () => void;
+  // Location filters
+  selectedStateId: string | null;
+  setSelectedStateId: (stateId: string | null) => void;
+  selectedCityId: string | null;
+  setSelectedCityId: (cityId: string | null) => void;
+  selectedCondominiumId: string | null;
+  setSelectedCondominiumId: (condominiumId: string | null) => void;
 }
 
-const ExploreContent: FC<ExploreContentProps> = ({
+const ExploreContent = ({
   listings,
   isLoading,
   searchTerm,
@@ -38,48 +42,18 @@ const ExploreContent: FC<ExploreContentProps> = ({
   setShowSoldItems,
   priceRange,
   setPriceRange,
-  resetFilters
-}) => {
-  const { user } = useAuth();
-  
-  // Preparar os dados dos anúncios para o componente ListingCard
-  const formattedListings: Listing[] = listings.map(listing => {
-    // Preparar os dados do anúncio para o componente ListingCard
-    const imageUrl = 
-      listing.ad_images && 
-      listing.ad_images.length > 0 ? 
-      listing.ad_images[0].image_url : 
-      '/placeholder.svg';
-    
-    // Obtém informações do usuário (vendedor)  
-    const location = listing.users 
-      ? `${listing.users.block || ''} ${listing.users.apartment || ''}` 
-      : '';
-    
-    // Verifica se o anúncio é do mesmo condomínio do usuário logado
-    const isUserCondominium = user?.user_metadata?.condominiumId === listing.condominium_id;
-    
-    // Obtém o nome do condomínio, se disponível
-    const condominiumName = listing.condominiums?.name || "Desconhecido";
-      
-    return {
-      id: listing.id,
-      title: listing.title,
-      price: listing.price,
-      imageUrl: imageUrl,
-      category: listing.category,
-      type: listing.type as "produto" | "serviço",
-      location: location.trim(),
-      status: mapStatusFromDB(listing.status),
-      condominiumName: condominiumName,
-      isUserCondominium: isUserCondominium,
-      viewCount: Math.floor(Math.random() * 30) + 2 // Simulated view count for now
-    };
-  });
-
+  resetFilters,
+  // Location filters
+  selectedStateId,
+  setSelectedStateId,
+  selectedCityId,
+  setSelectedCityId,
+  selectedCondominiumId,
+  setSelectedCondominiumId
+}: ExploreContentProps) => {
   return (
-    <div className="flex flex-col md:flex-row gap-6">
-      <FilterSidebar 
+    <div className="flex gap-6">
+      <FilterSidebar
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         selectedType={selectedType}
@@ -91,15 +65,25 @@ const ExploreContent: FC<ExploreContentProps> = ({
         priceRange={priceRange}
         setPriceRange={setPriceRange}
         resetFilters={resetFilters}
+        // Location filters
+        selectedStateId={selectedStateId}
+        setSelectedStateId={setSelectedStateId}
+        selectedCityId={selectedCityId}
+        setSelectedCityId={setSelectedCityId}
+        selectedCondominiumId={selectedCondominiumId}
+        setSelectedCondominiumId={setSelectedCondominiumId}
       />
 
       <div className="flex-1">
-        {isLoading ? (
-          <LoadingSpinner message="Carregando anúncios..." />
+        {listings.length === 0 && !isLoading ? (
+          <EmptyListingsState 
+            searchTerm={searchTerm} 
+            onReset={resetFilters}
+          />
         ) : (
           <ListingsGrid 
-            listings={formattedListings}
-            searchTerm={searchTerm} 
+            listings={listings} 
+            isLoading={isLoading}
           />
         )}
       </div>

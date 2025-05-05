@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import MobileLocationFilter from "./MobileLocationFilter";
 
 interface MobileFilterSheetProps {
   isOpen: boolean;
@@ -34,6 +35,13 @@ interface MobileFilterSheetProps {
   setShowSoldItems: (show: boolean) => void;
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
+  // Location filter props
+  selectedStateId: string | null;
+  setSelectedStateId: (stateId: string | null) => void;
+  selectedCityId: string | null;
+  setSelectedCityId: (cityId: string | null) => void;
+  selectedCondominiumId: string | null;
+  setSelectedCondominiumId: (condominiumId: string | null) => void;
 }
 
 const MobileFilterSheet = ({
@@ -49,6 +57,13 @@ const MobileFilterSheet = ({
   setShowSoldItems,
   priceRange,
   setPriceRange,
+  // Location filter props
+  selectedStateId,
+  setSelectedStateId,
+  selectedCityId,
+  setSelectedCityId,
+  selectedCondominiumId,
+  setSelectedCondominiumId
 }: MobileFilterSheetProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -66,7 +81,17 @@ const MobileFilterSheet = ({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2">
+          {/* Location Filter */}
+          <MobileLocationFilter
+            selectedStateId={selectedStateId}
+            setSelectedStateId={setSelectedStateId}
+            selectedCityId={selectedCityId}
+            setSelectedCityId={setSelectedCityId}
+            selectedCondominiumId={selectedCondominiumId}
+            setSelectedCondominiumId={setSelectedCondominiumId}
+          />
+
           {/* Filtro de Categorias (Mobile) */}
           <div className="space-y-2">
             <Label>Categoria</Label>

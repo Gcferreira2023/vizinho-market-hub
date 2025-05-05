@@ -25,55 +25,74 @@ export const fetchListings = async (searchParams: {
   type?: string;
   status?: string;
   priceRange?: [number, number];
-  condominiumId?: string; // Novo parâmetro para filtrar por condomínio
+  condominiumId?: string; 
+  stateId?: string;   // New: filter by state ID
+  cityId?: string;    // New: filter by city ID
 }) => {
-  // Inicia a query básica
+  // Construct select query with joins to get location data
   let query = supabase
     .from("ads")
     .select(`
       *,
       ad_images (*),
-      users!ads_user_id_fkey (name, block, apartment)
+      users!ads_user_id_fkey (name, block, apartment),
+      condominiums:condominium_id (
+        name, 
+        city_id,
+        cities (
+          name, 
+          state_id,
+          states (name, uf)
+        )
+      )
     `);
 
-  // Adiciona filtro por status (ativo por padrão)
+  // Add status filter (active by default)
   if (searchParams.status) {
     query = query.eq("status", searchParams.status);
   } else {
     query = query.eq("status", "active");
   }
   
-  // Adiciona filtro por categoria se houver
+  // Add category filter
   if (searchParams.category) {
     query = query.eq("category", searchParams.category);
   }
   
-  // Adiciona filtro por tipo se houver
+  // Add type filter
   if (searchParams.type) {
     query = query.eq("type", searchParams.type);
   }
   
-  // Adiciona filtro por condomínio se houver
+  // Add condominium filter
   if (searchParams.condominiumId) {
     query = query.eq("condominium_id", searchParams.condominiumId);
   }
   
-  // Adiciona filtro de busca por texto se houver
+  // Add city filter - requires join through condominiums
+  if (searchParams.cityId) {
+    query = query.eq("condominiums.city_id", searchParams.cityId);
+  }
+  
+  // Add state filter - requires joins through condominiums and cities
+  if (searchParams.stateId) {
+    query = query.eq("condominiums.cities.state_id", searchParams.stateId);
+  }
+  
+  // Add text search filter
   if (searchParams.search && searchParams.search.trim() !== "") {
     const searchTerm = searchParams.search.trim().toLowerCase();
-    // Melhora a busca para encontrar termos parciais no título ou descrição
     query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
-    
     console.log(`Buscando por: "${searchTerm}"`);
   }
   
-  // Adiciona filtro por faixa de preço se houver
+  // Add price range filter
   if (searchParams.priceRange) {
     const [minPrice, maxPrice] = searchParams.priceRange;
     query = query.gte('price', minPrice).lte('price', maxPrice);
   }
 
-  // Ordena por data de criação (mais recentes primeiro)
+  // Order by creation date (newest first)
   const { data, error } = await query.order("created_at", { ascending: false });
   
   if (error) {
@@ -163,6 +182,30 @@ export const deleteListing = async (listingId: string) => {
     .eq('id', listingId);
     
   if (error) throw error;
+};
+
+// Fetch condominium information for a listing
+export const fetchListingCondominium = async (listingId: string) => {
+  const { data, error } = await supabase
+    .from('ads')
+    .select(`
+      condominium_id,
+      condominiums (
+        name,
+        cities (
+          name,
+          states (
+            name,
+            uf
+          )
+        )
+      )
+    `)
+    .eq('id', listingId)
+    .single();
+
+  if (error) throw error;
+  return data;
 };
 
 // Re-exporting for backwards compatibility
