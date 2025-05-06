@@ -2,6 +2,7 @@
 import React from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Building } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -23,7 +24,8 @@ const MyCondominiumToggle = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center space-x-2 mb-4 opacity-70">
+            <div className="flex items-center space-x-2 opacity-70">
+              <Building size={18} className="text-muted-foreground" />
               <Switch id="condominium-filter" disabled />
               <Label htmlFor="condominium-filter" className="cursor-not-allowed">
                 Apenas meu condomínio
@@ -43,7 +45,8 @@ const MyCondominiumToggle = ({
   }
 
   return (
-    <div className="flex items-center space-x-2 mb-4 py-2 border-b">
+    <div className="flex items-center space-x-2">
+      <Building size={18} className={isCondominiumFilter ? "text-primary" : "text-muted-foreground"} />
       <Switch 
         id="condominium-filter"
         checked={isCondominiumFilter}

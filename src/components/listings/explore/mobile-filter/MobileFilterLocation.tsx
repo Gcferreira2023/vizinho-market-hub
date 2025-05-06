@@ -1,9 +1,10 @@
 
 import { useState } from "react";
 import { MapPin } from "lucide-react";
-import { StateSelect, CitySelect, CondominiumSelect } from "./location-filter";
+import { Label } from "@/components/ui/label";
+import { StateSelect, CitySelect, CondominiumSelect } from "../location-filter";
 
-interface LocationFilterProps {
+interface MobileFilterLocationProps {
   selectedStateId: string | null;
   setSelectedStateId: (stateId: string | null) => void;
   selectedCityId: string | null;
@@ -12,16 +13,16 @@ interface LocationFilterProps {
   setSelectedCondominiumId: (condominiumId: string | null) => void;
 }
 
-const LocationFilter = ({
+const MobileFilterLocation = ({
   selectedStateId,
   setSelectedStateId,
   selectedCityId,
   setSelectedCityId,
   selectedCondominiumId,
   setSelectedCondominiumId
-}: LocationFilterProps) => {
+}: MobileFilterLocationProps) => {
   const [isOpen, setIsOpen] = useState(true);
-  
+
   return (
     <div className="space-y-4 border-b pb-4">
       <div 
@@ -29,27 +30,27 @@ const LocationFilter = ({
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center">
-          <MapPin size={16} className="mr-2 text-primary" />
-          <h3 className="font-medium">Localização</h3>
+          <MapPin size={18} className="mr-2 text-primary" />
+          <Label className="font-medium text-base cursor-pointer">Localização</Label>
         </div>
       </div>
       
       {isOpen && (
-        <div className="space-y-4 pl-1">
+        <div className="space-y-4 mt-2 pl-2">
           {/* State Select */}
           <StateSelect
             selectedStateId={selectedStateId}
             setSelectedStateId={setSelectedStateId}
           />
           
-          {/* City Select - Only show if state is selected */}
+          {/* City Select */}
           <CitySelect
             selectedStateId={selectedStateId}
             selectedCityId={selectedCityId}
             setSelectedCityId={setSelectedCityId}
           />
           
-          {/* Condominium Select - Only show if city is selected */}
+          {/* Condominium Select */}
           <CondominiumSelect
             selectedCityId={selectedCityId}
             selectedCondominiumId={selectedCondominiumId}
@@ -61,4 +62,4 @@ const LocationFilter = ({
   );
 };
 
-export default LocationFilter;
+export default MobileFilterLocation;

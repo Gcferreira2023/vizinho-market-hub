@@ -1,12 +1,13 @@
 
 import Layout from "@/components/layout/Layout";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
-import CondominiumFilter from "@/components/listings/explore/CondominiumFilter";
 import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
 import ExploreHeader from "@/components/listings/explore/ExploreHeader";
 import ExploreContent from "@/components/listings/explore/ExploreContent";
 import { useExploreListings } from "@/hooks/useExploreListings";
 import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
+import { Building, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const ExploreListings = () => {
   const { 
@@ -41,6 +42,22 @@ const ExploreListings = () => {
     setSelectedCondominiumId
   } = useExploreListings();
 
+  // Get location details for displaying active filter badges
+  const getStateName = () => {
+    // This would ideally use a context or hook to get state name by ID
+    return selectedStateId ? "Estado selecionado" : null;
+  };
+  
+  const getCityName = () => {
+    // This would ideally use a context or hook to get city name by ID
+    return selectedCityId ? "Cidade selecionada" : null;
+  };
+  
+  const getCondominiumName = () => {
+    // This would ideally use a context or hook to get condominium name by ID
+    return selectedCondominiumId ? "Condomínio selecionado" : null;
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -63,12 +80,11 @@ const ExploreListings = () => {
           setSelectedCityId={setSelectedCityId}
           selectedCondominiumId={selectedCondominiumId}
           setSelectedCondominiumId={setSelectedCondominiumId}
-          // Condominium filter toggle
           isCondominiumFilter={isCondominiumFilter}
           setIsCondominiumFilter={setIsCondominiumFilter}
         />
 
-        {/* Alerta de não necessidade de cadastro */}
+        {/* Alert for non-logged in users */}
         {!isLoggedIn && <NotLoggedInAlert />}
 
         <SearchListingsForm
@@ -77,20 +93,56 @@ const ExploreListings = () => {
           handleSearch={handleSearch}
         />
         
-        {/* No longer needed as we have the toggle in the filters */}
-        {/* {userCondominiumId && (
-          <CondominiumFilter 
-            isCondominiumFilter={isCondominiumFilter}
-            onToggleCondominiumFilter={setIsCondominiumFilter}
-          />
-        )} */}
+        {/* Active filters display for quick feedback */}
+        {(selectedStateId || selectedCityId || selectedCondominiumId || isCondominiumFilter || selectedCategory) && (
+          <div className="flex flex-wrap gap-2 my-4">
+            <span className="text-sm font-medium text-gray-500 self-center">Filtros ativos:</span>
+            
+            {selectedStateId && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
+                <MapPin size={12} />
+                {getStateName()}
+              </Badge>
+            )}
+            
+            {selectedCityId && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
+                <MapPin size={12} />
+                {getCityName()}
+              </Badge>
+            )}
+            
+            {selectedCondominiumId && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
+                <Building size={12} />
+                {getCondominiumName()}
+              </Badge>
+            )}
+            
+            {isCondominiumFilter && userCondominiumId && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-primary/20 text-primary">
+                <Building size={12} />
+                Meu Condomínio
+              </Badge>
+            )}
+            
+            {selectedCategory && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
+                {selectedCategory}
+              </Badge>
+            )}
+          </div>
+        )}
 
+        {/* Mobile Condominium Toggle */}
         <div className="block md:hidden my-4">
           {userCondominiumId && (
-            <MyCondominiumToggle 
-              isCondominiumFilter={isCondominiumFilter}
-              onToggleCondominiumFilter={setIsCondominiumFilter}
-            />
+            <div className="bg-primary/10 p-3 rounded-lg mb-4">
+              <MyCondominiumToggle 
+                isCondominiumFilter={isCondominiumFilter}
+                onToggleCondominiumFilter={setIsCondominiumFilter}
+              />
+            </div>
           )}
         </div>
 
@@ -115,7 +167,6 @@ const ExploreListings = () => {
           setSelectedCityId={setSelectedCityId}
           selectedCondominiumId={selectedCondominiumId}
           setSelectedCondominiumId={setSelectedCondominiumId}
-          // Condominium filter toggle
           isCondominiumFilter={isCondominiumFilter}
           setIsCondominiumFilter={setIsCondominiumFilter}
         />

@@ -1,123 +1,113 @@
 
-import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { CalendarDays, Eye } from "lucide-react";
-import { format, differenceInDays } from "date-fns";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Eye, Clock, ChartBar, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { format, formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface ListingMetricsProps {
-  viewCount?: number;
-  createdAt?: string;
-  className?: string;
-  showChart?: boolean;
+  viewCount: number;
+  messageCount?: number;
+  createdAt: string;
   condensed?: boolean;
 }
 
-const ListingMetrics = ({ 
-  viewCount = 0, 
-  createdAt, 
-  className,
-  showChart = false,
+const ListingMetrics = ({
+  viewCount,
+  messageCount = 0,
+  createdAt,
   condensed = false
 }: ListingMetricsProps) => {
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [showFullDate, setShowFullDate] = useState(false);
   
-  // Calcular dias ativos
-  const daysActive = createdAt 
-    ? differenceInDays(new Date(), new Date(createdAt)) 
-    : 0;
+  // Format date in a more readable way
+  const formattedDate = format(new Date(createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
   
-  // Média de visualizações por dia (evitar divisão por zero)
-  const viewsPerDay = daysActive > 0 
-    ? (viewCount / daysActive).toFixed(1) 
-    : viewCount;
-  
-  useEffect(() => {
-    if (showChart) {
-      // Para demonstração, gera dados simulados de visualizações dos últimos 7 dias
-      // Em uma implementação real, estes dados viriam do banco de dados
-      const mockData = Array.from({ length: 7 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - (6 - i));
-        
-        // Gerar um número aleatório ponderado pela quantidade total de visualizações
-        // para criar uma distribuição mais realista
-        const weight = Math.max(1, viewCount / 10);
-        const dailyViews = Math.floor(Math.random() * weight) + (viewCount > 20 ? 2 : 1);
-        
-        return {
-          day: format(date, 'dd/MM'),
-          views: dailyViews,
-        };
-      });
-      
-      setChartData(mockData);
-    }
-  }, [viewCount, showChart]);
+  // Get relative time (e.g., "3 days ago")
+  const relativeTime = formatDistanceToNow(new Date(createdAt), {
+    addSuffix: true,
+    locale: ptBR
+  });
   
   if (condensed) {
     return (
-      <div className={cn("flex items-center gap-1 text-sm text-gray-600", className)}>
-        <Eye size={16} className="text-gray-500" />
-        <span>{viewCount}</span>
+      <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center">
+            <Eye size={16} className="mr-1" />
+            <span>{viewCount}</span>
+          </div>
+          
+          {messageCount > 0 && (
+            <div className="flex items-center">
+              <MessageSquare size={16} className="mr-1" />
+              <span>{messageCount}</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center">
+          <Clock size={16} className="mr-1" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help">{relativeTime}</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{formattedDate}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className={cn("space-y-4", className)}>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-lg border bg-card p-3 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Eye className="h-4 w-4 text-primary" />
-            <h4 className="text-sm font-medium">Total de visualizações</h4>
+    <div className="space-y-3">
+      <h4 className="font-medium text-sm flex items-center">
+        <ChartBar size={16} className="mr-2 text-primary" />
+        Métricas
+      </h4>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-gray-50 p-3 rounded-lg">
+          <div className="text-sm text-gray-500">Visualizações</div>
+          <div className="text-2xl font-bold flex items-center gap-1">
+            <Eye size={18} className="text-primary" />
+            {viewCount}
           </div>
-          <p className="mt-2 text-2xl font-bold">{viewCount}</p>
-          <p className="text-xs text-muted-foreground">
-            Média de {viewsPerDay} por dia
-          </p>
         </div>
         
-        <div className="rounded-lg border bg-card p-3 shadow-sm">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-primary" />
-            <h4 className="text-sm font-medium">Tempo ativo</h4>
+        {messageCount > 0 && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="text-sm text-gray-500">Mensagens</div>
+            <div className="text-2xl font-bold flex items-center gap-1">
+              <MessageSquare size={18} className="text-primary" />
+              {messageCount}
+            </div>
           </div>
-          <p className="mt-2 text-2xl font-bold">{daysActive} {daysActive === 1 ? 'dia' : 'dias'}</p>
-          <p className="text-xs text-muted-foreground">
-            Desde {createdAt ? format(new Date(createdAt), 'dd/MM/yyyy') : '-'}
-          </p>
-        </div>
+        )}
       </div>
       
-      {showChart && chartData.length > 0 && (
-        <div className="rounded-lg border bg-card p-3 shadow-sm">
-          <h4 className="mb-2 text-sm font-medium">Visualizações nos últimos 7 dias</h4>
-          <ChartContainer className="h-40" config={{ views: { theme: { light: '#9b87f5', dark: '#9b87f5' } } }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 10 }}>
-                <XAxis 
-                  dataKey="day" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tickMargin={5}
-                  fontSize={12}
-                  stroke="#888"
-                />
-                <Tooltip content={<ChartTooltipContent labelKey="day" />} />
-                <Bar 
-                  dataKey="views" 
-                  name="views"
-                  fill="var(--color-views)" 
-                  radius={[4, 4, 0, 0]}
-                  barSize={20}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
-      )}
+      <div className="pt-2 text-sm text-gray-500 flex items-center">
+        <Clock size={16} className="mr-2" />
+        Publicado: {showFullDate ? formattedDate : relativeTime}
+        <Button 
+          variant="link" 
+          size="sm" 
+          className="text-xs p-0 h-auto ml-1"
+          onClick={() => setShowFullDate(!showFullDate)}
+        >
+          {showFullDate ? "mostrar relativo" : "mostrar data completa"}
+        </Button>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
-import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import {
   Sheet,
@@ -10,14 +10,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-// Import our new components
-import MobileLocationFilter from "../MobileLocationFilter";
+import {
+  MobileFilterPrice,
+  MobileFilterType,
+  MobileFilterStatus,
+  MobileFilterCategory,
+  MobileFilterLocation
+} from "./";
 import MyCondominiumToggle from "../MyCondominiumToggle";
-import { MobileFilterCategory } from ".";
-import { MobileFilterStatus } from ".";
-import { MobileFilterType } from ".";
-import { MobileFilterPrice } from ".";
 
 interface MobileFilterSheetProps {
   isOpen: boolean;
@@ -85,14 +85,16 @@ const MobileFilterSheet = ({
         </SheetHeader>
 
         <div className="mt-6 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2">
-          {/* My Condominium Toggle */}
-          <MyCondominiumToggle 
-            isCondominiumFilter={isCondominiumFilter}
-            onToggleCondominiumFilter={setIsCondominiumFilter}
-          />
+          {/* My Condominium Toggle - Made more prominent */}
+          <div className="bg-primary/10 rounded-lg p-3 mb-4">
+            <MyCondominiumToggle 
+              isCondominiumFilter={isCondominiumFilter}
+              onToggleCondominiumFilter={setIsCondominiumFilter}
+            />
+          </div>
 
-          {/* Location Filter */}
-          <MobileLocationFilter
+          {/* Location Filter - Now using the dedicated component */}
+          <MobileFilterLocation
             selectedStateId={selectedStateId}
             setSelectedStateId={setSelectedStateId}
             selectedCityId={selectedCityId}
@@ -128,7 +130,7 @@ const MobileFilterSheet = ({
           />
 
           <Button 
-            className="w-full" 
+            className="w-full mt-4" 
             onClick={() => setIsOpen(false)}
           >
             Aplicar Filtros

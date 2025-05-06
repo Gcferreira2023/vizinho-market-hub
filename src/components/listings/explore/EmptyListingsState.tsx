@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface EmptyListingsStateProps {
@@ -9,28 +9,27 @@ interface EmptyListingsStateProps {
 
 const EmptyListingsState = ({ searchTerm, onReset }: EmptyListingsStateProps) => {
   return (
-    <div className="text-center py-12 bg-gray-50 rounded-xl">
-      <h2 className="text-xl font-medium mb-2">
+    <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg border border-dashed mt-4">
+      <Search size={48} className="text-gray-300 mb-4" />
+      
+      <h3 className="text-xl font-medium text-gray-700 mb-2">
         {searchTerm 
-          ? `Nenhum resultado para "${searchTerm}"`
+          ? `Nenhum resultado para "${searchTerm}"` 
           : "Nenhum anúncio encontrado"}
-      </h2>
-      <p className="text-gray-600 mb-6">
+      </h3>
+      
+      <p className="text-gray-500 text-center mb-6 max-w-md">
         {searchTerm 
-          ? "Tente buscar com palavras diferentes ou escolha outra categoria"
-          : "Não há anúncios disponíveis para esta categoria no momento"}
+          ? "Tente outros termos de busca ou remova alguns filtros para ver mais resultados." 
+          : "Não encontramos anúncios que correspondam aos filtros selecionados."}
       </p>
       
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        {onReset && (
-          <Button variant="outline" onClick={onReset} className="sm:mr-2">
-            Limpar filtros
-          </Button>
-        )}
-        <Button asChild>
-          <Link to="/criar-anuncio">Seja o primeiro a anunciar</Link>
+      {onReset && (
+        <Button onClick={onReset} variant="outline" className="flex items-center gap-2">
+          <RefreshCw size={16} />
+          Limpar filtros
         </Button>
-      </div>
+      )}
     </div>
   );
 };

@@ -57,19 +57,24 @@ const FilterSidebar = ({
   setIsCondominiumFilter
 }: FilterSidebarProps) => {
   const { user } = useAuth();
+  const userCondominiumId = user?.user_metadata?.condominiumId;
   
   return (
     <div className="hidden md:block w-64 space-y-6">
       <div className="bg-white p-4 rounded-lg border space-y-5">
         <h3 className="font-semibold text-lg">Filtros</h3>
 
-        {/* My Condominium Toggle */}
-        <MyCondominiumToggle 
-          isCondominiumFilter={isCondominiumFilter}
-          onToggleCondominiumFilter={setIsCondominiumFilter}
-        />
+        {/* My Condominium Toggle - Made more prominent with background */}
+        {userCondominiumId && (
+          <div className="bg-primary/10 rounded-lg p-3 -mx-2">
+            <MyCondominiumToggle 
+              isCondominiumFilter={isCondominiumFilter}
+              onToggleCondominiumFilter={setIsCondominiumFilter}
+            />
+          </div>
+        )}
 
-        {/* Location Filter */}
+        {/* Location Filter - Now first in the sidebar for more prominence */}
         <LocationFilter
           selectedStateId={selectedStateId}
           setSelectedStateId={setSelectedStateId}

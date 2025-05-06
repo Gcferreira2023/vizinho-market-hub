@@ -16,7 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface SearchBarProps {
   className?: string;
-  onSearch?: () => void; // Add this prop to fix the error
+  onSearch?: () => void;
 }
 
 const SearchBar = ({ className = "", onSearch }: SearchBarProps) => {
