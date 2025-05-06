@@ -38,14 +38,14 @@ const LocationFilters = () => {
     <div className="bg-white p-4 rounded-lg border shadow-sm">
       <h3 className="font-medium text-lg mb-4">Filtrar por localização</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
           <StateSelect
             selectedStateId={selectedStateId}
             setSelectedStateId={setSelectedStateId}
           />
         </div>
         
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
           <CitySelect
             selectedStateId={selectedStateId}
             selectedCityId={selectedCityId}
@@ -53,7 +53,7 @@ const LocationFilters = () => {
           />
         </div>
         
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
           <CondominiumSelect
             selectedCityId={selectedCityId}
             selectedCondominiumId={selectedCondominiumId}
