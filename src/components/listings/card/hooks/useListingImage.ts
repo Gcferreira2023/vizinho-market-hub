@@ -24,30 +24,21 @@ export const useListingImage = ({
   const [hasError, setHasError] = useState(false);
   const [isVisible, setIsVisible] = useState(!lazyLoad);
   
-  // For mock listings or empty URLs, use category-specific placeholder images
-  const getCategoryImage = () => {
-    if (isMockListing) {
-      // Select an image based on category
-      const categoryLower = category.toLowerCase();
-      if (categoryLower.includes("eletrônico") || categoryLower.includes("tecnologia")) {
-        return "/placeholder.svg"; // Fallback to standard placeholder
-      } else if (categoryLower.includes("móveis") || categoryLower.includes("decoração")) {
-        return "/placeholder.svg"; // Fallback to standard placeholder
-      } else if (categoryLower.includes("roupa") || categoryLower.includes("vestuário") || categoryLower.includes("moda")) {
-        return "/placeholder.svg"; // Fallback to standard placeholder
-      } else if (categoryLower.includes("serviço") || type === "serviço") {
-        return "/placeholder.svg"; // Fallback to standard placeholder
-      } else {
-        // If no specific category match, use generic placeholder
-        return "/placeholder.svg";
-      }
+  // Use a imagem placeholder local que sabemos que existe
+  const defaultPlaceholder = "/placeholder.svg";
+  
+  // Determinar a URL da imagem a ser usada
+  const determineImageUrl = () => {
+    // Para anúncios mock ou URLs vazias, usar o placeholder
+    if (isMockListing || !imageUrl || imageUrl.trim() === '') {
+      return defaultPlaceholder;
     }
     
-    // For real listings, use the provided image or default placeholder
-    return (imageUrl && imageUrl !== "") ? imageUrl : "/placeholder.svg";
+    // Para anúncios reais, usar a URL fornecida
+    return imageUrl;
   };
   
-  const imgSrc = getCategoryImage();
+  const imgSrc = determineImageUrl();
   
   // Debug logging
   useEffect(() => {
@@ -78,7 +69,7 @@ export const useListingImage = ({
 
   // Preload the image
   useEffect(() => {
-    if (!isVisible || isLoaded) return;
+    if (!isVisible) return;
     
     const preloadImage = new Image();
     preloadImage.src = imgSrc;
@@ -96,7 +87,7 @@ export const useListingImage = ({
       preloadImage.onload = null;
       preloadImage.onerror = null;
     };
-  }, [imgSrc, isVisible, isLoaded, id]);
+  }, [imgSrc, isVisible, id]);
 
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);

@@ -31,32 +31,6 @@ export const useImageLoader = ({
     
     console.log("Image src set to:", src);
     setImgSrc(src);
-    
-    // Pre-load the image to check if it exists
-    const img = new Image();
-    img.src = src;
-    
-    img.onload = () => {
-      console.log("Pre-load successful for:", src);
-      setImgSrc(src);
-      setIsLoaded(true);
-      if (onLoad) onLoad();
-    };
-    
-    img.onerror = () => {
-      console.error("Error pre-loading image:", src);
-      console.log("Switching to fallback image:", fallbackSrc);
-      setImgSrc(fallbackSrc);
-      setHasError(true);
-      setIsLoaded(true);
-      if (onLoad) onLoad();
-    };
-
-    // Cleanup function to cancel the image loading if component unmounts
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
   }, [src, fallbackSrc, onLoad]);
 
   const handleLoad = () => {

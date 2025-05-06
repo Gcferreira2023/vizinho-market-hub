@@ -27,7 +27,7 @@ export const ImageErrorState = ({ hasError }: ImageErrorStateProps) => {
   
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
-      <div className="bg-white/80 p-3 rounded-full shadow-sm">
+      <div className="bg-background/80 p-3 rounded-full shadow-sm">
         <ImageOff className="h-8 w-8 text-gray-400" />
       </div>
     </div>

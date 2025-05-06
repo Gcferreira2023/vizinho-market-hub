@@ -57,12 +57,12 @@ export const OptimizedImage = ({
 
   const handleError = () => {
     console.error(`Error loading image: ${imgSrc}`);
-    setHasError(true);
     
     if (imgSrc !== fallbackSrc) {
       console.log(`Switching to fallback: ${fallbackSrc}`);
       setImgSrc(fallbackSrc);
     } else {
+      setHasError(true);
       setIsLoaded(true); // Mark as loaded even if it's an error
     }
   };

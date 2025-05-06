@@ -2,34 +2,27 @@
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMobile } from "@/hooks/useMobile";
-import { ImageErrorState } from "@/components/ui/image/ImageErrorState";
 
 const HeroImage = () => {
-  const isMobile = useMobile();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // Use a local image that we know exists (match the exact path from public folder)
-  const [imgSrc, setImgSrc] = useState("/placeholder.svg");
-  
+  // Usamos uma imagem local fixa do diretório public
+  const localImagePath = "/placeholder.svg";
+
   const handleLoad = () => {
     setIsLoaded(true);
     console.log("Hero image loaded successfully");
   };
   
   const handleError = () => {
-    console.error("Failed to load hero image:", imgSrc);
+    console.error("Failed to load hero image");
     setHasError(true);
-    // Always fall back to placeholder.svg which we know exists
-    if (imgSrc !== "/placeholder.svg") {
-      setImgSrc("/placeholder.svg");
-    }
   };
   
   return (
     <div className="md:w-1/2 flex justify-center px-4 md:px-0">
-      <div className="w-full max-w-lg relative rounded-lg shadow-xl overflow-hidden">
+      <div className="w-full max-w-lg relative rounded-lg shadow-xl overflow-hidden bg-gray-100">
         {/* Loading state */}
         {!isLoaded && !hasError && (
           <div className="absolute inset-0 flex items-center justify-center bg-muted z-10">
@@ -39,19 +32,23 @@ const HeroImage = () => {
         )}
         
         <img
-          src={imgSrc}
+          src={localImagePath}
           alt="VizinhoMarket"
           className={`w-full aspect-[4/3] object-cover transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={handleLoad}
           onError={handleError}
-          width={isMobile ? 640 : 1200}
-          height={isMobile ? 480 : 900}
         />
 
         {/* Error state */}
-        <ImageErrorState isVisible={hasError} />
+        {hasError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
+            <div className="bg-background/80 p-3 rounded-full">
+              <ImageIcon className="w-8 h-8 text-muted-foreground" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
