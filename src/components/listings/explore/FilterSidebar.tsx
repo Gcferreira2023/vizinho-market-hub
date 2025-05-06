@@ -6,6 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import LocationFilter from "./LocationFilter";
+import MyCondominiumToggle from "./MyCondominiumToggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FilterSidebarProps {
   selectedCategory: string | null;
@@ -26,6 +28,9 @@ interface FilterSidebarProps {
   setSelectedCityId: (cityId: string | null) => void;
   selectedCondominiumId: string | null;
   setSelectedCondominiumId: (condominiumId: string | null) => void;
+  // Condominium filter toggle
+  isCondominiumFilter: boolean;
+  setIsCondominiumFilter: (isFiltered: boolean) => void;
 }
 
 const FilterSidebar = ({
@@ -46,12 +51,23 @@ const FilterSidebar = ({
   selectedCityId,
   setSelectedCityId,
   selectedCondominiumId,
-  setSelectedCondominiumId
+  setSelectedCondominiumId,
+  // Condominium filter toggle
+  isCondominiumFilter,
+  setIsCondominiumFilter
 }: FilterSidebarProps) => {
+  const { user } = useAuth();
+  
   return (
     <div className="hidden md:block w-64 space-y-6">
       <div className="bg-white p-4 rounded-lg border space-y-5">
         <h3 className="font-semibold text-lg">Filtros</h3>
+
+        {/* My Condominium Toggle */}
+        <MyCondominiumToggle 
+          isCondominiumFilter={isCondominiumFilter}
+          onToggleCondominiumFilter={setIsCondominiumFilter}
+        />
 
         {/* Location Filter */}
         <LocationFilter

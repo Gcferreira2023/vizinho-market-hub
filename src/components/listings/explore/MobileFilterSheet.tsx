@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import MobileLocationFilter from "./MobileLocationFilter";
+import MyCondominiumToggle from "./MyCondominiumToggle";
 
 interface MobileFilterSheetProps {
   isOpen: boolean;
@@ -42,6 +43,9 @@ interface MobileFilterSheetProps {
   setSelectedCityId: (cityId: string | null) => void;
   selectedCondominiumId: string | null;
   setSelectedCondominiumId: (condominiumId: string | null) => void;
+  // Condominium filter toggle
+  isCondominiumFilter: boolean;
+  setIsCondominiumFilter: (isFiltered: boolean) => void;
 }
 
 const MobileFilterSheet = ({
@@ -63,7 +67,10 @@ const MobileFilterSheet = ({
   selectedCityId,
   setSelectedCityId,
   selectedCondominiumId,
-  setSelectedCondominiumId
+  setSelectedCondominiumId,
+  // Condominium filter toggle
+  isCondominiumFilter,
+  setIsCondominiumFilter
 }: MobileFilterSheetProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -82,6 +89,12 @@ const MobileFilterSheet = ({
         </SheetHeader>
 
         <div className="mt-6 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2">
+          {/* My Condominium Toggle */}
+          <MyCondominiumToggle 
+            isCondominiumFilter={isCondominiumFilter}
+            onToggleCondominiumFilter={setIsCondominiumFilter}
+          />
+
           {/* Location Filter */}
           <MobileLocationFilter
             selectedStateId={selectedStateId}

@@ -1,8 +1,8 @@
 
-import { FilterIcon, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ListingStatus } from "@/components/listings/StatusBadge";
 import MobileFilterSheet from "./MobileFilterSheet";
+import { ListingStatus } from "@/components/listings/StatusBadge";
+import { Button } from "@/components/ui/button";
+import { Filter } from "lucide-react";
 
 interface ExploreHeaderProps {
   isFilterSheetOpen: boolean;
@@ -24,6 +24,9 @@ interface ExploreHeaderProps {
   setSelectedCityId: (cityId: string | null) => void;
   selectedCondominiumId: string | null;
   setSelectedCondominiumId: (condominiumId: string | null) => void;
+  // Condominium filter toggle
+  isCondominiumFilter: boolean;
+  setIsCondominiumFilter: (isFiltered: boolean) => void;
 }
 
 const ExploreHeader = ({
@@ -45,52 +48,39 @@ const ExploreHeader = ({
   selectedCityId,
   setSelectedCityId,
   selectedCondominiumId,
-  setSelectedCondominiumId
+  setSelectedCondominiumId,
+  // Condominium filter toggle
+  isCondominiumFilter,
+  setIsCondominiumFilter
 }: ExploreHeaderProps) => {
   return (
-    <div className="mb-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Explorar Anúncios</h1>
-          <p className="text-gray-600 mb-4">
-            Encontre produtos e serviços em condomínios próximos a você
-          </p>
-        </div>
-
-        <div className="flex gap-4">
-          <MobileFilterSheet
-            isOpen={isFilterSheetOpen}
-            setIsOpen={setIsFilterSheetOpen}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-            selectedStatus={selectedStatus}
-            setSelectedStatus={setSelectedStatus}
-            showSoldItems={showSoldItems}
-            setShowSoldItems={setShowSoldItems}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            // Location filters
-            selectedStateId={selectedStateId}
-            setSelectedStateId={setSelectedStateId}
-            selectedCityId={selectedCityId}
-            setSelectedCityId={setSelectedCityId}
-            selectedCondominiumId={selectedCondominiumId}
-            setSelectedCondominiumId={setSelectedCondominiumId}
-          />
-
-          <div className="hidden md:block">
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-            >
-              <MapPin size={16} />
-              <span>Localização</span>
-            </Button>
-          </div>
-        </div>
-      </div>
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-2xl md:text-3xl font-bold">Explorar Anúncios</h1>
+      
+      <MobileFilterSheet
+        isOpen={isFilterSheetOpen}
+        setIsOpen={setIsFilterSheetOpen}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        showSoldItems={showSoldItems}
+        setShowSoldItems={setShowSoldItems}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        // Location filters
+        selectedStateId={selectedStateId}
+        setSelectedStateId={setSelectedStateId}
+        selectedCityId={selectedCityId}
+        setSelectedCityId={setSelectedCityId}
+        selectedCondominiumId={selectedCondominiumId}
+        setSelectedCondominiumId={setSelectedCondominiumId}
+        // Condominium filter toggle
+        isCondominiumFilter={isCondominiumFilter}
+        setIsCondominiumFilter={setIsCondominiumFilter}
+      />
     </div>
   );
 };

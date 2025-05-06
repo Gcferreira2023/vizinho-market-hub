@@ -26,6 +26,9 @@ interface ExploreContentProps {
   setSelectedCityId: (cityId: string | null) => void;
   selectedCondominiumId: string | null;
   setSelectedCondominiumId: (condominiumId: string | null) => void;
+  // Condominium filter toggle
+  isCondominiumFilter: boolean;
+  setIsCondominiumFilter: (isFiltered: boolean) => void;
 }
 
 const ExploreContent = ({
@@ -49,7 +52,10 @@ const ExploreContent = ({
   selectedCityId,
   setSelectedCityId,
   selectedCondominiumId,
-  setSelectedCondominiumId
+  setSelectedCondominiumId,
+  // Condominium filter toggle
+  isCondominiumFilter,
+  setIsCondominiumFilter
 }: ExploreContentProps) => {
   return (
     <div className="flex gap-6">
@@ -72,6 +78,9 @@ const ExploreContent = ({
         setSelectedCityId={setSelectedCityId}
         selectedCondominiumId={selectedCondominiumId}
         setSelectedCondominiumId={setSelectedCondominiumId}
+        // Condominium filter toggle
+        isCondominiumFilter={isCondominiumFilter}
+        setIsCondominiumFilter={setIsCondominiumFilter}
       />
 
       <div className="flex-1">

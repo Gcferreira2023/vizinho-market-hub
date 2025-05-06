@@ -6,6 +6,7 @@ import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
 import ExploreHeader from "@/components/listings/explore/ExploreHeader";
 import ExploreContent from "@/components/listings/explore/ExploreContent";
 import { useExploreListings } from "@/hooks/useExploreListings";
+import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
 
 const ExploreListings = () => {
   const { 
@@ -62,6 +63,9 @@ const ExploreListings = () => {
           setSelectedCityId={setSelectedCityId}
           selectedCondominiumId={selectedCondominiumId}
           setSelectedCondominiumId={setSelectedCondominiumId}
+          // Condominium filter toggle
+          isCondominiumFilter={isCondominiumFilter}
+          setIsCondominiumFilter={setIsCondominiumFilter}
         />
 
         {/* Alerta de não necessidade de cadastro */}
@@ -73,12 +77,22 @@ const ExploreListings = () => {
           handleSearch={handleSearch}
         />
         
-        {userCondominiumId && (
+        {/* No longer needed as we have the toggle in the filters */}
+        {/* {userCondominiumId && (
           <CondominiumFilter 
             isCondominiumFilter={isCondominiumFilter}
             onToggleCondominiumFilter={setIsCondominiumFilter}
           />
-        )}
+        )} */}
+
+        <div className="block md:hidden my-4">
+          {userCondominiumId && (
+            <MyCondominiumToggle 
+              isCondominiumFilter={isCondominiumFilter}
+              onToggleCondominiumFilter={setIsCondominiumFilter}
+            />
+          )}
+        </div>
 
         <ExploreContent 
           listings={listings}
@@ -101,6 +115,9 @@ const ExploreListings = () => {
           setSelectedCityId={setSelectedCityId}
           selectedCondominiumId={selectedCondominiumId}
           setSelectedCondominiumId={setSelectedCondominiumId}
+          // Condominium filter toggle
+          isCondominiumFilter={isCondominiumFilter}
+          setIsCondominiumFilter={setIsCondominiumFilter}
         />
       </div>
     </Layout>
