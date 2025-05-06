@@ -46,14 +46,17 @@ const ListingCard = ({
 }: ListingCardProps) => {
   const isMobile = useMobile();
   
-  // Use the provided linkTo or determine based on whether it's a mock listing
+  // Determinar o link correto
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
-  // Debug log for image URL
+  // Debug log para verificar URL da imagem
   useEffect(() => {
-    console.log(`ListingCard ${id} rendering with image URL: ${imageUrl}`);
-    console.log(`Is mock listing: ${isMockListing}, link: ${linkPath}`);
-  }, [id, imageUrl, isMockListing, linkPath]);
+    if (!imageUrl || imageUrl === '/placeholder.svg' || imageUrl.trim() === '') {
+      console.log(`ListingCard ${id}: usando imagem placeholder`);
+    } else {
+      console.log(`ListingCard ${id}: usando imageUrl: ${imageUrl}`);
+    }
+  }, [id, imageUrl]);
   
   // Definir tamanho da imagem com base no dispositivo
   const imageHeight = isMobile ? "h-40" : "h-48";

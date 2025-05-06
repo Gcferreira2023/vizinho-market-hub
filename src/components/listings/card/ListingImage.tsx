@@ -1,9 +1,8 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { useImageLoader } from "./useImageLoader";
 import FavoriteButton from "../FavoriteButton";
-import { Image, ImageOff, AlertTriangle } from "lucide-react";
+import { Image, ImageOff } from "lucide-react";
 
 interface ListingImageProps {
   id: string;
@@ -32,23 +31,48 @@ const ListingImage = ({
   lazyLoad,
   onImageLoad
 }: ListingImageProps) => {
-  const {
-    imgError,
-    imgLoaded,
-    isVisible,
-    actualImageUrl,
-    handleImageLoad,
-    handleImageError
-  } = useImageLoader({
-    imageUrl,
-    isMockListing,
-    lazyLoad,
-    id,
-    onImageLoad
-  });
+  // Para imagens de demonstração, sempre use o placeholder
+  const actualImageUrl = isMockListing ? '/placeholder.svg' : imageUrl || '/placeholder.svg';
+  
+  // Estado local para controlar carregamento e erros
+  const [imgLoaded, setImgLoaded] = React.useState(false);
+  const [imgError, setImgError] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(!lazyLoad);
 
-  // Debug
-  console.log(`ListingImage ${id}: actualImageUrl=${actualImageUrl}, imgLoaded=${imgLoaded}, imgError=${imgError}`);
+  // Lazy loading com Intersection Observer
+  React.useEffect(() => {
+    if (!lazyLoad) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentCard = document.getElementById(`listing-card-${id}`);
+    if (currentCard) {
+      observer.observe(currentCard);
+    }
+
+    return () => observer.disconnect();
+  }, [id, lazyLoad]);
+
+  const handleImageLoad = () => {
+    console.log(`Image loaded successfully: ${actualImageUrl}`);
+    setImgLoaded(true);
+    if (onImageLoad) onImageLoad();
+  };
+  
+  const handleImageError = () => {
+    console.error(`Error loading image ${actualImageUrl}, using placeholder`);
+    setImgError(true);
+    setImgLoaded(true);
+    if (onImageLoad) onImageLoad();
+  };
 
   return (
     <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -142,6 +166,7 @@ const StatusBadgeComponent = ({ status }: { status: string }) => {
 
 // CondominiumBadge component
 import { MapPin } from "lucide-react";
+import React from "react";
 
 const CondominiumBadge = ({ 
   condominiumName, 

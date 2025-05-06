@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { ListingStatus } from '@/components/listings/StatusBadge';
 
-// Example listings data to use when there are no real listings
+// Dados de exemplo para quando não há anúncios reais
 const mockListings = [
   {
     id: 'mock1',
@@ -67,7 +67,7 @@ export const useRecentListings = () => {
   const [showIllustrativeMessage, setShowIllustrativeMessage] = useState(false);
   const { user } = useAuth();
   
-  // Fetching real listings from database
+  // Buscar anúncios reais do banco de dados
   useEffect(() => {
     const fetchRealListings = async () => {
       try {
@@ -93,20 +93,28 @@ export const useRecentListings = () => {
         
         console.log("Recent listings raw data:", data);
         
-        // Get user condominium ID to flag which listings are from the same condominium
+        // Get user condominium ID para marcar quais anúncios são do mesmo condomínio
         const userCondominiumId = user?.user_metadata?.condominiumId;
         
-        // Transform data to match our component's expected format
+        // Transformar dados para corresponder ao formato esperado pelo componente
         const transformedData = data?.map(item => {
-          // Get image URL from ad_images if available
+          // Determinar a URL da imagem
           let imageUrl = '/placeholder.svg';
+          
+          // Verificar se há imagens associadas ao anúncio
           if (item.ad_images && item.ad_images.length > 0) {
-            const image = item.ad_images[0];
-            if (image.image_url && image.image_url.trim() !== '') {
-              imageUrl = image.image_url;
-              console.log(`Found image for listing ${item.id}:`, imageUrl);
-            } else {
-              console.log(`Image found but URL is empty for listing ${item.id}, using placeholder`);
+            // Encontrar a primeira imagem válida
+            for (const image of item.ad_images) {
+              if (image.image_url && image.image_url.trim() !== '') {
+                imageUrl = image.image_url;
+                console.log(`Found valid image for listing ${item.id}:`, imageUrl);
+                break;
+              }
+            }
+            
+            // Se nenhuma imagem válida for encontrada, usar placeholder
+            if (imageUrl === '/placeholder.svg') {
+              console.log(`No valid image found for listing ${item.id}, using placeholder`);
             }
           } else {
             console.log(`No images found for listing ${item.id}, using placeholder`);
@@ -121,7 +129,7 @@ export const useRecentListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: 0, // Default value since view_count doesn't exist in the database
+            viewCount: item.view_count || 0,
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
@@ -130,14 +138,14 @@ export const useRecentListings = () => {
         
         console.log("Recent listings transformed data:", transformedData);
         
-        // Log individual image URLs for debug
+        // Log das URLs de imagem para debug
         transformedData.forEach(listing => {
-          console.log(`Listing ${listing.id} image URL: ${listing.imageUrl}`);
+          console.log(`Listing ${listing.id} final image URL: ${listing.imageUrl}`);
         });
         
         setRealListings(transformedData);
         
-        // If we have some real listings, use them, otherwise use mock data
+        // Se temos anúncios reais, usá-los, caso contrário, usar dados de exemplo
         if (transformedData.length > 0) {
           setCombinedListings(transformedData);
           setShowIllustrativeMessage(false);

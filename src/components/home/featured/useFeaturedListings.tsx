@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { ListingStatus } from '@/components/listings/StatusBadge';
 
-// Example listings data for when there are no real ads
+// Dados de exemplo para quando não há anúncios reais
 const mockListings = [
   {
     id: 'mock1',
@@ -91,7 +91,7 @@ export const useFeaturedListings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   
-  // Fetching real listings from database
+  // Buscar anúncios reais do banco de dados
   useEffect(() => {
     const fetchRealListings = async () => {
       try {
@@ -120,24 +120,33 @@ export const useFeaturedListings = () => {
         
         console.log("Featured listings raw data:", data);
         
-        // Transform data to match our component's expected format
+        // Transformar dados para corresponder ao formato esperado pelo componente
         const transformedData = data?.map(item => {
-          // Get image URL from ad_images if available
+          // Determinar a URL da imagem
           let imageUrl = '/placeholder.svg';
+          
+          // Verificar se há imagens associadas ao anúncio
           if (item.ad_images && item.ad_images.length > 0) {
-            const image = item.ad_images[0];
-            if (image.image_url && image.image_url.trim() !== '') {
-              imageUrl = image.image_url;
-              console.log(`Found image for listing ${item.id}:`, imageUrl);
-            } else {
-              console.log(`Image found but URL is empty for listing ${item.id}, using placeholder`);
+            // Encontrar a primeira imagem válida
+            for (const image of item.ad_images) {
+              if (image.image_url && image.image_url.trim() !== '') {
+                imageUrl = image.image_url;
+                console.log(`Found valid image for listing ${item.id}:`, imageUrl);
+                break;
+              }
+            }
+            
+            // Se nenhuma imagem válida for encontrada, usar placeholder
+            if (imageUrl === '/placeholder.svg') {
+              console.log(`No valid image found for listing ${item.id}, using placeholder`);
             }
           } else {
             console.log(`No images found for listing ${item.id}, using placeholder`);
           }
           
-          // Log specific debug info
-          console.log(`Listing ${item.id} ad_images:`, item.ad_images);
+          // Logs detalhados para debugar
+          console.log(`Listing ${item.id} ad_images data:`, item.ad_images);
+          console.log(`Final image URL for listing ${item.id}:`, imageUrl);
             
           return {
             id: item.id,
@@ -148,7 +157,7 @@ export const useFeaturedListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: 0, // Default value since view_count doesn't exist in the database
+            viewCount: item.view_count || 0,
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
@@ -157,9 +166,9 @@ export const useFeaturedListings = () => {
         
         console.log("Featured listings transformed data:", transformedData);
         
-        // Log individual image URLs for debug
+        // Log das URLs de imagem para debug
         transformedData.forEach(listing => {
-          console.log(`Listing ${listing.id} image URL: ${listing.imageUrl}`);
+          console.log(`Listing ${listing.id} final image URL: ${listing.imageUrl}`);
         });
         
         setRealListings(transformedData);

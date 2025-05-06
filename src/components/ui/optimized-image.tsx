@@ -15,8 +15,8 @@ interface OptimizedImageProps {
   onLoad?: () => void;
   blurDataUrl?: string;
   fallbackSrc?: string;
-  aspectRatio?: string; // Novo: permite definir proporção personalizada
-  touchable?: boolean; // Novo: otimiza para interação touch
+  aspectRatio?: string;
+  touchable?: boolean;
 }
 
 export const OptimizedImage = ({
@@ -30,40 +30,30 @@ export const OptimizedImage = ({
   onLoad,
   blurDataUrl,
   fallbackSrc = "/placeholder.svg",
-  aspectRatio = "aspect-[4/3]", // Proporção padrão
+  aspectRatio = "aspect-[4/3]",
   touchable = false
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
   const isMobile = useMobile();
 
+  // Resetar estado quando a URL da imagem mudar
   useEffect(() => {
-    // Reset state when src changes
     setIsLoaded(false);
     setHasError(false);
-    setImgSrc(src);
-  }, [src]);
-
-  // Optimize image URL if it's from Unsplash
-  useEffect(() => {
-    if (src && src.includes("unsplash.com") && !src.includes("&w=")) {
-      // Tamanhos responsivos baseados no dispositivo
-      const optimizedWidth = isMobile 
-        ? (width || 480) 
-        : (width || 800);
-      
-      const optimizedUrl = `${src}${src.includes("?") ? "&" : "?"}auto=format&q=${isMobile ? 70 : 80}&w=${optimizedWidth}`;
-      setImgSrc(optimizedUrl);
-    }
-  }, [src, width, isMobile]);
+    setImgSrc(src || fallbackSrc);
+    console.log("OptimizedImage src changed:", src || fallbackSrc);
+  }, [src, fallbackSrc]);
 
   const handleLoad = () => {
+    console.log("OptimizedImage loaded:", imgSrc);
     setIsLoaded(true);
     if (onLoad) onLoad();
   };
 
   const handleError = () => {
+    console.error("OptimizedImage error loading:", imgSrc);
     setHasError(true);
     setIsLoaded(true);
     setImgSrc(fallbackSrc);
@@ -75,7 +65,7 @@ export const OptimizedImage = ({
     fill: "object-fill"
   }[objectFit];
 
-  // Classes adicionais para imagens tocáveis em dispositivos móveis
+  // Classes para imagens tocáveis em dispositivos móveis
   const touchableClass = touchable && isMobile 
     ? "active:scale-[0.98] transition-transform" 
     : "";
