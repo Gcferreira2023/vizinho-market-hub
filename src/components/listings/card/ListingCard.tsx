@@ -50,16 +50,14 @@ const ListingCard = ({
   // Determinar o caminho correto para o link
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
-  // Para anúncios ilustrativos, sempre use o placeholder
+  // Para anúncios ilustrativos, o componente de imagem vai se encarregar de selecionar uma imagem apropriada
   // Para anúncios reais, use a imagem fornecida ou placeholder se não houver imagem
-  const imgSrc = isMockListing 
-    ? '/placeholder.svg' 
-    : (imageUrl && imageUrl !== "" ? imageUrl : '/placeholder.svg');
+  const imgSrc = imageUrl || '/placeholder.svg';
   
   // Log de debug para a URL da imagem
   useEffect(() => {
-    console.log(`ListingCard ${id}: usando ${isMockListing ? 'mock' : 'real'} imagem: ${imgSrc}`);
-  }, [id, imageUrl, isMockListing, imgSrc]);
+    console.log(`ListingCard ${id}: usando ${isMockListing ? 'mock' : 'real'} imagem: ${imgSrc}, categoria: ${category}`);
+  }, [id, imageUrl, isMockListing, imgSrc, category]);
   
   // Definir altura da imagem com base no dispositivo
   const imageHeight = isMobile ? "h-40" : "h-48";

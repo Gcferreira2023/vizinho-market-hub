@@ -9,24 +9,24 @@ const HeroImage = () => {
   const [imageError, setImageError] = useState(false);
   const isMobile = useMobile();
   
-  // Imagem otimizada com melhor qualidade, tamanho e versão responsiva
-  const imageUrl = "https://images.unsplash.com/photo-1721322800607-8c38375eef04";
+  // Use a local image instead of an external URL that might not load
+  const imageUrl = "/hero-image.jpg";
+  const fallbackUrl = "/placeholder.svg";
   
-  // Use imagem de menor qualidade em dispositivos móveis
-  const optimizedUrl = isMobile 
-    ? `${imageUrl}?auto=format&q=70&w=640&fit=crop` 
-    : `${imageUrl}?auto=format&q=80&w=1200&fit=crop`;
-  
+  // Pre-load the image to check if it works
   useEffect(() => {
-    // Pré-carregar a imagem em segundo plano
     const img = new Image();
-    img.src = optimizedUrl;
-    img.onload = () => setImageLoaded(true);
-    img.onerror = () => {
-      setImageError(true);
+    img.src = imageUrl;
+    img.onload = () => {
+      console.log("Hero image loaded successfully:", imageUrl);
       setImageLoaded(true);
     };
-  }, [optimizedUrl]);
+    img.onerror = () => {
+      console.error("Error loading hero image:", imageUrl);
+      setImageError(true);
+      setImageLoaded(true); // Set loaded to true so we show the fallback
+    };
+  }, [imageUrl]);
   
   return (
     <div className="md:w-1/2 flex justify-center px-4 md:px-0">
@@ -38,7 +38,7 @@ const HeroImage = () => {
           </div>
         )}
         <img
-          src={imageError ? "/placeholder.svg" : optimizedUrl}
+          src={imageError ? fallbackUrl : imageUrl}
           alt="VizinhoMarket"
           className={`w-full object-cover transition-opacity duration-300 aspect-[4/3] ${
             imageLoaded ? 'opacity-100' : 'opacity-0'

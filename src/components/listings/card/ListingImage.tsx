@@ -33,20 +33,38 @@ const ListingImage = ({
   lazyLoad,
   onImageLoad
 }: ListingImageProps) => {
-  // Se for um anúncio simulado, sempre use o placeholder
-  // Se não for simulado mas não tiver imagem, use o placeholder também
-  const imgSrc = isMockListing 
-    ? '/placeholder.svg' 
-    : (imageUrl && imageUrl !== "" ? imageUrl : '/placeholder.svg');
+  // For mock listings, use category-specific placeholder images
+  const getCategoryImage = () => {
+    if (isMockListing) {
+      // Select an image based on category
+      switch(category.toLowerCase()) {
+        case "eletrônicos":
+          return "/placeholder-electronics.jpg";
+        case "móveis":
+          return "/placeholder-furniture.jpg";
+        case "roupas":
+          return "/placeholder-clothing.jpg";
+        case "serviços":
+          return "/placeholder-services.jpg";
+        default:
+          return "/placeholder.svg";
+      }
+    }
+    
+    // For real listings, use the provided image or default placeholder
+    return (imageUrl && imageUrl !== "") ? imageUrl : "/placeholder.svg";
+  };
+  
+  const imgSrc = getCategoryImage();
   
   const [isVisible, setIsVisible] = useState(!lazyLoad);
   
-  // Para debug, log da fonte da imagem
+  // Debug logging
   useEffect(() => {
-    console.log(`Rendering listing ${id}, isMock: ${isMockListing}, imageUrl: ${imgSrc}`);
-  }, [id, imgSrc, isMockListing]);
+    console.log(`Rendering listing ${id}, isMock: ${isMockListing}, imageUrl: ${imgSrc}, category: ${category}`);
+  }, [id, imgSrc, isMockListing, category]);
 
-  // Lazy loading com Intersection Observer
+  // Lazy loading with Intersection Observer
   useEffect(() => {
     if (!lazyLoad) return;
 
@@ -102,6 +120,7 @@ const ListingImage = ({
             fallbackSrc="/placeholder.svg"
             onLoad={handleImageLoad}
             priority={!lazyLoad}
+            touchable={true}
           />
           
           {/* Type badge */}
