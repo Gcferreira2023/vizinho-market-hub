@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { Image } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useMobile } from "@/hooks/useMobile";
 
 const HeroImage = () => {
@@ -20,7 +19,7 @@ const HeroImage = () => {
   
   useEffect(() => {
     // Pré-carregar a imagem em segundo plano
-    const img = new Image();
+    const img = new globalThis.Image();
     img.src = optimizedUrl;
     img.onload = () => setImageLoaded(true);
     img.onerror = () => {
