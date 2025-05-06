@@ -50,7 +50,7 @@ const HeroImage = () => {
             setImageError(true);
           }}
           loading="eager" // Carrega com prioridade por ser above the fold
-          fetchpriority="high"
+          fetchPriority="high"
           width={isMobile ? 640 : 1200}
           height={isMobile ? 480 : 900}
         />
