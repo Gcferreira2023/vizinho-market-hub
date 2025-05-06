@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from "react";
-import { Image as ImageIcon, ImageOff } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
 import { useMobile } from "@/hooks/useMobile";
+import useImageLoader from "@/hooks/useImageLoader";
+import ImageLoadingState from "./image/ImageLoadingState";
+import ImageErrorState from "./image/ImageErrorState";
 
 interface OptimizedImageProps {
   src: string;
@@ -33,76 +34,18 @@ export const OptimizedImage = ({
   aspectRatio = "aspect-[4/3]",
   touchable = false
 }: OptimizedImageProps) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc);
   const isMobile = useMobile();
-
-  // Reset state when the image URL changes
-  useEffect(() => {
-    if (src !== imgSrc && src) {
-      setIsLoaded(false);
-      setHasError(false);
-      setImgSrc(src);
-      console.log("OptimizedImage src set to:", src);
-    }
-  }, [src, imgSrc]);
-
-  // If src is empty or undefined, use fallback immediately
-  useEffect(() => {
-    if (!src || src === "") {
-      setImgSrc(fallbackSrc);
-      console.log("Using fallback image immediately:", fallbackSrc);
-      // Consider this pre-loaded if we're using fallback
-      setIsLoaded(true);
-      if (onLoad) onLoad();
-    }
-  }, [src, fallbackSrc, onLoad]);
-
-  // Pre-load the image to check if it works
-  useEffect(() => {
-    if (imgSrc && imgSrc !== fallbackSrc && !isLoaded) {
-      console.log(`Pre-loading image: ${imgSrc}`);
-      
-      try {
-        const preloadImage = new Image();
-        preloadImage.src = imgSrc;
-        preloadImage.onload = () => {
-          console.log(`Pre-load successful: ${imgSrc}`);
-          setHasError(false);
-        };
-        preloadImage.onerror = () => {
-          console.error(`Error pre-loading image: ${imgSrc}`);
-          setImgSrc(fallbackSrc);
-          setIsLoaded(true);
-          if (onLoad) onLoad();
-        };
-      } catch (error) {
-        console.error(`Error during pre-load setup: ${error}`);
-        setImgSrc(fallbackSrc);
-        setIsLoaded(true);
-        if (onLoad) onLoad();
-      }
-    }
-  }, [imgSrc, fallbackSrc, isLoaded, onLoad]);
-
-  const handleLoad = () => {
-    console.log("OptimizedImage loaded successfully:", imgSrc);
-    setIsLoaded(true);
-    if (onLoad) onLoad();
-  };
-
-  const handleError = () => {
-    console.error("OptimizedImage error loading:", imgSrc);
-    if (imgSrc !== fallbackSrc) {
-      console.log("Switching to fallback image:", fallbackSrc);
-      setImgSrc(fallbackSrc);
-    } else {
-      // If even the fallback fails, mark as error but still show a visual
-      setHasError(true);
-      setIsLoaded(true);
-    }
-  };
+  const {
+    isLoaded,
+    hasError,
+    imgSrc,
+    handleLoad,
+    handleError
+  } = useImageLoader({
+    src,
+    fallbackSrc,
+    onLoad
+  });
 
   const objectFitClass = {
     cover: "object-cover",
@@ -118,12 +61,7 @@ export const OptimizedImage = ({
   return (
     <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
       {/* Show skeleton loader while loading */}
-      {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-muted">
-          <Skeleton className="w-full h-full absolute" />
-          <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50 z-10" />
-        </div>
-      )}
+      <ImageLoadingState isVisible={!isLoaded} />
 
       {/* Always render the img tag, but set opacity based on loaded state */}
       <img
@@ -139,13 +77,7 @@ export const OptimizedImage = ({
       />
 
       {/* Show error state if both original and fallback images failed */}
-      {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
-          <div className="bg-background/80 p-2 rounded-full">
-            <ImageOff className="w-6 h-6 text-muted-foreground" />
-          </div>
-        </div>
-      )}
+      <ImageErrorState isVisible={hasError} />
     </div>
   );
 };
