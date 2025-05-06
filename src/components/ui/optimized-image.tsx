@@ -1,9 +1,8 @@
 
 import { useState } from "react";
 import { useMobile } from "@/hooks/useMobile";
-import useImageLoader from "@/hooks/useImageLoader";
-import ImageLoadingState from "./image/ImageLoadingState";
-import ImageErrorState from "./image/ImageErrorState";
+import { ImageIcon, ImageOff } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OptimizedImageProps {
   src: string;
@@ -35,17 +34,9 @@ export const OptimizedImage = ({
   touchable = false
 }: OptimizedImageProps) => {
   const isMobile = useMobile();
-  const {
-    isLoaded,
-    hasError,
-    imgSrc,
-    handleLoad,
-    handleError
-  } = useImageLoader({
-    src,
-    fallbackSrc,
-    onLoad
-  });
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src);
 
   const objectFitClass = {
     cover: "object-cover",
@@ -58,10 +49,32 @@ export const OptimizedImage = ({
     ? "active:scale-[0.98] transition-transform" 
     : "";
 
+  const handleLoad = () => {
+    console.log(`Image loaded successfully: ${imgSrc}`);
+    setIsLoaded(true);
+    if (onLoad) onLoad();
+  };
+
+  const handleError = () => {
+    console.error(`Error loading image: ${imgSrc}`);
+    if (imgSrc !== fallbackSrc) {
+      console.log(`Switching to fallback: ${fallbackSrc}`);
+      setImgSrc(fallbackSrc);
+    } else {
+      setHasError(true);
+      setIsLoaded(true);
+    }
+  };
+
   return (
     <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
       {/* Show skeleton loader while loading */}
-      <ImageLoadingState isVisible={!isLoaded} />
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted z-10">
+          <Skeleton className="w-full h-full absolute" />
+          <ImageIcon className="h-8 w-8 text-muted-foreground opacity-50" />
+        </div>
+      )}
 
       {/* Always render the img tag, but set opacity based on loaded state */}
       <img
@@ -77,7 +90,13 @@ export const OptimizedImage = ({
       />
 
       {/* Show error state if both original and fallback images failed */}
-      <ImageErrorState isVisible={hasError} />
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
+          <div className="bg-background/80 p-2 rounded-full">
+            <ImageOff className="w-6 h-6 text-muted-foreground" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

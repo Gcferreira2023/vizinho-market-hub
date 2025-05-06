@@ -18,32 +18,33 @@ export const useImageLoader = ({
 
   // Reset state when the image URL changes
   useEffect(() => {
-    if (src) {
-      setIsLoaded(false);
-      setHasError(false);
-      setImgSrc(src);
-      console.log("Image src set to:", src);
-      
-      // Pre-load the image
-      const img = new Image();
-      img.src = src;
-      
-      img.onload = () => {
-        console.log("Pre-load successful for:", src);
-        setHasError(false);
-      };
-      
-      img.onerror = () => {
-        console.error("Error pre-loading image:", src);
-        console.log("Switching to fallback image:", fallbackSrc);
-        setImgSrc(fallbackSrc);
-      };
-    } else {
-      // If no src is provided, use fallback immediately
+    setIsLoaded(false);
+    setHasError(false);
+    
+    if (!src || src === "") {
+      console.log("No source provided, using fallback immediately:", fallbackSrc);
       setImgSrc(fallbackSrc);
       setIsLoaded(true);
       if (onLoad) onLoad();
+      return;
     }
+    
+    console.log("Image src set to:", src);
+    setImgSrc(src);
+    
+    // Pre-load the image
+    const img = new Image();
+    img.src = src;
+    
+    img.onload = () => {
+      console.log("Pre-load successful for:", src);
+    };
+    
+    img.onerror = () => {
+      console.error("Error pre-loading image:", src);
+      console.log("Switching to fallback image:", fallbackSrc);
+      setImgSrc(fallbackSrc);
+    };
   }, [src, fallbackSrc, onLoad]);
 
   const handleLoad = () => {

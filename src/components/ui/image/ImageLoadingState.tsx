@@ -11,9 +11,9 @@ export const ImageLoadingState = ({ isVisible }: ImageLoadingStateProps) => {
   if (!isVisible) return null;
   
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-muted">
+    <div className="absolute inset-0 flex items-center justify-center bg-muted z-10">
       <Skeleton className="w-full h-full absolute" />
-      <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50 z-10" />
+      <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50 z-20" />
     </div>
   );
 };
