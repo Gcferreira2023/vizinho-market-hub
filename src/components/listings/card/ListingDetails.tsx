@@ -1,5 +1,5 @@
 
-import { Star, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 
 interface ListingDetailsProps {
   title: string;
@@ -13,44 +13,30 @@ const ListingDetails = ({
   title, 
   price, 
   rating, 
-  location, 
-  viewCount = 0 
+  location,
+  viewCount = 0
 }: ListingDetailsProps) => {
   return (
-    <div className="p-4 flex flex-col flex-grow">
-      <h3 className="font-medium text-lg mb-1 line-clamp-2" title={title}>
-        {title}
-      </h3>
-      <div className="mt-auto">
-        {rating !== undefined && (
-          <div className="flex items-center mb-2">
-            <Star size={16} className="text-yellow-400 fill-yellow-400 mr-1" />
-            <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+    <div className="p-3">
+      <h3 className="font-medium text-sm line-clamp-2 mb-1">{title}</h3>
+      <div className="flex justify-between items-end">
+        <p className="text-primary font-bold text-base">
+          {typeof price === 'number' 
+            ? `R$ ${price.toFixed(2)}` 
+            : price}
+        </p>
+        
+        {viewCount > 0 && (
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Eye size={14} />
+            <span>{viewCount}</span>
           </div>
         )}
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-lg text-primary">
-            {typeof price === "number" ? `R$ ${price.toFixed(2)}` : price}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">{location}</span>
-            {viewCount > 0 && (
-              <ViewCounter viewCount={viewCount} />
-            )}
-          </div>
-        </div>
       </div>
+      {location && (
+        <p className="text-gray-500 text-xs mt-1">{location}</p>
+      )}
     </div>
-  );
-};
-
-// ViewCounter component
-const ViewCounter = ({ viewCount }: { viewCount: number }) => {
-  return (
-    <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-      <Eye size={12} />
-      {viewCount} {viewCount === 1 ? 'visualização' : 'visualizações'}
-    </span>
   );
 };
 
