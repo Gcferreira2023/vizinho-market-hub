@@ -42,25 +42,20 @@ export const useImageLoader = ({
     if (imgSrc && imgSrc !== fallbackSrc && !isLoaded) {
       console.log(`Pre-loading image: ${imgSrc}`);
       
-      try {
-        const preloadImage = new Image();
-        preloadImage.src = imgSrc;
-        preloadImage.onload = () => {
-          console.log(`Pre-load successful: ${imgSrc}`);
-          setHasError(false);
-        };
-        preloadImage.onerror = () => {
-          console.error(`Error pre-loading image: ${imgSrc}`);
-          setImgSrc(fallbackSrc);
-          setIsLoaded(true);
-          if (onLoad) onLoad();
-        };
-      } catch (error) {
-        console.error(`Error during pre-load setup: ${error}`);
+      const preloadImage = new Image();
+      preloadImage.src = imgSrc;
+      
+      preloadImage.onload = () => {
+        console.log(`Pre-load successful: ${imgSrc}`);
+        setHasError(false);
+      };
+      
+      preloadImage.onerror = () => {
+        console.error(`Error pre-loading image: ${imgSrc}`);
         setImgSrc(fallbackSrc);
         setIsLoaded(true);
         if (onLoad) onLoad();
-      }
+      };
     }
   }, [imgSrc, fallbackSrc, isLoaded, onLoad]);
 
