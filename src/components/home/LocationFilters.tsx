@@ -59,9 +59,10 @@ const LocationFilters = () => {
       <div className="mt-6 flex justify-center">
         <Button 
           onClick={handleSearch}
-          className="px-8 py-6 h-auto text-base flex items-center justify-center w-auto min-w-[200px]"
+          size="lg"
+          className="flex items-center justify-center gap-2"
         >
-          <Search className="mr-2 h-4 w-4" />
+          <Search className="h-4 w-4" />
           Buscar anúncios
         </Button>
       </div>
