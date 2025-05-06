@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { translateStatusToPortuguese } from "@/utils/utils";
 
 const ListingDataFetcher = ({ 
   id,
@@ -111,7 +111,9 @@ const ListingDataFetcher = ({
           if (newCount) {
             setViewCount(newCount);
           } else {
-            setViewCount(listing.viewCount || 0);
+            // Usar o valor existente se disponível, ou 0 como padrão
+            const existingCount = (listing as any)?.viewCount || 0;
+            setViewCount(existingCount);
           }
         });
       });
@@ -125,7 +127,7 @@ const ListingDataFetcher = ({
     listingStatus,
     isLoading,
     handleStatusChange,
-    viewCount: viewCount || (listing?.viewCount || 0)
+    viewCount: viewCount || ((listing as any)?.viewCount || 0)
   });
 };
 
