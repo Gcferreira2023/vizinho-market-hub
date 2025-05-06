@@ -1,8 +1,6 @@
 
 import React from "react";
-import { ImageIcon } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import FavoriteButton from "../FavoriteButton";
+import { FavoriteButton } from "../FavoriteButton";
 import { useListingImage } from "./hooks/useListingImage";
 import { 
   TypeBadge, 

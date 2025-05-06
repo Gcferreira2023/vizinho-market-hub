@@ -1,17 +1,17 @@
 
+import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMobile } from "@/hooks/useMobile";
-import { useState, useEffect } from "react";
+import { ImageErrorState } from "@/components/ui/image/ImageErrorState";
 
 const HeroImage = () => {
   const isMobile = useMobile();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // Use a local image that we know exists
-  const initialImage = "/placeholder-furniture.jpg";
-  const [imgSrc, setImgSrc] = useState(initialImage);
+  // Use a local image that we know exists (match the exact path from public folder)
+  const [imgSrc, setImgSrc] = useState("/placeholder.svg");
   
   const handleLoad = () => {
     setIsLoaded(true);
@@ -20,17 +20,18 @@ const HeroImage = () => {
   
   const handleError = () => {
     console.error("Failed to load hero image:", imgSrc);
+    setHasError(true);
+    // Always fall back to placeholder.svg which we know exists
     if (imgSrc !== "/placeholder.svg") {
       setImgSrc("/placeholder.svg");
     }
-    setHasError(true);
   };
   
   return (
     <div className="md:w-1/2 flex justify-center px-4 md:px-0">
       <div className="w-full max-w-lg relative rounded-lg shadow-xl overflow-hidden">
         {/* Loading state */}
-        {!isLoaded && (
+        {!isLoaded && !hasError && (
           <div className="absolute inset-0 flex items-center justify-center bg-muted z-10">
             <Skeleton className="w-full h-full absolute" />
             <ImageIcon className="h-10 w-10 text-gray-400" />
@@ -48,6 +49,9 @@ const HeroImage = () => {
           width={isMobile ? 640 : 1200}
           height={isMobile ? 480 : 900}
         />
+
+        {/* Error state */}
+        <ImageErrorState isVisible={hasError} />
       </div>
     </div>
   );

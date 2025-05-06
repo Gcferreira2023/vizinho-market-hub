@@ -36,7 +36,7 @@ export const OptimizedImage = ({
   const isMobile = useMobile();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
 
   const objectFitClass = {
     cover: "object-cover",
@@ -57,12 +57,13 @@ export const OptimizedImage = ({
 
   const handleError = () => {
     console.error(`Error loading image: ${imgSrc}`);
+    setHasError(true);
+    
     if (imgSrc !== fallbackSrc) {
       console.log(`Switching to fallback: ${fallbackSrc}`);
       setImgSrc(fallbackSrc);
     } else {
-      setHasError(true);
-      setIsLoaded(true);
+      setIsLoaded(true); // Mark as loaded even if it's an error
     }
   };
 
@@ -82,7 +83,7 @@ export const OptimizedImage = ({
         alt={alt}
         width={width}
         height={height}
-        className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${isLoaded ? "opacity-100" : "opacity-0"} ${touchableClass}`}
+        className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${isLoaded && !hasError ? "opacity-100" : "opacity-0"} ${touchableClass}`}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         onLoad={handleLoad}
@@ -92,8 +93,8 @@ export const OptimizedImage = ({
       {/* Show error state if both original and fallback images failed */}
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
-          <div className="bg-background/80 p-2 rounded-full">
-            <ImageOff className="w-6 h-6 text-muted-foreground" />
+          <div className="bg-background/80 p-3 rounded-full">
+            <ImageOff className="w-8 h-8 text-muted-foreground" />
           </div>
         </div>
       )}

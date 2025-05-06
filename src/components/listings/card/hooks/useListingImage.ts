@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { ListingStatus } from "@/components/listings/StatusBadge";
 
 interface UseListingImageProps {
   id: string;
@@ -31,15 +30,13 @@ export const useListingImage = ({
       // Select an image based on category
       const categoryLower = category.toLowerCase();
       if (categoryLower.includes("eletrônico") || categoryLower.includes("tecnologia")) {
-        return "/placeholder-electronics.jpg";
+        return "/placeholder.svg"; // Fallback to standard placeholder
       } else if (categoryLower.includes("móveis") || categoryLower.includes("decoração")) {
-        return "/placeholder-furniture.jpg";
+        return "/placeholder.svg"; // Fallback to standard placeholder
       } else if (categoryLower.includes("roupa") || categoryLower.includes("vestuário") || categoryLower.includes("moda")) {
-        return "/placeholder-clothing.jpg";
+        return "/placeholder.svg"; // Fallback to standard placeholder
       } else if (categoryLower.includes("serviço") || type === "serviço") {
-        return "/placeholder-services.jpg";
-      } else if (categoryLower.includes("alimento")) {
-        return "/placeholder-clothing.jpg"; // Using clothing as a fallback for food
+        return "/placeholder.svg"; // Fallback to standard placeholder
       } else {
         // If no specific category match, use generic placeholder
         return "/placeholder.svg";
@@ -79,9 +76,32 @@ export const useListingImage = ({
     return () => observer.disconnect();
   }, [id, lazyLoad]);
 
+  // Preload the image
+  useEffect(() => {
+    if (!isVisible || isLoaded) return;
+    
+    const preloadImage = new Image();
+    preloadImage.src = imgSrc;
+    
+    preloadImage.onload = () => {
+      console.log(`Preloaded image for listing ${id}: ${imgSrc}`);
+    };
+    
+    preloadImage.onerror = () => {
+      console.error(`Error preloading image for listing ${id}: ${imgSrc}`);
+      setHasError(true);
+    };
+    
+    return () => {
+      preloadImage.onload = null;
+      preloadImage.onerror = null;
+    };
+  }, [imgSrc, isVisible, isLoaded, id]);
+
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);
     setIsLoaded(true);
+    setHasError(false);
     if (onImageLoad) onImageLoad();
   };
 
