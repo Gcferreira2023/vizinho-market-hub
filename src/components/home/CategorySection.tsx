@@ -1,6 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { ShoppingCart, User, Star, Bell } from "lucide-react";
+import LocationFilters from "./LocationFilters";
 
 interface Category {
   id: string;
@@ -40,6 +41,11 @@ const CategorySection = () => {
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">
+        {/* Adicionando os filtros de localização no topo */}
+        <div className="mb-8">
+          <LocationFilters />
+        </div>
+
         <h2 className="text-2xl font-bold mb-6">Categorias</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((category) => (

@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchListings } from "@/services/listings/listingService";
 import { useListingsFilter } from "@/hooks/useListingsFilter";
@@ -12,6 +12,13 @@ export function useExploreListings() {
   const { toast } = useToast();
   const { user } = useAuth();
   const isLoggedIn = !!user;
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  
+  // Get URL parameters
+  const urlStateId = queryParams.get("stateId");
+  const urlCityId = queryParams.get("cityId");
+  const urlCondominiumId = queryParams.get("condominiumId");
 
   const {
     searchTerm,
@@ -41,6 +48,22 @@ export function useExploreListings() {
     selectedCondominiumId,
     setSelectedCondominiumId
   } = useListingsFilter([]);
+  
+  // Set initial values from URL params
+  useEffect(() => {
+    if (urlStateId) {
+      setSelectedStateId(urlStateId);
+    }
+    
+    if (urlCityId) {
+      setSelectedCityId(urlCityId);
+    }
+    
+    if (urlCondominiumId) {
+      setSelectedCondominiumId(urlCondominiumId);
+      setIsCondominiumFilter(true);
+    }
+  }, [urlStateId, urlCityId, urlCondominiumId]);
   
   // Efeito para buscar os anúncios do banco de dados
   useEffect(() => {
