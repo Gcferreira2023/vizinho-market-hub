@@ -38,22 +38,28 @@ const LocationFilters = () => {
     <div className="bg-white p-4 rounded-lg border shadow-sm">
       <h3 className="font-medium text-lg mb-4">Filtrar por localização</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StateSelect
-          selectedStateId={selectedStateId}
-          setSelectedStateId={setSelectedStateId}
-        />
+        <div className="flex flex-col">
+          <StateSelect
+            selectedStateId={selectedStateId}
+            setSelectedStateId={setSelectedStateId}
+          />
+        </div>
         
-        <CitySelect
-          selectedStateId={selectedStateId}
-          selectedCityId={selectedCityId}
-          setSelectedCityId={setSelectedCityId}
-        />
+        <div className="flex flex-col">
+          <CitySelect
+            selectedStateId={selectedStateId}
+            selectedCityId={selectedCityId}
+            setSelectedCityId={setSelectedCityId}
+          />
+        </div>
         
-        <CondominiumSelect
-          selectedCityId={selectedCityId}
-          selectedCondominiumId={selectedCondominiumId}
-          setSelectedCondominiumId={setSelectedCondominiumId}
-        />
+        <div className="flex flex-col">
+          <CondominiumSelect
+            selectedCityId={selectedCityId}
+            selectedCondominiumId={selectedCondominiumId}
+            setSelectedCondominiumId={setSelectedCondominiumId}
+          />
+        </div>
       </div>
       
       <div className="mt-6 flex justify-center">
