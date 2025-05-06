@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "../ListingCard";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingStatus, mapStatusFromDB } from "../StatusBadge";
+import { useMobile } from "@/hooks/useMobile";
 
 interface ListingsGridProps {
   listings: any[];
@@ -16,6 +17,7 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
   const [condominiumDetails, setCondominiumDetails] = useState<Record<string, any>>({});
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
+  const isMobile = useMobile();
   
   useEffect(() => {
     // Log all listings for debugging
@@ -76,17 +78,20 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
   };
 
   if (isLoading) {
+    // Ajustar o número de skeletons mostrados com base no dispositivo
+    const skeletonsCount = isMobile ? 4 : 8;
+    
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {Array.from({ length: 8 }).map((_, index) => (
-          <Skeleton key={index} className="h-[350px] rounded-lg" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+        {Array.from({ length: skeletonsCount }).map((_, index) => (
+          <Skeleton key={index} className="h-[280px] md:h-[350px] rounded-lg" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
       {listings.map((listing) => {
         const condoInfo = condominiumDetails[listing.condominium_id];
         const isUserCondominium = userCondominiumId === listing.condominium_id;
@@ -123,7 +128,7 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
             imageUrl={imageUrl}
             category={listing.category}
             type={listing.type as "produto" | "serviço"}
-            location={location}
+            location={location || condoName}
             status={mapStatusFromDB(listing.status as string)}
             viewCount={listing.viewCount || 0}
             condominiumName={condoName}

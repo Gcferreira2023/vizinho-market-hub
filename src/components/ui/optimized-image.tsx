@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Image as ImageIcon, ImageOff } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMobile } from "@/hooks/useMobile";
 
 interface OptimizedImageProps {
   src: string;
@@ -14,6 +15,8 @@ interface OptimizedImageProps {
   onLoad?: () => void;
   blurDataUrl?: string;
   fallbackSrc?: string;
+  aspectRatio?: string; // Novo: permite definir proporção personalizada
+  touchable?: boolean; // Novo: otimiza para interação touch
 }
 
 export const OptimizedImage = ({
@@ -26,11 +29,14 @@ export const OptimizedImage = ({
   priority = false,
   onLoad,
   blurDataUrl,
-  fallbackSrc = "/placeholder.svg"
+  fallbackSrc = "/placeholder.svg",
+  aspectRatio = "aspect-[4/3]", // Proporção padrão
+  touchable = false
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imgSrc, setImgSrc] = useState(src);
+  const isMobile = useMobile();
 
   useEffect(() => {
     // Reset state when src changes
@@ -42,11 +48,15 @@ export const OptimizedImage = ({
   // Optimize image URL if it's from Unsplash
   useEffect(() => {
     if (src && src.includes("unsplash.com") && !src.includes("&w=")) {
-      const optimizedWidth = width || 800;
-      const optimizedUrl = `${src}${src.includes("?") ? "&" : "?"}auto=format&q=80&w=${optimizedWidth}`;
+      // Tamanhos responsivos baseados no dispositivo
+      const optimizedWidth = isMobile 
+        ? (width || 480) 
+        : (width || 800);
+      
+      const optimizedUrl = `${src}${src.includes("?") ? "&" : "?"}auto=format&q=${isMobile ? 70 : 80}&w=${optimizedWidth}`;
       setImgSrc(optimizedUrl);
     }
-  }, [src, width]);
+  }, [src, width, isMobile]);
 
   const handleLoad = () => {
     setIsLoaded(true);
@@ -65,8 +75,13 @@ export const OptimizedImage = ({
     fill: "object-fill"
   }[objectFit];
 
+  // Classes adicionais para imagens tocáveis em dispositivos móveis
+  const touchableClass = touchable && isMobile 
+    ? "active:scale-[0.98] transition-transform" 
+    : "";
+
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted">
           <Skeleton className="w-full h-full absolute" />
@@ -80,8 +95,8 @@ export const OptimizedImage = ({
         width={width}
         height={height}
         className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${
-          isLoaded ? "opacity-100" : "opacity-0"
-        }`}
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        } ${touchableClass}`}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         onLoad={handleLoad}

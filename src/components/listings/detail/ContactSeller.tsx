@@ -3,6 +3,8 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Phone, User } from "lucide-react";
+import { useMobile } from "@/hooks/useMobile";
+import WhatsAppButton from "@/components/listings/WhatsAppButton";
 
 type ContactSellerProps = {
   listing: {
@@ -15,13 +17,13 @@ type ContactSellerProps = {
 
 const ContactSeller = ({ listing }: ContactSellerProps) => {
   const sellerName = listing?.user_name || listing?.seller_name || "Anunciante";
+  const isMobile = useMobile();
   
-  const handleWhatsAppClick = () => {
+  const handlePhoneClick = () => {
     if (listing?.phone) {
-      // Formatar número de telefone para WhatsApp
+      // Formatar número de telefone
       const phoneNumber = listing.phone.replace(/\D/g, "");
-      const whatsappUrl = `https://wa.me/55${phoneNumber}?text=Olá! Vi seu anúncio e gostaria de mais informações.`;
-      window.open(whatsappUrl, "_blank");
+      window.location.href = `tel:+55${phoneNumber}`;
     }
   };
   
@@ -53,13 +55,20 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
         )}
         
         {listing?.phone && (
-          <div className="mt-6">
+          <div className="mt-6 space-y-3">
+            <WhatsAppButton 
+              phone={listing.phone}
+              className={`w-full ${isMobile ? 'py-3' : ''}`}
+              message="Olá! Vi seu anúncio e gostaria de mais informações."
+            />
+            
             <Button 
-              onClick={handleWhatsAppClick}
-              className="w-full bg-green-500 hover:bg-green-600"
+              onClick={handlePhoneClick}
+              variant="outline"
+              className={`w-full ${isMobile ? 'py-3' : ''}`}
             >
               <Phone className="mr-2 h-4 w-4" />
-              Contatar por WhatsApp
+              Ligar para o Vendedor
             </Button>
           </div>
         )}

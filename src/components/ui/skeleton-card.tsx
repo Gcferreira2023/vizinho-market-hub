@@ -1,12 +1,19 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { useMobile } from "@/hooks/useMobile";
 
 export const SkeletonCard = ({ variant = "default" }: { variant?: "default" | "compact" | "detail" }) => {
+  const isMobile = useMobile();
+  
+  // Ajustar altura baseado em dispositivo móvel
+  const imageHeight = isMobile ? "h-28" : "h-36";
+  const defaultImageHeight = isMobile ? "h-40" : "h-48";
+  
   if (variant === "compact") {
     return (
       <Card className="overflow-hidden h-full flex flex-col animate-pulse">
-        <div className="relative h-36 bg-muted">
+        <div className={`relative ${imageHeight} bg-muted`}>
           <Skeleton className="h-full w-full" />
         </div>
         
@@ -25,7 +32,7 @@ export const SkeletonCard = ({ variant = "default" }: { variant?: "default" | "c
   if (variant === "detail") {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-72 w-full rounded-lg" />
+        <Skeleton className={`${isMobile ? "h-56" : "h-72"} w-full rounded-lg`} />
         <div className="space-y-2">
           <Skeleton className="h-8 w-3/4" />
           <Skeleton className="h-6 w-1/2" />
@@ -33,7 +40,7 @@ export const SkeletonCard = ({ variant = "default" }: { variant?: "default" | "c
             <Skeleton className="h-5 w-20" />
             <Skeleton className="h-5 w-20" />
           </div>
-          <Skeleton className="h-24 w-full mt-4" />
+          <Skeleton className={`${isMobile ? "h-20" : "h-24"} w-full mt-4`} />
         </div>
       </div>
     );
@@ -42,7 +49,7 @@ export const SkeletonCard = ({ variant = "default" }: { variant?: "default" | "c
   // Default variant
   return (
     <Card className="overflow-hidden h-full flex flex-col">
-      <div className="relative h-48 bg-muted">
+      <div className={`relative ${defaultImageHeight} bg-muted`}>
         <Skeleton className="h-full w-full" />
       </div>
       

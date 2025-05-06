@@ -1,10 +1,12 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import { useMobile } from "@/hooks/useMobile";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
@@ -14,9 +16,11 @@ import MobileMenu from "./MobileMenu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useMobile();
   
   const isLoggedIn = !!user;
   
@@ -61,20 +65,32 @@ const Header = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={toggleMenu}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </Button>
-      </div>
-
-      {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 pb-3">
-        <SearchBar />
+        {/* Mobile Actions */}
+        <div className="flex items-center gap-2 md:hidden">
+          <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-gray-600">
+                <Search size={22} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="p-4 max-w-[90vw] top-4 translate-y-0">
+              <SearchBar 
+                className="w-full" 
+                onSearch={() => setIsSearchOpen(false)} 
+              />
+            </DialogContent>
+          </Dialog>
+          
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleMenu}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </Button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
+import { useMobile } from "@/hooks/useMobile";
 
 interface WhatsAppButtonProps {
   phone: string;
@@ -20,6 +21,8 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   size = "default",
   showIcon = true
 }) => {
+  const isMobile = useMobile();
+  
   // Remover caracteres não numéricos do telefone
   const cleanPhone = phone.replace(/\D/g, '');
   
@@ -38,15 +41,18 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     window.open(whatsappUrl, '_blank');
   };
   
+  // Ajustes de tamanho para mobile
+  const mobileClass = isMobile ? 'py-3 text-base' : '';
+  
   return (
     <Button 
       onClick={handleClick}
       variant={variant}
       size={size}
-      className={`bg-green-500 hover:bg-green-600 ${className}`}
+      className={`bg-green-500 hover:bg-green-600 ${mobileClass} ${className}`}
     >
       {showIcon && (
-        <MessageSquare className="w-5 h-5 mr-2" />
+        <MessageSquare className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'} mr-2`} />
       )}
       WhatsApp
     </Button>
