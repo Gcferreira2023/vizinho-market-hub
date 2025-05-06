@@ -17,6 +17,10 @@ import { Step2FormData, step2Schema } from "./RegisterFormSchemas";
 import { usePhoneMask } from "@/hooks/usePhoneMask";
 import LocationSelector from "./LocationSelector";
 import { Card, CardContent } from "../ui/card";
+import { useState } from "react";
+import NewCondominiumDialog from "../location/NewCondominiumDialog";
+import { useToast } from "@/components/ui/use-toast";
+import { suggestCondominium } from "@/services/location/locationService";
 
 interface RegisterStep2FormProps {
   onSubmit: (data: Step2FormData) => void;
@@ -26,6 +30,18 @@ interface RegisterStep2FormProps {
 
 const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormProps) => {
   const { applyMask } = usePhoneMask();
+  const { toast } = useToast();
+  const [isNewCondoDialogOpen, setIsNewCondoDialogOpen] = useState(false);
+  const [isSubmittingCondo, setIsSubmittingCondo] = useState(false);
+  const [locationState, setLocationState] = useState<{
+    stateId: string;
+    cityId: string;
+    condominiumId: string;
+  }>({
+    stateId: "",
+    cityId: "",
+    condominiumId: "",
+  });
   
   const form = useForm<Step2FormData>({
     resolver: zodResolver(step2Schema),
@@ -51,9 +67,53 @@ const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormPro
     cityId: string;
     condominiumId: string;
   }) => {
+    setLocationState(location);
     form.setValue("stateId", location.stateId);
     form.setValue("cityId", location.cityId);
     form.setValue("condominiumId", location.condominiumId);
+  };
+
+  const handleAddNewCondominium = async (name: string, address?: string) => {
+    if (!locationState.cityId) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Por favor, selecione uma cidade primeiro."
+      });
+      return;
+    }
+    
+    setIsSubmittingCondo(true);
+    try {
+      const newCondominiumId = await suggestCondominium(locationState.cityId, name, address);
+      
+      toast({
+        title: "Condomínio sugerido com sucesso",
+        description: "Seu condomínio foi sugerido e será revisado por nossos administradores."
+      });
+      
+      // Close dialog
+      setIsNewCondoDialogOpen(false);
+      
+      // Need to refresh the location selector
+      // The implementation here depends on how your LocationSelector works
+      // This is a simplified approach:
+      setTimeout(() => {
+        toast({
+          title: "Importante",
+          description: "Você precisará selecionar seu condomínio após a aprovação."
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Error suggesting condominium:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao sugerir condomínio",
+        description: "Não foi possível processar sua solicitação. Tente novamente mais tarde."
+      });
+    } finally {
+      setIsSubmittingCondo(false);
+    }
   };
 
   return (
@@ -117,7 +177,19 @@ const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormPro
         
         <Card>
           <CardContent className="pt-6">
-            <h3 className="text-sm font-medium mb-4">Localização</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-medium">Localização</h3>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-xs flex items-center px-2 h-8"
+                onClick={() => setIsNewCondoDialogOpen(true)}
+                disabled={!locationState.cityId}
+              >
+                <span className="mr-1">+</span> Adicionar Novo Condomínio
+              </Button>
+            </div>
             <LocationSelector onLocationSelected={handleLocationSelected} initialValues={{}} />
             <FormField
               control={form.control}
@@ -185,6 +257,13 @@ const RegisterStep2Form = ({ onSubmit, onBack, isLoading }: RegisterStep2FormPro
           </Button>
         </div>
       </form>
+      
+      <NewCondominiumDialog 
+        isOpen={isNewCondoDialogOpen}
+        onOpenChange={setIsNewCondoDialogOpen}
+        onSubmit={handleAddNewCondominium}
+        isLoading={isSubmittingCondo}
+      />
     </Form>
   );
 };

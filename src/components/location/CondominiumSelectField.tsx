@@ -11,6 +11,7 @@ interface CondominiumSelectFieldProps {
   onChange: (value: string) => void;
   isLoading: boolean;
   onAddNew: () => void;
+  showAddNew?: boolean;
 }
 
 const CondominiumSelectField = ({
@@ -18,22 +19,25 @@ const CondominiumSelectField = ({
   value,
   onChange,
   isLoading,
-  onAddNew
+  onAddNew,
+  showAddNew = true
 }: CondominiumSelectFieldProps) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
         <Label htmlFor="condominium">Condomínio</Label>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          type="button"
-          onClick={onAddNew}
-          className="text-xs flex items-center px-2 h-8"
-        >
-          <PlusCircle className="h-3 w-3 mr-1" />
-          Adicionar Novo
-        </Button>
+        {showAddNew && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            type="button"
+            onClick={onAddNew}
+            className="text-xs flex items-center px-2 h-8"
+          >
+            <PlusCircle className="h-3 w-3 mr-1" />
+            Adicionar Novo
+          </Button>
+        )}
       </div>
       <LocationSelectField
         label="Condomínio"

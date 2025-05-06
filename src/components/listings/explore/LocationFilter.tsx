@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { MapPin } from "lucide-react";
 import { StateSelect, CitySelect, CondominiumSelect } from "./location-filter";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LocationFilterProps {
   selectedStateId: string | null;
@@ -21,6 +22,8 @@ const LocationFilter = ({
   setSelectedCondominiumId
 }: LocationFilterProps) => {
   const [isOpen, setIsOpen] = useState(true);
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   
   return (
     <div className="space-y-4 border-b pb-4">
@@ -54,6 +57,7 @@ const LocationFilter = ({
             selectedCityId={selectedCityId}
             selectedCondominiumId={selectedCondominiumId}
             setSelectedCondominiumId={setSelectedCondominiumId}
+            showAddNew={isLoggedIn}
           />
         </div>
       )}

@@ -21,12 +21,14 @@ interface CondominiumSelectProps {
   selectedCityId: string | null;
   selectedCondominiumId: string | null;
   setSelectedCondominiumId: (condominiumId: string | null) => void;
+  showAddNew?: boolean;
 }
 
 const CondominiumSelect = ({ 
   selectedCityId, 
   selectedCondominiumId, 
-  setSelectedCondominiumId 
+  setSelectedCondominiumId,
+  showAddNew = false
 }: CondominiumSelectProps) => {
   const [condominiums, setCondominiums] = useState<Condominium[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -119,16 +121,18 @@ const CondominiumSelect = ({
     <div className="space-y-1">
       <div className="flex justify-between items-center">
         <Label htmlFor="condominium-select">Condomínio</Label>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setIsNewCondoDialogOpen(true)}
-          className="text-xs h-6 px-2 py-0"
-          disabled={!selectedCityId}
-        >
-          <PlusCircle className="h-3 w-3 mr-1" />
-          Adicionar Novo
-        </Button>
+        {showAddNew && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setIsNewCondoDialogOpen(true)}
+            className="text-xs h-6 px-2 py-0"
+            disabled={!selectedCityId}
+          >
+            <PlusCircle className="h-3 w-3 mr-1" />
+            Adicionar Novo
+          </Button>
+        )}
       </div>
       
       {isLoading ? (
