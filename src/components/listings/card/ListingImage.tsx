@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import FavoriteButton from "../FavoriteButton";
 import { Image, MapPin } from "lucide-react";
-import OptimizedImage from "@/components/ui/optimized-image";
 
 interface ListingImageProps {
   id: string;
@@ -33,21 +32,28 @@ const ListingImage = ({
   lazyLoad,
   onImageLoad
 }: ListingImageProps) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isVisible, setIsVisible] = useState(!lazyLoad);
+  
   // For mock listings, use category-specific placeholder images
   const getCategoryImage = () => {
     if (isMockListing) {
       // Select an image based on category
-      switch(category.toLowerCase()) {
-        case "eletrônicos":
-          return "/placeholder-electronics.jpg";
-        case "móveis":
-          return "/placeholder-furniture.jpg";
-        case "roupas":
-          return "/placeholder-clothing.jpg";
-        case "serviços":
-          return "/placeholder-services.jpg";
-        default:
-          return "/placeholder.svg";
+      const categoryLower = category.toLowerCase();
+      if (categoryLower.includes("eletrônico") || categoryLower.includes("tecnologia")) {
+        return "/placeholder-electronics.jpg";
+      } else if (categoryLower.includes("móveis") || categoryLower.includes("decoração")) {
+        return "/placeholder-furniture.jpg";
+      } else if (categoryLower.includes("roupa") || categoryLower.includes("vestuário") || categoryLower.includes("moda")) {
+        return "/placeholder-clothing.jpg";
+      } else if (categoryLower.includes("serviço") || type === "serviço") {
+        return "/placeholder-services.jpg";
+      } else if (categoryLower.includes("alimento")) {
+        return "/placeholder-clothing.jpg"; // Using clothing as a fallback for food
+      } else {
+        // If no specific category match, use generic placeholder
+        return "/placeholder.svg";
       }
     }
     
@@ -57,12 +63,10 @@ const ListingImage = ({
   
   const imgSrc = getCategoryImage();
   
-  const [isVisible, setIsVisible] = useState(!lazyLoad);
-  
   // Debug logging
   useEffect(() => {
-    console.log(`Rendering listing ${id}, isMock: ${isMockListing}, imageUrl: ${imgSrc}, category: ${category}`);
-  }, [id, imgSrc, isMockListing, category]);
+    console.log(`Rendering listing ${id} image: category=${category}, type=${type}, isMock=${isMockListing}, src=${imgSrc}`);
+  }, [id, category, type, isMockListing, imgSrc]);
 
   // Lazy loading with Intersection Observer
   useEffect(() => {
@@ -88,6 +92,15 @@ const ListingImage = ({
 
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);
+    setIsLoaded(true);
+    if (onImageLoad) onImageLoad();
+  };
+
+  const handleImageError = () => {
+    console.error(`Error loading image for listing ${id}: ${imgSrc}`);
+    setHasError(true);
+    // Even if there's an error, we consider the image "loaded" for UI purposes
+    setIsLoaded(true);
     if (onImageLoad) onImageLoad();
   };
 
@@ -111,17 +124,30 @@ const ListingImage = ({
     <div className="relative h-full overflow-hidden bg-gray-100">
       {isVisible ? (
         <>
-          {/* Usar o componente OptimizedImage atualizado */}
-          <OptimizedImage
+          {/* Show loading skeleton until image loads */}
+          {!isLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted">
+              <Skeleton className="w-full h-full absolute" />
+              <Image className="h-8 w-8 text-gray-400" />
+            </div>
+          )}
+          
+          {/* Always render the img tag, but control opacity based on loaded state */}
+          <img
             src={imgSrc}
             alt={title}
-            className="w-full h-full"
-            objectFit="cover"
-            fallbackSrc="/placeholder.svg"
+            className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
             onLoad={handleImageLoad}
-            priority={!lazyLoad}
-            touchable={true}
+            onError={handleImageError}
+            loading={lazyLoad ? "lazy" : "eager"}
           />
+          
+          {/* Show error state if image failed to load */}
+          {hasError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+              <Image className="h-8 w-8 text-gray-400" />
+            </div>
+          )}
           
           {/* Type badge */}
           <Badge

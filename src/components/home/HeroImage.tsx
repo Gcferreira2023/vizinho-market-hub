@@ -11,7 +11,7 @@ const HeroImage = () => {
   
   // Use a local image instead of an external URL that might not load
   const imageUrl = "/hero-image.jpg";
-  const fallbackUrl = "/placeholder.svg";
+  const fallbackUrl = "/placeholder-furniture.jpg"; // Use furniture placeholder as fallback
   
   // Pre-load the image to check if it works
   useEffect(() => {
@@ -26,6 +26,10 @@ const HeroImage = () => {
       setImageError(true);
       setImageLoaded(true); // Set loaded to true so we show the fallback
     };
+
+    // As a backup, also try to preload the fallback image
+    const fallbackImg = new Image();
+    fallbackImg.src = fallbackUrl;
   }, [imageUrl]);
   
   return (
@@ -45,6 +49,7 @@ const HeroImage = () => {
           }`}
           onLoad={() => setImageLoaded(true)}
           onError={() => {
+            console.log("Using fallback image for hero:", fallbackUrl);
             setImageLoaded(true);
             setImageError(true);
           }}

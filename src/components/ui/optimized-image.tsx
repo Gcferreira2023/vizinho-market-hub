@@ -62,17 +62,27 @@ export const OptimizedImage = ({
   // Pre-load the image to check if it works
   useEffect(() => {
     if (imgSrc && imgSrc !== fallbackSrc && !isLoaded) {
-      const preloadImage = new Image();
-      preloadImage.src = imgSrc;
-      preloadImage.onload = () => {
-        console.log("Image pre-loaded successfully:", imgSrc);
-      };
-      preloadImage.onerror = () => {
-        console.error("Error pre-loading image:", imgSrc);
+      console.log(`Pre-loading image: ${imgSrc}`);
+      
+      try {
+        const preloadImage = new Image();
+        preloadImage.src = imgSrc;
+        preloadImage.onload = () => {
+          console.log(`Pre-load successful: ${imgSrc}`);
+          setHasError(false);
+        };
+        preloadImage.onerror = () => {
+          console.error(`Error pre-loading image: ${imgSrc}`);
+          setImgSrc(fallbackSrc);
+          setIsLoaded(true);
+          if (onLoad) onLoad();
+        };
+      } catch (error) {
+        console.error(`Error during pre-load setup: ${error}`);
         setImgSrc(fallbackSrc);
         setIsLoaded(true);
         if (onLoad) onLoad();
-      };
+      }
     }
   }, [imgSrc, fallbackSrc, isLoaded, onLoad]);
 
