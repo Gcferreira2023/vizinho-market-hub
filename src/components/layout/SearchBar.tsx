@@ -16,9 +16,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface SearchBarProps {
   className?: string;
+  onSearch?: () => void; // Add this prop to fix the error
 }
 
-const SearchBar = ({ className = "" }: SearchBarProps) => {
+const SearchBar = ({ className = "", onSearch }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const SearchBar = ({ className = "" }: SearchBarProps) => {
       });
       
       setSearchTerm("");
+      if (onSearch) onSearch(); // Call the onSearch callback if provided
     }
   };
 
@@ -114,6 +116,7 @@ const SearchBar = ({ className = "" }: SearchBarProps) => {
                   navigate(`/explorar?search=${encodeURIComponent(searchTerm.trim().toLowerCase())}`);
                   setOpen(false);
                   setSearchTerm("");
+                  if (onSearch) onSearch(); // Call the onSearch callback if provided
                 }
               }}
             >
