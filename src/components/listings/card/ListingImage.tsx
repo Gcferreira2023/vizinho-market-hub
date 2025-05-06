@@ -1,4 +1,7 @@
+
 import React from "react";
+import { ImageIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import FavoriteButton from "../FavoriteButton";
 import { useListingImage } from "./hooks/useListingImage";
 import { 
@@ -104,7 +107,7 @@ const ListingImage = ({
       ) : (
         <div className="flex items-center justify-center w-full h-full">
           <Skeleton className="w-full h-full absolute" />
-          <Image className="h-8 w-8 text-gray-400" />
+          <ImageIcon className="h-8 w-8 text-gray-400" />
         </div>
       )}
     </div>
