@@ -27,6 +27,7 @@ export const incrementListingView = async (listingId: string) => {
     
     try {
       // Usar a função RPC para incrementar a visualização
+      // Corrigido: Usando o tipo correto para a função RPC
       const { data, error } = await supabase.rpc('increment_ad_view', { ad_id: listingId });
       
       if (error) {
@@ -48,7 +49,8 @@ export const incrementListingView = async (listingId: string) => {
         return 1; // Retornar valor padrão em caso de erro
       }
       
-      return data as number; // Retornar o contador atualizado da função RPC
+      // Corrigido: Garantir que o valor retornado seja um número
+      return typeof data === 'number' ? data : 0;
       
     } catch (err) {
       console.error('Erro ao incrementar visualização:', err);
