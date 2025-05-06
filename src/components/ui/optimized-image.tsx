@@ -35,28 +35,34 @@ export const OptimizedImage = ({
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
+  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc);
   const isMobile = useMobile();
 
-  // Resetar estado quando a URL da imagem mudar
+  // Reset state when the image URL changes
   useEffect(() => {
-    setIsLoaded(false);
-    setHasError(false);
-    setImgSrc(src || fallbackSrc);
-    console.log("OptimizedImage src changed:", src || fallbackSrc);
-  }, [src, fallbackSrc]);
+    if (src !== imgSrc) {
+      setIsLoaded(false);
+      setHasError(false);
+      setImgSrc(src || fallbackSrc);
+      console.log("OptimizedImage src set to:", src || fallbackSrc);
+    }
+  }, [src, fallbackSrc, imgSrc]);
 
   const handleLoad = () => {
-    console.log("OptimizedImage loaded:", imgSrc);
+    console.log("OptimizedImage loaded successfully:", imgSrc);
     setIsLoaded(true);
     if (onLoad) onLoad();
   };
 
   const handleError = () => {
     console.error("OptimizedImage error loading:", imgSrc);
-    setHasError(true);
-    setIsLoaded(true);
-    setImgSrc(fallbackSrc);
+    if (imgSrc !== fallbackSrc) {
+      console.log("Switching to fallback image:", fallbackSrc);
+      setImgSrc(fallbackSrc);
+    } else {
+      setHasError(true);
+      setIsLoaded(true);
+    }
   };
 
   const objectFitClass = {
@@ -65,17 +71,29 @@ export const OptimizedImage = ({
     fill: "object-fill"
   }[objectFit];
 
-  // Classes para imagens tocáveis em dispositivos móveis
+  // Classes for touchable images on mobile devices
   const touchableClass = touchable && isMobile 
     ? "active:scale-[0.98] transition-transform" 
     : "";
 
+  // If we're showing a placeholder or SVG, don't use fading effects
+  const isPlaceholder = imgSrc === "/placeholder.svg" || imgSrc.endsWith(".svg");
+  const fadeClasses = isPlaceholder ? "opacity-100" : (isLoaded ? "opacity-100" : "opacity-0");
+
   return (
     <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
-      {!isLoaded && (
+      {/* Show skeleton loader only while loading actual images (not placeholders) */}
+      {!isLoaded && !isPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted">
           <Skeleton className="w-full h-full absolute" />
           <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50" />
+        </div>
+      )}
+
+      {/* For placeholder SVGs, we don't need loading animation */}
+      {isPlaceholder && !isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <ImageIcon className="w-8 h-8 text-gray-400" />
         </div>
       )}
 
@@ -84,16 +102,15 @@ export const OptimizedImage = ({
         alt={alt}
         width={width}
         height={height}
-        className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        } ${touchableClass}`}
+        className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${fadeClasses} ${touchableClass}`}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         onLoad={handleLoad}
         onError={handleError}
       />
 
-      {hasError && imgSrc === fallbackSrc && (
+      {/* Show error state if both original and fallback images failed */}
+      {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
           <div className="bg-background/80 p-2 rounded-full">
             <ImageOff className="w-6 h-6 text-muted-foreground" />

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import StatusBadge, { ListingStatus } from "../StatusBadge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import OptimizedImage from "@/components/ui/optimized-image";
 
 interface ListingImageGalleryProps {
   images: string[];
@@ -19,32 +20,21 @@ export const ListingImageGallery = ({
 }: ListingImageGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
-  const [errorImages, setErrorImages] = useState<Record<number, boolean>>({});
   
   // Se não houver imagens, mostra um placeholder
-  if (images.length === 0) {
-    return (
-      <div className="w-full h-80 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
-        <p className="text-gray-500">Sem imagens disponíveis</p>
-      </div>
-    );
-  }
+  const displayImages = images && images.length > 0 ? images : ['/placeholder.svg'];
   
   const handleImageLoad = (index: number) => {
+    console.log(`Gallery image ${index} loaded:`, displayImages[index]);
     setLoadedImages(prev => ({ ...prev, [index]: true }));
   };
   
-  const handleImageError = (index: number) => {
-    setErrorImages(prev => ({ ...prev, [index]: true }));
-    setLoadedImages(prev => ({ ...prev, [index]: true })); // Marcar como carregada mesmo com erro
-  };
-  
   const nextImage = () => {
-    setActiveIndex((prev) => (prev + 1) % images.length);
+    setActiveIndex((prev) => (prev + 1) % displayImages.length);
   };
   
   const prevImage = () => {
-    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+    setActiveIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
   };
   
   const getOverlayStyle = () => {
@@ -71,35 +61,17 @@ export const ListingImageGallery = ({
             </div>
           )}
           
-          {/* Skeleton durante carregamento */}
-          {!loadedImages[activeIndex] && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Skeleton className="w-full h-full absolute" />
-            </div>
-          )}
-          
-          <img 
-            src={errorImages[activeIndex] ? "/placeholder.svg" : images[activeIndex]} 
+          <OptimizedImage
+            src={displayImages[activeIndex]}
             alt={`${title} - Imagem ${activeIndex + 1}`}
-            className={`w-full h-full object-contain transition-opacity duration-300 ${
-              loadedImages[activeIndex] ? 'opacity-100' : 'opacity-0'
-            }`}
+            objectFit="contain"
             onLoad={() => handleImageLoad(activeIndex)}
-            onError={() => handleImageError(activeIndex)}
-            loading="lazy"
+            fallbackSrc="/placeholder.svg"
+            priority={activeIndex === 0}
           />
           
-          {/* Mostrar ícone de erro se a imagem falhar */}
-          {errorImages[activeIndex] && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-gray-200/80 p-4 rounded-full">
-                <ImageOff className="h-8 w-8 text-gray-500" />
-              </div>
-            </div>
-          )}
-          
           {/* Controles de navegação */}
-          {images.length > 1 && (
+          {displayImages.length > 1 && (
             <>
               <Button
                 variant="outline"
@@ -123,9 +95,9 @@ export const ListingImageGallery = ({
       </div>
       
       {/* Miniaturas */}
-      {images.length > 1 && (
+      {displayImages.length > 1 && (
         <div className="flex overflow-x-auto space-x-2 py-2 scrollbar-hide">
-          {images.map((image, index) => (
+          {displayImages.map((image, index) => (
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
@@ -133,18 +105,13 @@ export const ListingImageGallery = ({
                 index === activeIndex ? 'ring-2 ring-primary ring-offset-2' : 'opacity-70'
               }`}
             >
-              {!loadedImages[index] && (
-                <Skeleton className="absolute inset-0" />
-              )}
-              <img 
-                src={errorImages[index] ? "/placeholder.svg" : image} 
+              <OptimizedImage 
+                src={image}
                 alt={`Miniatura ${index + 1}`}
-                className={`w-full h-full object-cover transition-opacity duration-300 ${
-                  loadedImages[index] ? 'opacity-100' : 'opacity-0'
-                }`}
+                className="w-full h-full"
+                objectFit="cover"
                 onLoad={() => handleImageLoad(index)}
-                onError={() => handleImageError(index)}
-                loading="lazy"
+                fallbackSrc="/placeholder.svg"
               />
             </button>
           ))}

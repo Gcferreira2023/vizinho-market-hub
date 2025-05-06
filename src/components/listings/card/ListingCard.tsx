@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import ListingImage from "./ListingImage";
 import ListingDetails from "./ListingDetails";
 import { ListingStatus } from "../StatusBadge";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMobile } from "@/hooks/useMobile";
 
 interface ListingCardProps {
@@ -45,21 +45,27 @@ const ListingCard = ({
   onImageLoad
 }: ListingCardProps) => {
   const isMobile = useMobile();
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   // Determinar o link correto
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
   // Debug log para verificar URL da imagem
   useEffect(() => {
-    if (!imageUrl || imageUrl === '/placeholder.svg' || imageUrl.trim() === '') {
-      console.log(`ListingCard ${id}: usando imagem placeholder`);
-    } else {
-      console.log(`ListingCard ${id}: usando imageUrl: ${imageUrl}`);
-    }
-  }, [id, imageUrl]);
+    // Para imagens mock, sempre usamos o placeholder
+    const actualImage = isMockListing ? '/placeholder.svg' : imageUrl;
+    
+    console.log(`ListingCard ${id}: usando ${isMockListing ? 'mock' : 'real'} imagem: ${actualImage}`);
+  }, [id, imageUrl, isMockListing]);
   
   // Definir tamanho da imagem com base no dispositivo
   const imageHeight = isMobile ? "h-40" : "h-48";
+  
+  // Handle image load callback
+  const handleImageLoaded = () => {
+    setImageLoaded(true);
+    if (onImageLoad) onImageLoad();
+  };
   
   return (
     <Card 
@@ -83,7 +89,7 @@ const ListingCard = ({
             condominiumName={condominiumName}
             isUserCondominium={isUserCondominium}
             lazyLoad={lazyLoad}
-            onImageLoad={onImageLoad}
+            onImageLoad={handleImageLoaded}
           />
         </div>
         
