@@ -143,8 +143,8 @@ const ListingDetailsCard = ({
       {expanded && (
         <CardContent className="border-t pt-4">
           <ListingMetrics 
-            viewCount={listing.viewCount} 
-            createdAt={listing.created_at}
+            viewCount={listing.viewCount || 0} 
+            createdAt={listing.created_at || ''}
             showChart={true}
           />
         </CardContent>

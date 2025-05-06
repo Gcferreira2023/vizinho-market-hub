@@ -46,8 +46,8 @@ const ListingCardGrid = ({
             
             <div className="px-3 py-2 border-t border-gray-100">
               <ListingMetrics 
-                viewCount={listing.viewCount} 
-                createdAt={listing.created_at}
+                viewCount={listing.viewCount || 0} 
+                createdAt={listing.created_at || ''}
                 condensed={true}
                 className="text-xs"
               />

@@ -16,13 +16,17 @@ interface ListingMetricsProps {
   messageCount?: number;
   createdAt: string;
   condensed?: boolean;
+  className?: string; // Added className prop
+  showChart?: boolean; // Added showChart prop
 }
 
 const ListingMetrics = ({
   viewCount,
   messageCount = 0,
   createdAt,
-  condensed = false
+  condensed = false,
+  className = '',
+  showChart = false
 }: ListingMetricsProps) => {
   const [showFullDate, setShowFullDate] = useState(false);
   
@@ -37,7 +41,7 @@ const ListingMetrics = ({
   
   if (condensed) {
     return (
-      <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className={`flex items-center justify-between text-sm text-gray-500 ${className}`}>
         <div className="flex items-center gap-2">
           <div className="flex items-center">
             <Eye size={16} className="mr-1" />
@@ -70,7 +74,7 @@ const ListingMetrics = ({
   }
   
   return (
-    <div className="space-y-3">
+    <div className={`space-y-3 ${className}`}>
       <h4 className="font-medium text-sm flex items-center">
         <ChartBar size={16} className="mr-2 text-primary" />
         Métricas
@@ -95,6 +99,22 @@ const ListingMetrics = ({
           </div>
         )}
       </div>
+      
+      {showChart && (
+        <div className="mt-2 pt-3 border-t">
+          <h5 className="text-sm text-gray-500 mb-2">Desempenho do anúncio</h5>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-primary h-2.5 rounded-full" 
+              style={{ width: `${Math.min(100, viewCount ? (viewCount / 20) * 100 : 5)}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between mt-1 text-xs text-gray-500">
+            <span>Desempenho</span>
+            <span>{Math.min(100, viewCount ? Math.round((viewCount / 20) * 100) : 5)}%</span>
+          </div>
+        </div>
+      )}
       
       <div className="pt-2 text-sm text-gray-500 flex items-center">
         <Clock size={16} className="mr-2" />
