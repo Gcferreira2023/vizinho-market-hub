@@ -1,89 +1,48 @@
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { useIsMobile } from "@/hooks/use-mobile";
+import React, { useState } from "react";
 
-interface ListingImageGalleryProps {
-  images: string[];
-  title?: string;
-}
-
-const ListingImageGallery = ({ 
-  images = []
-}: ListingImageGalleryProps) => {
-  const [currentImage, setCurrentImage] = useState(0);
-  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
-  const isMobile = useIsMobile();
+export const ListingImageGallery = ({ 
+  images = [] 
+}: { 
+  images: string[] 
+}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
   
-  // Ensure we have a valid array of images, using a placeholder as fallback
-  const displayImages = images && images.length > 0 ? images : ['/placeholder.svg'];
+  // Se não houver imagens, mostra um placeholder
+  if (images.length === 0) {
+    return (
+      <div className="w-full h-80 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
+        <p className="text-gray-500">Sem imagens disponíveis</p>
+      </div>
+    );
+  }
   
-  const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % displayImages.length);
-  };
-  
-  const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + displayImages.length) % displayImages.length);
-  };
-
-  const handleImageError = (index: number) => {
-    setImgErrors(prev => ({...prev, [index]: true}));
-  };
-
   return (
     <div className="mb-6">
-      {/* Main Image */}
-      <div className="relative w-full overflow-hidden bg-gray-100 rounded-lg mb-2">
-        <AspectRatio ratio={4/3} className="bg-muted">
-          <img
-            src={imgErrors[currentImage] ? "/placeholder.svg" : displayImages[currentImage]}
-            alt={`Image ${currentImage + 1}`}
-            className="w-full h-full object-contain"
-            onError={() => handleImageError(currentImage)}
-          />
-          {displayImages.length > 1 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
-                onClick={prevImage}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-white/80 hover:bg-white"
-                onClick={nextImage}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </AspectRatio>
+      {/* Imagem principal */}
+      <div className="w-full h-80 overflow-hidden rounded-lg mb-2">
+        <img 
+          src={images[activeIndex]} 
+          alt={`Imagem principal ${activeIndex + 1}`}
+          className="w-full h-full object-cover"
+        />
       </div>
-
-      {/* Thumbnails */}
-      {displayImages.length > 1 && (
-        <div className={`flex gap-2 overflow-x-auto pb-2 ${isMobile ? "scrollbar-hide -mx-4 px-4" : ""}`}>
-          {displayImages.map((image, index) => (
+      
+      {/* Miniaturas */}
+      {images.length > 1 && (
+        <div className="flex overflow-x-auto space-x-2 py-2">
+          {images.map((image, index) => (
             <button
               key={index}
-              className={`relative ${isMobile ? "w-16 h-16" : "w-20 h-20"} flex-shrink-0 rounded ${
-                currentImage === index
-                  ? "ring-2 ring-primary ring-offset-2"
-                  : "opacity-70"
+              onClick={() => setActiveIndex(index)}
+              className={`w-20 h-20 rounded overflow-hidden flex-shrink-0 border-2 ${
+                index === activeIndex ? 'border-primary' : 'border-transparent'
               }`}
-              onClick={() => setCurrentImage(index)}
             >
-              <img
-                src={imgErrors[index] ? "/placeholder.svg" : image}
-                alt={`Thumbnail ${index + 1}`}
-                className="w-full h-full object-cover rounded"
-                onError={() => handleImageError(index)}
+              <img 
+                src={image} 
+                alt={`Miniatura ${index + 1}`}
+                className="w-full h-full object-cover"
               />
             </button>
           ))}
@@ -92,5 +51,3 @@ const ListingImageGallery = ({
     </div>
   );
 };
-
-export default ListingImageGallery;

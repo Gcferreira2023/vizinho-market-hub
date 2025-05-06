@@ -1,86 +1,69 @@
 
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Phone, Shield } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { MapPin, Phone, User } from "lucide-react";
 
-interface ContactSellerProps {
-  listing: any;
-}
+type ContactSellerProps = {
+  listing: {
+    user_name?: string;
+    seller_name?: string;
+    location?: string;
+    phone?: string;
+  };
+};
 
 const ContactSeller = ({ listing }: ContactSellerProps) => {
-  // Format phone number if available
-  const formatPhone = (phone: string | null | undefined) => {
-    if (!phone) return "Não informado";
-    
-    // Basic Brazilian phone formatting (XX) XXXXX-XXXX
-    return phone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-  };
-  
-  // Seller name or default value
-  const sellerName = listing?.user_name || "Vendedor";
-  
-  // Seller location info
-  const getLocationInfo = () => {
-    const block = listing?.user_block || "-";
-    const apt = listing?.user_apartment || "-";
-    
-    return `Bloco ${block}, Apt ${apt}`;
-  };
+  const sellerName = listing?.user_name || listing?.seller_name || "Anunciante";
   
   const handleWhatsAppClick = () => {
-    if (!listing?.user_phone) return;
-    
-    // Format phone number for WhatsApp
-    let phone = listing.user_phone.replace(/\D/g, "");
-    if (phone.length === 11 && !phone.startsWith("55")) {
-      phone = `55${phone}`;
+    if (listing?.phone) {
+      // Formatar número de telefone para WhatsApp
+      const phoneNumber = listing.phone.replace(/\D/g, "");
+      const whatsappUrl = `https://wa.me/55${phoneNumber}?text=Olá! Vi seu anúncio e gostaria de mais informações.`;
+      window.open(whatsappUrl, "_blank");
     }
-    
-    // Create WhatsApp message with listing info
-    const message = encodeURIComponent(
-      `Olá! Vi seu anúncio "${listing.title}" no Vizinho Market e gostaria de mais informações.`
-    );
-    
-    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
   
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl">Contato</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Seller info */}
-          <div>
-            <p className="font-medium text-lg">{sellerName}</p>
-            
-            {listing?.user_block && (
-              <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                <MapPin size={14} />
-                <span>{getLocationInfo()}</span>
-              </div>
-            )}
+    <Card className="p-4">
+      <h3 className="text-lg font-medium mb-4">Informações do Anunciante</h3>
+      
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <User className="h-5 w-5 text-primary" />
           </div>
-          
-          {/* Contact buttons */}
-          <div className="pt-2">
-            <Button 
-              className="w-full mb-2" 
-              onClick={handleWhatsAppClick}
-              disabled={!listing?.user_phone}
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Contatar via WhatsApp
-            </Button>
-            
-            <div className="text-xs text-gray-500 mt-2 flex items-start gap-1">
-              <Shield className="h-3 w-3 mt-0.5 flex-shrink-0" />
-              <p>Você entrará em contato diretamente com o vendedor.</p>
-            </div>
+          <div>
+            <p className="text-sm text-gray-500">Vendedor</p>
+            <p className="font-medium">{sellerName}</p>
           </div>
         </div>
-      </CardContent>
+        
+        {listing?.location && (
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <MapPin className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Localização</p>
+              <p className="font-medium">{listing.location}</p>
+            </div>
+          </div>
+        )}
+        
+        {listing?.phone && (
+          <div className="mt-6">
+            <Button 
+              onClick={handleWhatsAppClick}
+              className="w-full bg-green-500 hover:bg-green-600"
+            >
+              <Phone className="mr-2 h-4 w-4" />
+              Contatar por WhatsApp
+            </Button>
+          </div>
+        )}
+      </div>
     </Card>
   );
 };

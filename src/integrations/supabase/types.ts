@@ -55,6 +55,7 @@ export type Database = {
           type: string | null
           updated_at: string | null
           user_id: string | null
+          view_count: number | null
         }
         Insert: {
           availability?: string | null
@@ -72,6 +73,7 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
+          view_count?: number | null
         }
         Update: {
           availability?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
+          view_count?: number | null
         }
         Relationships: [
           {
@@ -413,6 +416,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      increment_ad_view: {
+        Args: { ad_id: string }
+        Returns: number
+      }
       suggest_condominium: {
         Args: { p_city_id: string; p_name: string; p_address?: string }
         Returns: string

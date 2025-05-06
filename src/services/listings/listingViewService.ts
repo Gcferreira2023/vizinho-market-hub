@@ -25,31 +25,18 @@ export const incrementListingView = async (listingId: string) => {
     viewedListings[listingId] = now;
     sessionStorage.setItem('viewed_listings', JSON.stringify(viewedListings));
     
-    // Atualizar o contador diretamente
-    const { data: currentData, error: fetchError } = await supabase
-      .from('ads')
-      .select('id')
-      .eq('id', listingId)
-      .single();
-      
-    if (fetchError) {
-      console.error('Erro ao buscar anúncio:', fetchError);
-      return;
-    }
-    
-    // Usar um contador temporário até a coluna ser criada no banco
-    let currentCount = 0;
-    
     try {
-      // Tentar obter o contador atual - adicionaremos essa coluna via SQL em uma etapa separada
+      // Usar a função RPC para incrementar a visualização
       const { data, error } = await supabase.rpc('increment_ad_view', { ad_id: listingId });
       
       if (error) {
-        // Fallback - incrementar diretamente se o RPC não existir
+        console.error('Erro ao incrementar visualização via RPC:', error);
+        
+        // Fallback - atualizar diretamente se a RPC falhar
         const { error: updateError } = await supabase
           .from('ads')
           .update({ 
-            // Se a coluna viewCount não existir, isso falhará mas será corrigido com a migração SQL
+            view_count: 1,  // Começar com 1 se não existir
             updated_at: new Date().toISOString() 
           })
           .eq('id', listingId);
@@ -57,17 +44,19 @@ export const incrementListingView = async (listingId: string) => {
         if (updateError) {
           console.error('Erro ao atualizar dados do anúncio:', updateError);
         }
-      } else if (data) {
-        console.log('Visualização incrementada via RPC');
-        currentCount = data;
+        
+        return 1; // Retornar valor padrão em caso de erro
       }
+      
+      return data as number; // Retornar o contador atualizado da função RPC
+      
     } catch (err) {
       console.error('Erro ao incrementar visualização:', err);
+      return 0;
     }
-    
-    return currentCount;
   } catch (error) {
     console.error('Erro ao processar visualização:', error);
+    return 0;
   }
 };
 
@@ -78,7 +67,7 @@ export const getListingViewStats = async (listingId: string) => {
   try {
     const { data, error } = await supabase
       .from('ads')
-      .select('id, created_at')
+      .select('view_count, created_at')
       .eq('id', listingId)
       .single();
       
@@ -87,9 +76,8 @@ export const getListingViewStats = async (listingId: string) => {
       return { viewCount: 0, createdAt: null };
     }
     
-    // Valor temporário até a implementação completa
     return {
-      viewCount: 0,
+      viewCount: data?.view_count || 0,
       createdAt: data?.created_at || null
     };
   } catch (error) {

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import ListingImageGallery from "./ListingImageGallery";
+import { ListingImageGallery } from "@/components/listings/detail/ListingImageGallery";
 import ListingDetailTabs from "./ListingDetailTabs";
 import ContactSeller from "./ContactSeller";
 import StatusBadge, { mapStatusFromDB } from "../StatusBadge";
