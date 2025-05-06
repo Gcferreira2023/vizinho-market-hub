@@ -32,19 +32,19 @@ const ListingImage = ({
   lazyLoad,
   onImageLoad
 }: ListingImageProps) => {
-  // Para imagens de demonstração, sempre use o placeholder
-  const actualImageUrl = isMockListing ? '/placeholder.svg' : imageUrl || '/placeholder.svg';
+  // Simplified image source determination - for mock listings, always use placeholder
+  const imgSrc = isMockListing ? '/placeholder.svg' : (imageUrl || '/placeholder.svg');
   
   const [isVisible, setIsVisible] = useState(!lazyLoad);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
-
-  // Log para debug
+  
+  // For demo and debugging, log the image source
   useEffect(() => {
-    console.log(`ListingImage ${id}: usando imageUrl: ${actualImageUrl}, isMock: ${isMockListing}`);
-  }, [id, actualImageUrl, isMockListing]);
+    console.log(`Rendering listing ${id}, isMock: ${isMockListing}, imageUrl: ${imgSrc}`);
+  }, [id, imgSrc, isMockListing]);
 
-  // Lazy loading com Intersection Observer
+  // Lazy loading with Intersection Observer
   useEffect(() => {
     if (!lazyLoad) return;
 
@@ -67,15 +67,15 @@ const ListingImage = ({
   }, [id, lazyLoad]);
 
   const handleImageLoad = () => {
-    console.log(`Image loaded successfully for listing ${id}: ${actualImageUrl}`);
+    console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);
     setImgLoaded(true);
     if (onImageLoad) onImageLoad();
   };
 
   const handleImageError = () => {
-    console.error(`Error loading image for listing ${id}: ${actualImageUrl}, using placeholder`);
+    console.error(`Error loading image for listing ${id}: ${imgSrc}, using placeholder`);
     setImgError(true);
-    if (onImageLoad) onImageLoad();
+    if (onImageLoad) onImageLoad(); // Still trigger load callback on error
   };
 
   // Status badge component
@@ -106,9 +106,9 @@ const ListingImage = ({
             </div>
           )}
           
-          {/* Image */}
+          {/* Image - using direct img tag with simplified error handling */}
           <img
-            src={imgError ? "/placeholder.svg" : actualImageUrl}
+            src={imgError ? "/placeholder.svg" : imgSrc}
             alt={title}
             className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={handleImageLoad}

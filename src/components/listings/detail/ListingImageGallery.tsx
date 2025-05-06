@@ -21,8 +21,11 @@ export const ListingImageGallery = ({
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
   const [errorImages, setErrorImages] = useState<Record<number, boolean>>({});
   
-  // Se não houver imagens, mostra um placeholder
+  // Use placeholder for empty image arrays
   const displayImages = images && images.length > 0 ? images : ['/placeholder.svg'];
+  
+  // Log for debugging
+  console.log("Gallery images:", displayImages);
   
   const handleImageLoad = (index: number) => {
     console.log(`Gallery image ${index} loaded:`, displayImages[index]);
@@ -74,6 +77,7 @@ export const ListingImageGallery = ({
             </div>
           )}
           
+          {/* Main image - always render but control opacity */}
           <img
             src={errorImages[activeIndex] ? "/placeholder.svg" : displayImages[activeIndex]}
             alt={`${title} - Imagem ${activeIndex + 1}`}

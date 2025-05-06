@@ -60,6 +60,7 @@ export const OptimizedImage = ({
       console.log("Switching to fallback image:", fallbackSrc);
       setImgSrc(fallbackSrc);
     } else {
+      // If even the fallback fails, mark as error but still show a visual
       setHasError(true);
       setIsLoaded(true);
     }
@@ -86,6 +87,7 @@ export const OptimizedImage = ({
         </div>
       )}
 
+      {/* Always render the img tag, but set opacity based on loaded state */}
       <img
         src={imgSrc}
         alt={alt}

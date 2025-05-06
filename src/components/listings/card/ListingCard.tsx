@@ -47,18 +47,18 @@ const ListingCard = ({
   const isMobile = useMobile();
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  // Determinar o link correto
+  // Determine the correct link path
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
-  // Debug log para verificar URL da imagem
-  useEffect(() => {
-    // Para imagens mock, sempre usamos o placeholder
-    const actualImage = isMockListing ? '/placeholder.svg' : imageUrl || '/placeholder.svg';
-    
-    console.log(`ListingCard ${id}: usando ${isMockListing ? 'mock' : 'real'} imagem: ${actualImage}`);
-  }, [id, imageUrl, isMockListing]);
+  // For illustration purposes, always use placeholder for mock listings
+  const imgSrc = isMockListing ? '/placeholder.svg' : (imageUrl || '/placeholder.svg');
   
-  // Definir tamanho da imagem com base no dispositivo
+  // Debug log for image URL
+  useEffect(() => {
+    console.log(`ListingCard ${id}: usando ${isMockListing ? 'mock' : 'real'} imagem: ${imgSrc}`);
+  }, [id, imageUrl, isMockListing, imgSrc]);
+  
+  // Define image height based on device
   const imageHeight = isMobile ? "h-40" : "h-48";
   
   // Handle image load callback
@@ -82,7 +82,7 @@ const ListingCard = ({
           <ListingImage 
             id={id}
             title={title}
-            imageUrl={imageUrl}
+            imageUrl={imgSrc}
             category={category}
             type={type}
             status={status}
