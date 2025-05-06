@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { ListingStatus } from '@/components/listings/StatusBadge';
 
-// Dados de listagem de exemplo para quando não há anúncios reais
+// Example listings data for when there are no real ads
 const mockListings = [
   {
     id: 'mock1',
@@ -125,8 +125,13 @@ export const useFeaturedListings = () => {
           // Get image URL from ad_images if available
           let imageUrl = '/placeholder.svg';
           if (item.ad_images && item.ad_images.length > 0) {
-            imageUrl = item.ad_images[0].image_url;
-            console.log(`Found image for listing ${item.id}:`, imageUrl);
+            const image = item.ad_images[0];
+            if (image.image_url && image.image_url.trim() !== '') {
+              imageUrl = image.image_url;
+              console.log(`Found image for listing ${item.id}:`, imageUrl);
+            } else {
+              console.log(`Image found but URL is empty for listing ${item.id}, using placeholder`);
+            }
           } else {
             console.log(`No images found for listing ${item.id}, using placeholder`);
           }

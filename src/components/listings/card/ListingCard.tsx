@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import ListingImage from "./ListingImage";
 import ListingDetails from "./ListingDetails";
 import { ListingStatus } from "../StatusBadge";
+import { useEffect } from "react";
 
 interface ListingCardProps {
   id: string;
@@ -45,8 +46,11 @@ const ListingCard = ({
   // Use the provided linkTo or determine based on whether it's a mock listing
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
   
-  // Debug log
-  console.log(`Rendering ListingCard ${id} with image URL: ${imageUrl}`);
+  // Debug log for image URL
+  useEffect(() => {
+    console.log(`ListingCard ${id} rendering with image URL: ${imageUrl}`);
+    console.log(`Is mock listing: ${isMockListing}, link: ${linkPath}`);
+  }, [id, imageUrl, isMockListing, linkPath]);
   
   return (
     <Card id={`listing-card-${id}`} className="card-hover overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-md">

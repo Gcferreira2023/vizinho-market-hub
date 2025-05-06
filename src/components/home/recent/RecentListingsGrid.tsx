@@ -2,7 +2,7 @@
 import ListingCard from "../../listings/ListingCard";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface RecentListingsGridProps {
   listings: any[];
@@ -17,6 +17,7 @@ const RecentListingsGrid = ({
   realListings,
   showIllustrativeMessage
 }: RecentListingsGridProps) => {
+  const [loadedCount, setLoadedCount] = useState(0);
   
   useEffect(() => {
     // Log the listings for debugging
@@ -25,6 +26,10 @@ const RecentListingsGrid = ({
       console.log(`Listing ID: ${listing.id}, Image URL: ${listing.imageUrl}, Type: ${typeof listing.imageUrl}`);
     });
   }, [listings]);
+  
+  const handleImageLoad = () => {
+    setLoadedCount(prev => prev + 1);
+  };
   
   if (isLoading) {
     return (
@@ -55,6 +60,7 @@ const RecentListingsGrid = ({
                 {...listing} 
                 isMockListing={isMockListing}
                 lazyLoad={true}
+                onImageLoad={handleImageLoad}
               />
               
               {isMockListing && (

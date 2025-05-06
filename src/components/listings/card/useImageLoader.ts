@@ -21,25 +21,33 @@ export const useImageLoader = ({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(!lazyLoad);
 
-  // Para anúncios mockados, sempre usamos um placeholder
-  const actualImageUrl = isMockListing || !imageUrl 
+  // For mock listings, always use a placeholder
+  const actualImageUrl = isMockListing || !imageUrl || imageUrl.trim() === '' 
     ? "/placeholder.svg" 
     : imageUrl;
   
-  // Carregar imagem antecipadamente para verificar erros
+  // Debug the image URL
+  useEffect(() => {
+    console.log(`Image loader for ${id}: Using URL ${actualImageUrl}`);
+    console.log(`Original URL: ${imageUrl}, is mock: ${isMockListing}`);
+  }, [id, actualImageUrl, imageUrl, isMockListing]);
+  
+  // Pre-load image to check for errors
   useEffect(() => {
     if (actualImageUrl && actualImageUrl !== "/placeholder.svg") {
+      console.log(`Pre-loading image for ${id}: ${actualImageUrl}`);
       const img = new Image();
       img.src = actualImageUrl;
       img.onload = () => {
+        console.log(`Pre-load successful for ${id}: ${actualImageUrl}`);
         setImgError(false);
       };
       img.onerror = () => {
-        console.error(`Erro ao pré-carregar imagem: ${actualImageUrl}`);
+        console.error(`Error pre-loading image for ${id}: ${actualImageUrl}`);
         setImgError(true);
       };
     }
-  }, [actualImageUrl]);
+  }, [actualImageUrl, id]);
 
   // Lazy loading observer
   useEffect(() => {
@@ -48,6 +56,7 @@ export const useImageLoader = ({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
+          console.log(`Card ${id} is now visible, loading image`);
           setIsVisible(true);
           observer.disconnect();
         }
@@ -58,6 +67,8 @@ export const useImageLoader = ({
     const currentCard = document.getElementById(`listing-card-${id}`);
     if (currentCard) {
       observer.observe(currentCard);
+    } else {
+      console.warn(`Card element with ID listing-card-${id} not found`);
     }
 
     return () => {
@@ -65,21 +76,14 @@ export const useImageLoader = ({
     };
   }, [id, lazyLoad]);
   
-  // Debug para carregamento de imagem
-  useEffect(() => {
-    if (isVisible) {
-      console.log(`Card ${id} carregando imagem:`, actualImageUrl);
-    }
-  }, [isVisible, actualImageUrl, id]);
-  
   const handleImageLoad = () => {
-    console.log(`Imagem carregada com sucesso: ${actualImageUrl}`);
+    console.log(`Image loaded successfully: ${actualImageUrl}`);
     setImgLoaded(true);
     if (onImageLoad) onImageLoad();
   };
   
   const handleImageError = () => {
-    console.error(`Erro ao carregar imagem ${actualImageUrl}, usando placeholder`);
+    console.error(`Error loading image ${actualImageUrl}, using placeholder`);
     setImgError(true);
     setImgLoaded(true);
     if (onImageLoad) onImageLoad();

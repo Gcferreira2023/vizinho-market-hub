@@ -47,8 +47,12 @@ const ListingImage = ({
     onImageLoad
   });
 
+  // Debug
+  console.log(`ListingImage ${id}: actualImageUrl=${actualImageUrl}, imgLoaded=${imgLoaded}, imgError=${imgError}`);
+
   return (
     <div className="relative h-48 overflow-hidden bg-gray-100">
+      {/* Loading skeleton */}
       {(!imgLoaded && isVisible) && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Skeleton className="w-full h-full absolute" />
@@ -69,6 +73,7 @@ const ListingImage = ({
             onError={handleImageError}
           />
           
+          {/* Show error icon if image failed to load */}
           {imgError && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-gray-200/80 p-2 rounded-full">
@@ -79,6 +84,7 @@ const ListingImage = ({
         </>
       )}
       
+      {/* Type badge */}
       <Badge
         className="absolute top-2 left-2 z-10"
         variant={type === "produto" ? "default" : "secondary"}
@@ -86,6 +92,7 @@ const ListingImage = ({
         {type}
       </Badge>
       
+      {/* Category and status badges */}
       <div className="absolute top-2 right-2 flex flex-col gap-2 items-end z-10">
         <Badge 
           variant="outline" 
@@ -96,7 +103,7 @@ const ListingImage = ({
         <StatusBadgeComponent status={status} />
       </div>
       
-      {/* Botão de favorito */}
+      {/* Favorite button */}
       <div className="absolute bottom-2 right-2 z-10">
         <FavoriteButton
           listingId={id}
@@ -106,7 +113,7 @@ const ListingImage = ({
         />
       </div>
       
-      {/* Badge de condomínio */}
+      {/* Condominium badge */}
       {condominiumName && (
         <CondominiumBadge 
           condominiumName={condominiumName}
