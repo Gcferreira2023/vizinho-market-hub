@@ -2,6 +2,7 @@
 import HeroHeading from "./HeroHeading";
 import HeroButtons from "./HeroButtons";
 import HeroImage from "./HeroImage";
+import LocationFilters from "./LocationFilters";
 
 const HeroSection = () => {
   return (
@@ -13,6 +14,11 @@ const HeroSection = () => {
             <HeroButtons />
           </div>
           <HeroImage />
+        </div>
+        
+        {/* Filtros de localização abaixo dos botões */}
+        <div className="mt-8">
+          <LocationFilters />
         </div>
       </div>
     </section>

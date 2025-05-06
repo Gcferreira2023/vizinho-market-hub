@@ -1,13 +1,21 @@
 
 import { useState, useEffect } from "react";
-import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Condominium } from "@/types/location";
-import { fetchCondominiumsByCity } from "@/services/location/locationService";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { fetchCondominiumsByCity, suggestCondominium } from "@/services/location/locationService";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import NewCondominiumDialog from "@/components/location/NewCondominiumDialog";
 
 interface CondominiumSelectProps {
   selectedCityId: string | null;
@@ -20,16 +28,18 @@ const CondominiumSelect = ({
   selectedCondominiumId, 
   setSelectedCondominiumId 
 }: CondominiumSelectProps) => {
-  const [condominiums, setCondominiums] = useState<(Condominium & { adCount?: number })[]>([]);
+  const [condominiums, setCondominiums] = useState<Condominium[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isNewCondoDialogOpen, setIsNewCondoDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const userCondominiumId = user?.user_metadata?.condominiumId;
 
   // Fetch condominiums when city changes
   useEffect(() => {
     if (!selectedCityId) {
       setCondominiums([]);
+      setSelectedCondominiumId(null);
       return;
     }
     
@@ -37,39 +47,12 @@ const CondominiumSelect = ({
       setIsLoading(true);
       try {
         const condominiumsData = await fetchCondominiumsByCity(selectedCityId);
+        setCondominiums(condominiumsData);
         
-        // Fetch ad counts for each condominium
-        const condominiumsWithCounts = await Promise.all(
-          condominiumsData.map(async (condominium) => {
-            try {
-              const { count, error } = await supabase
-                .from('ads')
-                .select('*', { count: 'exact', head: true })
-                .eq('condominium_id', condominium.id)
-                .eq('status', 'active');
-                
-              if (error) throw error;
-              
-              return {
-                ...condominium,
-                adCount: count || 0
-              };
-            } catch (err) {
-              console.error(`Error fetching ad count for condominium ${condominium.id}:`, err);
-              return {
-                ...condominium,
-                adCount: 0
-              };
-            }
-          })
-        );
-        
-        // Sort alphabetically by name
-        const sortedCondominiums = condominiumsWithCounts.sort((a, b) => 
-          a.name.localeCompare(b.name)
-        );
-        
-        setCondominiums(sortedCondominiums);
+        // If we have condominiums and none selected, set the first one
+        if (condominiumsData.length > 0 && !selectedCondominiumId) {
+          setSelectedCondominiumId(condominiumsData[0].id);
+        }
       } catch (error) {
         console.error("Error fetching condominiums:", error);
         toast({
@@ -83,11 +66,49 @@ const CondominiumSelect = ({
     };
     
     loadCondominiums();
-  }, [selectedCityId, toast]);
+  }, [selectedCityId, setSelectedCondominiumId, toast]);
 
   // Handle condominium selection
   const handleCondominiumChange = (value: string) => {
     setSelectedCondominiumId(value === "all" ? null : value);
+  };
+
+  // Handle adding a new condominium
+  const handleAddNewCondominium = async (name: string, address?: string) => {
+    if (!selectedCityId) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Por favor, selecione uma cidade primeiro."
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const newCondominiumId = await suggestCondominium(selectedCityId, name, address);
+      
+      toast({
+        title: "Condomínio sugerido com sucesso",
+        description: "Seu condomínio foi sugerido e será revisado por nossos administradores."
+      });
+      
+      // Refresh condominiums list
+      const updatedCondominiums = await fetchCondominiumsByCity(selectedCityId);
+      setCondominiums(updatedCondominiums);
+      
+      // Close dialog
+      setIsNewCondoDialogOpen(false);
+    } catch (error) {
+      console.error("Error suggesting condominium:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao sugerir condomínio",
+        description: "Não foi possível processar sua solicitação. Tente novamente mais tarde."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!selectedCityId && !isLoading) {
@@ -96,38 +117,47 @@ const CondominiumSelect = ({
 
   return (
     <div className="space-y-1">
-      <Label htmlFor="condominium-select">Condomínio</Label>
+      <div className="flex justify-between items-center">
+        <Label htmlFor="condominium-select">Condomínio</Label>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setIsNewCondoDialogOpen(true)}
+          className="text-xs h-6 px-2 py-0"
+          disabled={!selectedCityId}
+        >
+          <PlusCircle className="h-3 w-3 mr-1" />
+          Adicionar Novo
+        </Button>
+      </div>
+      
       {isLoading ? (
         <Skeleton className="h-10 w-full" />
       ) : (
         <Select 
           value={selectedCondominiumId || "all"} 
           onValueChange={handleCondominiumChange}
-          disabled={!selectedCityId}
         >
           <SelectTrigger id="condominium-select">
             <SelectValue placeholder="Selecione um condomínio" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os condomínios</SelectItem>
-            {condominiums.length > 0 ? (
-              condominiums.map((condominium) => (
-                <SelectItem 
-                  key={condominium.id} 
-                  value={condominium.id}
-                  className={userCondominiumId === condominium.id ? "font-medium text-primary" : ""}
-                >
-                  {condominium.name} ({condominium.adCount})
-                </SelectItem>
-              ))
-            ) : (
-              <div className="px-2 py-1 text-sm text-gray-500">
-                Nenhum condomínio encontrado nesta cidade
-              </div>
-            )}
+            {condominiums.map((condominium) => (
+              <SelectItem key={condominium.id} value={condominium.id}>
+                {condominium.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )}
+      
+      <NewCondominiumDialog
+        isOpen={isNewCondoDialogOpen}
+        onOpenChange={setIsNewCondoDialogOpen}
+        onSubmit={handleAddNewCondominium}
+        isLoading={isSubmitting}
+      />
     </div>
   );
 };
