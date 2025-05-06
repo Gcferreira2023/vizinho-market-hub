@@ -1,7 +1,7 @@
 
 import ListingCard from "../../listings/ListingCard";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
 
 interface RecentListingsGridProps {
@@ -47,11 +47,14 @@ const RecentListingsGrid = ({
           // Check if this is a mock listing
           const isMockListing = !realListings.some(real => real.id === listing.id);
           
+          console.log(`Rendering listing ${listing.id}, isMock: ${isMockListing}, imageUrl: ${listing.imageUrl}`);
+          
           return (
             <div key={listing.id} className="relative">
               <ListingCard 
                 {...listing} 
                 isMockListing={isMockListing}
+                lazyLoad={true}
               />
               
               {isMockListing && (
@@ -59,7 +62,7 @@ const RecentListingsGrid = ({
                   className="absolute top-2 left-2 z-20 bg-orange-100 text-orange-800 flex items-center gap-1"
                   variant="outline"
                 >
-                  <AlertCircle size={12} />
+                  <AlertTriangle size={12} />
                   Ilustrativo
                 </Badge>
               )}

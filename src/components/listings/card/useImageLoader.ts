@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { Image as ImageIcon, ImageOff, AlertTriangle } from "lucide-react";
 
 interface UseImageLoaderProps {
   imageUrl: string;
@@ -20,11 +21,26 @@ export const useImageLoader = ({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(!lazyLoad);
 
-  // Always use a placeholder for mock listings
-  const actualImageUrl = isMockListing 
+  // Para anúncios mockados, sempre usamos um placeholder
+  const actualImageUrl = isMockListing || !imageUrl 
     ? "/placeholder.svg" 
-    : (imageUrl || "/placeholder.svg");
+    : imageUrl;
   
+  // Carregar imagem antecipadamente para verificar erros
+  useEffect(() => {
+    if (actualImageUrl && actualImageUrl !== "/placeholder.svg") {
+      const img = new Image();
+      img.src = actualImageUrl;
+      img.onload = () => {
+        setImgError(false);
+      };
+      img.onerror = () => {
+        console.error(`Erro ao pré-carregar imagem: ${actualImageUrl}`);
+        setImgError(true);
+      };
+    }
+  }, [actualImageUrl]);
+
   // Lazy loading observer
   useEffect(() => {
     if (!lazyLoad) return;
@@ -49,22 +65,24 @@ export const useImageLoader = ({
     };
   }, [id, lazyLoad]);
   
-  // Debug for image loading
+  // Debug para carregamento de imagem
   useEffect(() => {
     if (isVisible) {
-      console.log(`Card ${id} loading image:`, actualImageUrl);
+      console.log(`Card ${id} carregando imagem:`, actualImageUrl);
     }
   }, [isVisible, actualImageUrl, id]);
   
   const handleImageLoad = () => {
+    console.log(`Imagem carregada com sucesso: ${actualImageUrl}`);
     setImgLoaded(true);
     if (onImageLoad) onImageLoad();
   };
   
   const handleImageError = () => {
-    console.error(`Image error loading ${actualImageUrl}, using placeholder`);
+    console.error(`Erro ao carregar imagem ${actualImageUrl}, usando placeholder`);
     setImgError(true);
-    handleImageLoad();
+    setImgLoaded(true);
+    if (onImageLoad) onImageLoad();
   };
 
   return {

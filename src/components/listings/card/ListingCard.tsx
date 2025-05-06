@@ -1,8 +1,6 @@
 
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle } from "lucide-react";
 import ListingImage from "./ListingImage";
 import ListingDetails from "./ListingDetails";
 import { ListingStatus } from "../StatusBadge";
@@ -46,6 +44,9 @@ const ListingCard = ({
 }: ListingCardProps) => {
   // Use the provided linkTo or determine based on whether it's a mock listing
   const linkPath = linkTo || (isMockListing ? "/explorar" : `/anuncio/${id}`);
+  
+  // Debug log
+  console.log(`Rendering ListingCard ${id} with image URL: ${imageUrl}`);
   
   return (
     <Card id={`listing-card-${id}`} className="card-hover overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-md">

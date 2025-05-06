@@ -3,6 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useImageLoader } from "./useImageLoader";
 import FavoriteButton from "../FavoriteButton";
+import { Image, ImageOff, AlertTriangle } from "lucide-react";
 
 interface ListingImageProps {
   id: string;
@@ -51,20 +52,31 @@ const ListingImage = ({
       {(!imgLoaded && isVisible) && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Skeleton className="w-full h-full absolute" />
+          <Image className="h-8 w-8 text-gray-400" />
         </div>
       )}
       
       {isVisible && (
-        <img
-          src={imgError ? "/placeholder.svg" : actualImageUrl}
-          alt={title}
-          className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 
-            ${status === "vendido" ? "opacity-70" : ""}
-            ${!imgLoaded ? "opacity-0" : "opacity-100"}`}
-          loading={lazyLoad ? "lazy" : "eager"}
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-        />
+        <>
+          <img
+            src={imgError ? "/placeholder.svg" : actualImageUrl}
+            alt={title}
+            className={`w-full h-full object-cover transition-all duration-300 hover:scale-105 
+              ${status === "vendido" ? "opacity-70" : ""}
+              ${!imgLoaded ? "opacity-0" : "opacity-100"}`}
+            loading={lazyLoad ? "lazy" : "eager"}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+          />
+          
+          {imgError && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-gray-200/80 p-2 rounded-full">
+                <ImageOff className="h-6 w-6 text-gray-500" />
+              </div>
+            </div>
+          )}
+        </>
       )}
       
       <Badge

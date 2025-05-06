@@ -116,7 +116,7 @@ export const useRecentListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: 0, // Database doesn't have viewCount field yet, default to 0
+            viewCount: item.view_count || 0,
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
@@ -124,6 +124,12 @@ export const useRecentListings = () => {
         }) || [];
         
         console.log("Recent listings transformed data:", transformedData);
+        
+        // Log individual image URLs for debug
+        transformedData.forEach(listing => {
+          console.log(`Listing ${listing.id} image URL: ${listing.imageUrl}`);
+        });
+        
         setRealListings(transformedData);
         
         // If we have some real listings, use them, otherwise use mock data

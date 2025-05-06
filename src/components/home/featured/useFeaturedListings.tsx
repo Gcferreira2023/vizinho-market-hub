@@ -130,6 +130,9 @@ export const useFeaturedListings = () => {
           } else {
             console.log(`No images found for listing ${item.id}, using placeholder`);
           }
+          
+          // Log specific debug info
+          console.log(`Listing ${item.id} ad_images:`, item.ad_images);
             
           return {
             id: item.id,
@@ -140,7 +143,7 @@ export const useFeaturedListings = () => {
             type: item.type,
             location: item.users ? `${item.users.block || ''} ${item.users.apartment || ''}`.trim() : '',
             status: 'disponível' as ListingStatus,
-            viewCount: 0, // Database doesn't have viewCount field yet, default to 0
+            viewCount: item.view_count || 0,
             condominiums: item.condominiums,
             condominiumName: item.condominiums?.name || "Condomínio",
             isUserCondominium: item.condominium_id === userCondominiumId
@@ -148,6 +151,12 @@ export const useFeaturedListings = () => {
         }) || [];
         
         console.log("Featured listings transformed data:", transformedData);
+        
+        // Log individual image URLs for debug
+        transformedData.forEach(listing => {
+          console.log(`Listing ${listing.id} image URL: ${listing.imageUrl}`);
+        });
+        
         setRealListings(transformedData);
       } catch (err) {
         console.error("Error in fetchRealListings:", err);
