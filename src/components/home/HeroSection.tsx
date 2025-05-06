@@ -20,16 +20,6 @@ const HeroSection = () => {
         <div className="mt-8">
           <LocationFilters />
         </div>
-        
-        {/* Botão de busca com melhor visual */}
-        <div className="mt-6 flex justify-center">
-          <a 
-            href="/explorar" 
-            className="px-8 py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors w-full md:w-auto md:min-w-[200px] text-center"
-          >
-            Buscar anúncios
-          </a>
-        </div>
       </div>
     </section>
   );

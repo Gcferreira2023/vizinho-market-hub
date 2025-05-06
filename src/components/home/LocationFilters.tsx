@@ -56,13 +56,15 @@ const LocationFilters = () => {
         />
       </div>
       
-      <Button 
-        className="w-full mt-4" 
-        onClick={handleSearch}
-      >
-        <Search className="mr-2 h-4 w-4" />
-        Buscar anúncios
-      </Button>
+      <div className="mt-6 flex justify-center">
+        <Button 
+          onClick={handleSearch}
+          className="px-8 py-6 h-auto text-base flex items-center justify-center w-auto min-w-[200px]"
+        >
+          <Search className="mr-2 h-4 w-4" />
+          Buscar anúncios
+        </Button>
+      </div>
     </div>
   );
 };
