@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import FavoriteButton from "../FavoriteButton";
-import { Image, ImageOff, MapPin } from "lucide-react";
-import OptimizedImage from "@/components/ui/optimized-image";
+import { Image, MapPin } from "lucide-react";
 
 interface ListingImageProps {
   id: string;
@@ -37,6 +36,8 @@ const ListingImage = ({
   const actualImageUrl = isMockListing ? '/placeholder.svg' : imageUrl || '/placeholder.svg';
   
   const [isVisible, setIsVisible] = useState(!lazyLoad);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   // Log para debug
   useEffect(() => {
@@ -65,6 +66,18 @@ const ListingImage = ({
     return () => observer.disconnect();
   }, [id, lazyLoad]);
 
+  const handleImageLoad = () => {
+    console.log(`Image loaded successfully for listing ${id}: ${actualImageUrl}`);
+    setImgLoaded(true);
+    if (onImageLoad) onImageLoad();
+  };
+
+  const handleImageError = () => {
+    console.error(`Error loading image for listing ${id}: ${actualImageUrl}, using placeholder`);
+    setImgError(true);
+    if (onImageLoad) onImageLoad();
+  };
+
   // Status badge component
   const StatusBadgeComponent = ({ status }: { status: string }) => {
     return (
@@ -85,14 +98,21 @@ const ListingImage = ({
     <div className="relative h-full overflow-hidden bg-gray-100">
       {isVisible ? (
         <>
-          <OptimizedImage
-            src={actualImageUrl}
+          {/* Loading state */}
+          {!imgLoaded && !imgError && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Skeleton className="w-full h-full absolute" />
+              <Image className="h-8 w-8 text-gray-400 z-10" />
+            </div>
+          )}
+          
+          {/* Image */}
+          <img
+            src={imgError ? "/placeholder.svg" : actualImageUrl}
             alt={title}
-            className="w-full h-full"
-            objectFit="cover"
-            onLoad={onImageLoad}
-            fallbackSrc="/placeholder.svg"
-            priority={!lazyLoad}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
           />
           
           {/* Type badge */}
@@ -141,6 +161,16 @@ const ListingImage = ({
                 )}
               </Badge>
             </div>
+          )}
+          
+          {/* Mock indicator */}
+          {isMockListing && (
+            <Badge 
+              variant="outline" 
+              className="absolute top-2 left-20 z-10 bg-amber-100 text-amber-800 border-amber-200"
+            >
+              Ilustrativo
+            </Badge>
           )}
         </>
       ) : (

@@ -40,13 +40,13 @@ export const OptimizedImage = ({
 
   // Reset state when the image URL changes
   useEffect(() => {
-    if (src !== imgSrc) {
+    if (src !== imgSrc && src) {
       setIsLoaded(false);
       setHasError(false);
-      setImgSrc(src || fallbackSrc);
-      console.log("OptimizedImage src set to:", src || fallbackSrc);
+      setImgSrc(src);
+      console.log("OptimizedImage src set to:", src);
     }
-  }, [src, fallbackSrc, imgSrc]);
+  }, [src, imgSrc]);
 
   const handleLoad = () => {
     console.log("OptimizedImage loaded successfully:", imgSrc);
@@ -76,24 +76,13 @@ export const OptimizedImage = ({
     ? "active:scale-[0.98] transition-transform" 
     : "";
 
-  // If we're showing a placeholder or SVG, don't use fading effects
-  const isPlaceholder = imgSrc === "/placeholder.svg" || imgSrc.endsWith(".svg");
-  const fadeClasses = isPlaceholder ? "opacity-100" : (isLoaded ? "opacity-100" : "opacity-0");
-
   return (
     <div className={`relative overflow-hidden ${aspectRatio} ${className}`}>
-      {/* Show skeleton loader only while loading actual images (not placeholders) */}
-      {!isLoaded && !isPlaceholder && (
+      {/* Show skeleton loader while loading */}
+      {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted">
           <Skeleton className="w-full h-full absolute" />
-          <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50" />
-        </div>
-      )}
-
-      {/* For placeholder SVGs, we don't need loading animation */}
-      {isPlaceholder && !isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <ImageIcon className="w-8 h-8 text-gray-400" />
+          <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50 z-10" />
         </div>
       )}
 
@@ -102,7 +91,7 @@ export const OptimizedImage = ({
         alt={alt}
         width={width}
         height={height}
-        className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${fadeClasses} ${touchableClass}`}
+        className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${isLoaded ? "opacity-100" : "opacity-0"} ${touchableClass}`}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         onLoad={handleLoad}

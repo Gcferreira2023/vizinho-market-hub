@@ -53,7 +53,7 @@ const ListingCard = ({
   // Debug log para verificar URL da imagem
   useEffect(() => {
     // Para imagens mock, sempre usamos o placeholder
-    const actualImage = isMockListing ? '/placeholder.svg' : imageUrl;
+    const actualImage = isMockListing ? '/placeholder.svg' : imageUrl || '/placeholder.svg';
     
     console.log(`ListingCard ${id}: usando ${isMockListing ? 'mock' : 'real'} imagem: ${actualImage}`);
   }, [id, imageUrl, isMockListing]);
@@ -65,6 +65,7 @@ const ListingCard = ({
   const handleImageLoaded = () => {
     setImageLoaded(true);
     if (onImageLoad) onImageLoad();
+    console.log(`ListingCard ${id}: imagem carregada com sucesso`);
   };
   
   return (
