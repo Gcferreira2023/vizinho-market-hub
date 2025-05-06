@@ -48,6 +48,17 @@ export const OptimizedImage = ({
     }
   }, [src, imgSrc]);
 
+  // If src is empty or undefined, use fallback immediately
+  useEffect(() => {
+    if (!src || src === "") {
+      setImgSrc(fallbackSrc);
+      console.log("Using fallback image immediately:", fallbackSrc);
+      // Consider this pre-loaded if we're using fallback
+      setIsLoaded(true);
+      if (onLoad) onLoad();
+    }
+  }, [src, fallbackSrc, onLoad]);
+
   const handleLoad = () => {
     console.log("OptimizedImage loaded successfully:", imgSrc);
     setIsLoaded(true);

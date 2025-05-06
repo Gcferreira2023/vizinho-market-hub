@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import StatusBadge, { ListingStatus } from "../StatusBadge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import OptimizedImage from "@/components/ui/optimized-image";
 
 interface ListingImageGalleryProps {
   images: string[];
@@ -21,10 +22,12 @@ export const ListingImageGallery = ({
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
   const [errorImages, setErrorImages] = useState<Record<number, boolean>>({});
   
-  // Use placeholder for empty image arrays
-  const displayImages = images && images.length > 0 ? images : ['/placeholder.svg'];
+  // Use placeholder para arrays de imagem vazios ou imagens vazias
+  const displayImages = images && images.length > 0 && images.some(img => img && img !== "") 
+    ? images.filter(img => img && img !== "") 
+    : ['/placeholder.svg'];
   
-  // Log for debugging
+  // Log para debug
   console.log("Gallery images:", displayImages);
   
   const handleImageLoad = (index: number) => {
@@ -69,31 +72,15 @@ export const ListingImageGallery = ({
             </div>
           )}
           
-          {/* Loading indicator */}
-          {!loadedImages[activeIndex] && !errorImages[activeIndex] && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-              <Skeleton className="absolute inset-0" />
-              <Image className="h-10 w-10 text-gray-400 z-20" />
-            </div>
-          )}
-          
-          {/* Main image - always render but control opacity */}
-          <img
+          {/* Usar OptimizedImage para a imagem principal */}
+          <OptimizedImage
             src={errorImages[activeIndex] ? "/placeholder.svg" : displayImages[activeIndex]}
             alt={`${title} - Imagem ${activeIndex + 1}`}
-            className={`w-full h-full object-contain transition-opacity duration-300 ${loadedImages[activeIndex] ? 'opacity-100' : 'opacity-0'}`}
+            className="w-full h-full"
+            objectFit="contain"
+            fallbackSrc="/placeholder.svg"
             onLoad={() => handleImageLoad(activeIndex)}
-            onError={() => handleImageError(activeIndex)}
           />
-          
-          {/* Error state */}
-          {errorImages[activeIndex] && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50 z-20">
-              <div className="bg-white/80 p-3 rounded-full">
-                <ImageOff className="h-8 w-8 text-gray-500" />
-              </div>
-            </div>
-          )}
           
           {/* Controles de navegação */}
           {displayImages.length > 1 && (
@@ -130,25 +117,14 @@ export const ListingImageGallery = ({
                 index === activeIndex ? 'ring-2 ring-primary ring-offset-2' : 'opacity-70'
               }`}
             >
-              {!loadedImages[index] && !errorImages[index] && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                  <Image className="h-4 w-4 text-gray-400" />
-                </div>
-              )}
-              
-              <img 
+              <OptimizedImage
                 src={errorImages[index] ? "/placeholder.svg" : image}
                 alt={`Miniatura ${index + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                objectFit="cover"
+                fallbackSrc="/placeholder.svg"
                 onLoad={() => handleImageLoad(index)}
-                onError={() => handleImageError(index)}
               />
-              
-              {errorImages[index] && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50">
-                  <ImageOff className="h-4 w-4 text-gray-500" />
-                </div>
-              )}
             </button>
           ))}
         </div>

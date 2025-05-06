@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import FavoriteButton from "../FavoriteButton";
 import { Image, MapPin } from "lucide-react";
+import OptimizedImage from "@/components/ui/optimized-image";
 
 interface ListingImageProps {
   id: string;
@@ -32,19 +33,20 @@ const ListingImage = ({
   lazyLoad,
   onImageLoad
 }: ListingImageProps) => {
-  // Simplified image source determination - for mock listings, always use placeholder
-  const imgSrc = isMockListing ? '/placeholder.svg' : (imageUrl || '/placeholder.svg');
+  // Se for um anúncio simulado, sempre use o placeholder
+  // Se não for simulado mas não tiver imagem, use o placeholder também
+  const imgSrc = isMockListing 
+    ? '/placeholder.svg' 
+    : (imageUrl && imageUrl !== "" ? imageUrl : '/placeholder.svg');
   
   const [isVisible, setIsVisible] = useState(!lazyLoad);
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgError, setImgError] = useState(false);
   
-  // For demo and debugging, log the image source
+  // Para debug, log da fonte da imagem
   useEffect(() => {
     console.log(`Rendering listing ${id}, isMock: ${isMockListing}, imageUrl: ${imgSrc}`);
   }, [id, imgSrc, isMockListing]);
 
-  // Lazy loading with Intersection Observer
+  // Lazy loading com Intersection Observer
   useEffect(() => {
     if (!lazyLoad) return;
 
@@ -68,17 +70,10 @@ const ListingImage = ({
 
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);
-    setImgLoaded(true);
     if (onImageLoad) onImageLoad();
   };
 
-  const handleImageError = () => {
-    console.error(`Error loading image for listing ${id}: ${imgSrc}, using placeholder`);
-    setImgError(true);
-    if (onImageLoad) onImageLoad(); // Still trigger load callback on error
-  };
-
-  // Status badge component
+  // Badge do status
   const StatusBadgeComponent = ({ status }: { status: string }) => {
     return (
       <Badge 
@@ -98,21 +93,15 @@ const ListingImage = ({
     <div className="relative h-full overflow-hidden bg-gray-100">
       {isVisible ? (
         <>
-          {/* Loading state */}
-          {!imgLoaded && !imgError && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Skeleton className="w-full h-full absolute" />
-              <Image className="h-8 w-8 text-gray-400 z-10" />
-            </div>
-          )}
-          
-          {/* Image - using direct img tag with simplified error handling */}
-          <img
-            src={imgError ? "/placeholder.svg" : imgSrc}
+          {/* Usar o componente OptimizedImage atualizado */}
+          <OptimizedImage
+            src={imgSrc}
             alt={title}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className="w-full h-full"
+            objectFit="cover"
+            fallbackSrc="/placeholder.svg"
             onLoad={handleImageLoad}
-            onError={handleImageError}
+            priority={!lazyLoad}
           />
           
           {/* Type badge */}
