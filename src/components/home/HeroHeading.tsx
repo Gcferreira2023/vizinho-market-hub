@@ -1,6 +1,6 @@
 
 import { useAuth } from "@/contexts/AuthContext";
-import { User, ArrowRight, CheckCircle2 } from "lucide-react";
+import { User, ArrowRight, CheckCircle2, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -24,7 +24,11 @@ const HeroHeading = () => {
             <div>
               <p className="font-semibold mb-1">Navegue à vontade! Não é necessário criar uma conta.</p>
               <p>Você pode ver todos os anúncios e contatar vendedores sem precisar se cadastrar.</p>
-              <p className="mt-2">Apenas quem deseja anunciar produtos ou serviços precisa criar uma conta.</p>
+              
+              <div className="mt-3 flex items-start gap-2">
+                <Home className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <p><strong>Vantagem para cadastrados:</strong> Filtre anúncios para ver apenas os do seu condomínio e encontre ofertas próximas de você!</p>
+              </div>
             
               <div className="flex flex-wrap gap-3 mt-4">
                 <Button asChild variant="outline" size="sm" className="bg-white">
