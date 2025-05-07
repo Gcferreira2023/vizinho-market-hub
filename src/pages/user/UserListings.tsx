@@ -2,13 +2,11 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
 import { useUserListings } from "@/hooks/useUserListings";
 import ListingsStatsSummary from "@/components/user/listings/ListingsStatsSummary";
 import EmptyListingsState from "@/components/user/listings/EmptyListingsState";
 import ListingCardGrid from "@/components/user/listings/ListingCardGrid";
-import ListingListView from "@/components/user/listings/ListingListView";
 
 const UserListings = () => {
   const {
@@ -53,31 +51,15 @@ const UserListings = () => {
               totalViews={totalViews} 
             />
             
-            {/* Always render both components but control visibility with Tabs */}
-            <Tabs defaultValue="grid" className="mb-6">
-              <TabsList className="w-full sm:w-auto mb-4">
-                <TabsTrigger value="grid" className="flex-1">Visualização em Grid</TabsTrigger>
-                <TabsTrigger value="list" className="flex-1">Visualização em Lista</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="grid">
-                <ListingCardGrid 
-                  listings={userListings}
-                  images={listingImages}
-                  userLocation={userLocation}
-                  translateStatus={translateStatus}
-                />
-              </TabsContent>
-              
-              <TabsContent value="list">
-                <ListingListView 
-                  listings={userListings}
-                  images={listingImages}
-                  formatDate={formatDate}
-                  translateStatus={translateStatus}
-                />
-              </TabsContent>
-            </Tabs>
+            {/* Only show grid view */}
+            <div className="mb-6">
+              <ListingCardGrid 
+                listings={userListings}
+                images={listingImages}
+                userLocation={userLocation}
+                translateStatus={translateStatus}
+              />
+            </div>
           </>
         ) : (
           <EmptyListingsState />
