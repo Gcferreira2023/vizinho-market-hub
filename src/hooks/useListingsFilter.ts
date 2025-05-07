@@ -4,6 +4,9 @@ import { useLocation } from "react-router-dom";
 import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Definindo um valor máximo de preço maior para o filtro
+const MAX_PRICE = 2000;
+
 export function useListingsFilter(initialListings: any[] = []) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -12,7 +15,7 @@ export function useListingsFilter(initialListings: any[] = []) {
   const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState(urlSearchTerm || "");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, MAX_PRICE]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ListingStatus | null>(null);
@@ -88,7 +91,13 @@ export function useListingsFilter(initialListings: any[] = []) {
         }
         
         if (!urlSearchTerm) {
-          setPriceRange(filters.priceRange);
+          // Use o valor salvo apenas se estiver dentro do novo range máximo
+          const savedPriceRange = filters.priceRange || [0, MAX_PRICE];
+          setPriceRange([
+            savedPriceRange[0],
+            Math.min(savedPriceRange[1], MAX_PRICE)
+          ]);
+          
           setSelectedCategory(filters.selectedCategory);
           setSelectedType(filters.selectedType);
           setSelectedStatus(filters.selectedStatus);
@@ -111,7 +120,7 @@ export function useListingsFilter(initialListings: any[] = []) {
 
   const resetFilters = () => {
     setSearchTerm("");
-    setPriceRange([0, 500]);
+    setPriceRange([0, MAX_PRICE]);
     setSelectedCategory(null);
     setSelectedType(null);
     setSelectedStatus(null);

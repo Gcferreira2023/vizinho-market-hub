@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,9 @@ import { ListingStatus } from "@/components/listings/StatusBadge";
 import LocationFilter from "./LocationFilter";
 import MyCondominiumToggle from "./MyCondominiumToggle";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Definindo um valor máximo consistente para toda a aplicação
+const MAX_PRICE = 2000; // Aumentado para 2000 reais
 
 interface FilterSidebarProps {
   selectedCategory: string | null;
@@ -169,15 +171,18 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Filtro de Preço */}
+        {/* Filtro de Preço - Atualizado com valor máximo maior */}
         <div className="space-y-4">
           <Label>Faixa de Preço</Label>
           <Slider
-            defaultValue={[0, 500]}
-            max={500}
-            step={10}
+            defaultValue={[0, MAX_PRICE / 2]}
+            max={MAX_PRICE}
+            step={50}
             value={priceRange}
-            onValueChange={setPriceRange}
+            onValueChange={(value) => {
+              setPriceRange(value as [number, number]);
+              console.log(`Sidebar slider changed to: ${value[0]}-${value[1]}`);
+            }}
           />
           <div className="flex justify-between">
             <span className="text-sm">R$ {priceRange[0]}</span>

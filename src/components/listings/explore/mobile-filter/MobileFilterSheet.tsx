@@ -123,7 +123,7 @@ const MobileFilterSheet = ({
             setSelectedType={setSelectedType}
           />
 
-          {/* Price Filter */}
+          {/* Price Filter - Agora usando o componente atualizado */}
           <MobileFilterPrice
             priceRange={priceRange}
             setPriceRange={setPriceRange}

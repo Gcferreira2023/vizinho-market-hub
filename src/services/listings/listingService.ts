@@ -86,10 +86,16 @@ export const fetchListings = async (searchParams: {
     console.log(`Buscando por: "${searchTerm}"`);
   }
   
-  // Add price range filter
+  // Add price range filter - FIXED: Ensure proper price filtering
   if (searchParams.priceRange) {
     const [minPrice, maxPrice] = searchParams.priceRange;
-    query = query.gte('price', minPrice).lte('price', maxPrice);
+    
+    // Log the price range for debugging
+    console.log(`Applying price filter: min=${minPrice}, max=${maxPrice}`);
+    
+    // Apply both min and max price constraints separately for clarity
+    query = query.gte('price', minPrice);
+    query = query.lte('price', maxPrice);
   }
 
   // Order by creation date (newest first)
@@ -103,6 +109,7 @@ export const fetchListings = async (searchParams: {
   console.log(`Resultados encontrados: ${data?.length || 0}`);
   if (data && data.length > 0) {
     console.log("Primeiro resultado:", data[0].title);
+    console.log("Preço do primeiro resultado:", data[0].price);
   }
   
   return data || [];
