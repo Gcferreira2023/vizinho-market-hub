@@ -19,12 +19,11 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
   const sellerName = listing?.user_name || listing?.seller_name || "Anunciante";
   const isMobile = useMobile();
   
+  // Usar um número de telefone padrão se não houver telefone no anúncio
+  const phoneNumber = listing?.phone || "5511999999999";
+  
   const handlePhoneClick = () => {
-    if (listing?.phone) {
-      // Formatar número de telefone
-      const phoneNumber = listing.phone.replace(/\D/g, "");
-      window.location.href = `tel:+55${phoneNumber}`;
-    }
+    window.location.href = `tel:+55${phoneNumber.replace(/\D/g, "")}`;
   };
   
   return (
@@ -54,24 +53,26 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
           </div>
         )}
         
-        {listing?.phone && (
-          <div className="mt-6 space-y-3">
-            <WhatsAppButton 
-              phone={listing.phone}
-              className={`w-full ${isMobile ? 'py-3' : ''}`}
-              message="Olá! Vi seu anúncio e gostaria de mais informações."
-            />
-            
-            <Button 
-              onClick={handlePhoneClick}
-              variant="outline"
-              className={`w-full ${isMobile ? 'py-3' : ''}`}
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Ligar para o Vendedor
-            </Button>
-          </div>
-        )}
+        <div className="mt-3 text-sm text-green-600 bg-green-50 p-2 rounded-md">
+          Não é necessário cadastro para contatar vendedores
+        </div>
+        
+        <div className="mt-6 space-y-3 sticky bottom-0 bg-white">
+          <WhatsAppButton 
+            phone={phoneNumber}
+            className={`w-full ${isMobile ? 'py-3' : ''}`}
+            message="Olá! Vi seu anúncio e gostaria de mais informações."
+          />
+          
+          <Button 
+            onClick={handlePhoneClick}
+            variant="outline"
+            className={`w-full ${isMobile ? 'py-3' : ''}`}
+          >
+            <Phone className="mr-2 h-4 w-4" />
+            Ligar para o Vendedor
+          </Button>
+        </div>
       </div>
     </Card>
   );
