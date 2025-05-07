@@ -2,13 +2,13 @@
 import Layout from "@/components/layout/Layout";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
 import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
-import ExploreHeader from "@/components/listings/explore/ExploreHeader";
 import ExploreContent from "@/components/listings/explore/ExploreContent";
 import { useExploreListings } from "@/hooks/useExploreListings";
-import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
-import { Building, MapPin } from "lucide-react";
+import { Building, Filter, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useMobile } from "@/hooks/useMobile";
+import { Button } from "@/components/ui/button";
+import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
 
 const ExploreListings = () => {
   const isMobile = useMobile();
@@ -60,28 +60,21 @@ const ExploreListings = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <ExploreHeader 
-          isFilterSheetOpen={isFilterSheetOpen}
-          setIsFilterSheetOpen={setIsFilterSheetOpen}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
-          showSoldItems={showSoldItems}
-          setShowSoldItems={setShowSoldItems}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          selectedStateId={selectedStateId}
-          setSelectedStateId={setSelectedStateId}
-          selectedCityId={selectedCityId}
-          setSelectedCityId={setSelectedCityId}
-          selectedCondominiumId={selectedCondominiumId}
-          setSelectedCondominiumId={setSelectedCondominiumId}
-          isCondominiumFilter={isCondominiumFilter}
-          setIsCondominiumFilter={setIsCondominiumFilter}
-        />
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Explorar Anúncios</h1>
+          
+          {/* Mobile Filter Button - Only displayed on mobile */}
+          {isMobile && (
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setIsFilterSheetOpen(true)}
+            >
+              <Filter size={16} />
+              Filtros
+            </Button>
+          )}
+        </div>
 
         {/* Alert for non-logged in users */}
         {!isLoggedIn && <NotLoggedInAlert />}
@@ -133,7 +126,7 @@ const ExploreListings = () => {
           </div>
         )}
 
-        {/* Mobile Condominium Toggle */}
+        {/* Mobile Condominium Toggle - only when we have a user condominium */}
         {isMobile && userCondominiumId && (
           <div className="my-4">
             <div className="bg-primary/10 p-3 rounded-lg mb-4">

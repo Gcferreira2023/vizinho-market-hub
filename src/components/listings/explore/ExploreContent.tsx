@@ -1,9 +1,12 @@
 
+import { useState } from "react";
 import FilterSidebar from "./FilterSidebar";
 import ListingsGrid from "./ListingsGrid";
 import EmptyListingsState from "./EmptyListingsState";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import { useMobile } from "@/hooks/useMobile";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { MobileFilterSheet } from "./mobile-filter";
 
 interface ExploreContentProps {
   listings: any[];
@@ -59,6 +62,7 @@ const ExploreContent = ({
   setIsCondominiumFilter
 }: ExploreContentProps) => {
   const isMobile = useMobile();
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   return (
     <div className={`flex gap-6 ${isMobile ? 'flex-col' : ''}`}>
@@ -84,6 +88,32 @@ const ExploreContent = ({
           selectedCondominiumId={selectedCondominiumId}
           setSelectedCondominiumId={setSelectedCondominiumId}
           // Condominium filter toggle
+          isCondominiumFilter={isCondominiumFilter}
+          setIsCondominiumFilter={setIsCondominiumFilter}
+        />
+      )}
+
+      {/* Mobile Filter Sheet */}
+      {isMobile && (
+        <MobileFilterSheet
+          isOpen={isFilterSheetOpen}
+          setIsOpen={setIsFilterSheetOpen}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+          showSoldItems={showSoldItems}
+          setShowSoldItems={setShowSoldItems}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          selectedStateId={selectedStateId}
+          setSelectedStateId={setSelectedStateId}
+          selectedCityId={selectedCityId}
+          setSelectedCityId={setSelectedCityId}
+          selectedCondominiumId={selectedCondominiumId}
+          setSelectedCondominiumId={setSelectedCondominiumId}
           isCondominiumFilter={isCondominiumFilter}
           setIsCondominiumFilter={setIsCondominiumFilter}
         />
