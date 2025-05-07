@@ -14,7 +14,7 @@ export const useImageLoader = ({
 }: UseImageLoaderProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc); // Start with actual source
+  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc);
 
   // Reset state when the image URL changes
   useEffect(() => {
@@ -29,8 +29,8 @@ export const useImageLoader = ({
       return;
     }
     
-    // Check if the URL starts with "http" before trying to load
-    if (src.startsWith('http')) {
+    // Check if the URL starts with "http" or "/"
+    if (src.startsWith('http') || src.startsWith('/')) {
       console.log("Image src set to:", src);
       setImgSrc(src);
     } else {

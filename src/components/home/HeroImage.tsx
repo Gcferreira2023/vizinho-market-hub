@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState("/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png");
+  const [imgSrc, setImgSrc] = useState("");
 
   // Usamos uma imagem de condomínio
   const mainImagePath = "/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png";
@@ -25,7 +25,7 @@ const HeroImage = () => {
     
     img.onload = () => {
       setIsLoaded(true);
-      console.log("Hero image preloaded successfully");
+      console.log("Hero image preloaded successfully:", mainImagePath);
     };
     
     img.onerror = () => {
@@ -41,7 +41,7 @@ const HeroImage = () => {
   
   const handleLoad = () => {
     setIsLoaded(true);
-    console.log("Hero image loaded successfully");
+    console.log("Hero image loaded successfully:", imgSrc);
   };
   
   const handleError = () => {

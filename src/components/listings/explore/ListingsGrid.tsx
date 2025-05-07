@@ -24,12 +24,7 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
     console.log("ListingsGrid - Full listings data:", listings);
     if (listings.length > 0) {
       listings.forEach(listing => {
-        const imageUrl = listing.ad_images && 
-                        listing.ad_images.length > 0 && 
-                        listing.ad_images[0].image_url ? 
-                        listing.ad_images[0].image_url : 
-                        '/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png';
-        console.log(`Explore listing ${listing.id}, Images:`, listing.ad_images, `Using URL: ${imageUrl}`);
+        console.log(`Listing ${listing.id} - Details:`, listing);
       });
     }
   }, [listings]);
@@ -118,11 +113,12 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
         // Verify if ad_images exists and has content
         if (listing.ad_images && listing.ad_images.length > 0) {
           // Find first valid image
-          for (const image of listing.ad_images) {
-            if (image && image.image_url && image.image_url.trim() !== '') {
-              imageUrl = image.image_url;
-              break;
-            }
+          const firstValidImage = listing.ad_images.find(
+            (image: any) => image && image.image_url && image.image_url.trim() !== '' && image.image_url !== '/placeholder.svg'
+          );
+          
+          if (firstValidImage) {
+            imageUrl = firstValidImage.image_url;
           }
         }
         

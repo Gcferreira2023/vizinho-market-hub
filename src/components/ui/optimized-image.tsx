@@ -36,15 +36,31 @@ export const OptimizedImage = ({
   const isMobile = useMobile();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
+  const [imgSrc, setImgSrc] = useState("");
+  
+  // Set initial image source based on provided src or fallback
+  useEffect(() => {
+    if (!src || src.trim() === "" || src === "/placeholder.svg") {
+      console.log(`OptimizedImage: No valid source provided, using fallback for "${alt}"`);
+      setImgSrc(fallbackSrc);
+    } else if (src.startsWith('http') || src.startsWith('/')) {
+      console.log(`OptimizedImage: Setting src to "${src}" for "${alt}"`);
+      setImgSrc(src);
+    } else {
+      console.log(`OptimizedImage: Invalid URL format, using fallback for "${alt}"`);
+      setImgSrc(fallbackSrc);
+    }
+  }, [src, fallbackSrc, alt]);
 
   // Update image source if src prop changes
   useEffect(() => {
-    if (src && src !== imgSrc && !hasError) {
-      setImgSrc(src);
-      setIsLoaded(false);
+    if (src && src !== imgSrc && !hasError && src !== "/placeholder.svg") {
+      if (src.startsWith('http') || src.startsWith('/')) {
+        setImgSrc(src);
+        setIsLoaded(false);
+      }
     }
-  }, [src]);
+  }, [src, imgSrc, hasError]);
 
   const objectFitClass = {
     cover: "object-cover",
@@ -58,13 +74,13 @@ export const OptimizedImage = ({
     : "";
 
   const handleLoad = () => {
-    console.log(`Image loaded successfully: ${imgSrc}`);
+    console.log(`Image loaded successfully: ${imgSrc} for "${alt}"`);
     setIsLoaded(true);
     if (onLoad) onLoad();
   };
 
   const handleError = () => {
-    console.error(`Error loading image: ${imgSrc}`);
+    console.error(`Error loading image: ${imgSrc} for "${alt}"`);
     
     if (imgSrc !== fallbackSrc) {
       console.log(`Switching to fallback: ${fallbackSrc}`);
@@ -102,7 +118,7 @@ export const OptimizedImage = ({
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
           <div className="bg-background/80 p-3 rounded-full">
-            <ImageOff className="w-8 h-8 text-muted-foreground" />
+            <ImageOff className="w-8 w-8 text-muted-foreground" />
           </div>
         </div>
       )}
