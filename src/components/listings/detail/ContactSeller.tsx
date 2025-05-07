@@ -19,7 +19,7 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
   const sellerName = listing?.user_name || listing?.seller_name || "Anunciante";
   const isMobile = useMobile();
   
-  // Usar um número de telefone padrão se não houver telefone no anúncio
+  // Usar o número de telefone do vendedor ou o padrão somente se necessário
   const phoneNumber = listing?.phone || "5511999999999";
   
   const handlePhoneClick = () => {
@@ -49,6 +49,18 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
             <div>
               <p className="text-sm text-gray-500">Localização</p>
               <p className="font-medium">{listing.location}</p>
+            </div>
+          </div>
+        )}
+        
+        {phoneNumber && (
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Phone className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Telefone</p>
+              <p className="font-medium">{phoneNumber}</p>
             </div>
           </div>
         )}

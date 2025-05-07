@@ -62,16 +62,35 @@ const ListingDataFetcher = ({
     const fetchListingData = async () => {
       setIsLoading(true);
       try {
+        // Buscar dados do anúncio incluindo relação com usuário para obter o telefone
         const { data: adData, error: adError } = await supabase
           .from('ads')
-          .select('*')
+          .select(`
+            *,
+            users:user_id (
+              id,
+              name,
+              phone,
+              apartment,
+              block
+            )
+          `)
           .eq('id', id)
           .single();
           
         if (adError) throw adError;
         
+        // Preparar os dados de exibição com as informações do vendedor
+        const displayData = {
+          ...adData,
+          seller_name: adData.users?.name,
+          phone: adData.users?.phone,
+          apartment: adData.users?.apartment,
+          block: adData.users?.block
+        };
+        
         setListing(adData);
-        setDisplayListing(adData);
+        setDisplayListing(displayData);
         setListingStatus(adData.status);
         
         const { data: imageData, error: imgError } = await supabase
