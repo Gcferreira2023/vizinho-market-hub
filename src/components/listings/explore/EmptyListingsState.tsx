@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 
 interface EmptyListingsStateProps {
   searchTerm?: string;
+  hasFilters?: boolean;
   onReset?: () => void;
+  onResetFilters?: () => void;
 }
 
-const EmptyListingsState = ({ searchTerm, onReset }: EmptyListingsStateProps) => {
+const EmptyListingsState = ({ searchTerm, hasFilters, onReset, onResetFilters }: EmptyListingsStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg border border-dashed mt-4">
       <Search size={48} className="text-gray-300 mb-4" />
@@ -24,8 +26,8 @@ const EmptyListingsState = ({ searchTerm, onReset }: EmptyListingsStateProps) =>
           : "Não encontramos anúncios que correspondam aos filtros selecionados."}
       </p>
       
-      {onReset && (
-        <Button onClick={onReset} variant="outline" className="flex items-center gap-2">
+      {(onReset || onResetFilters) && (
+        <Button onClick={onResetFilters || onReset} variant="outline" className="flex items-center gap-2">
           <RefreshCw size={16} />
           Limpar filtros
         </Button>

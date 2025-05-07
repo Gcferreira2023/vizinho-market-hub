@@ -101,7 +101,7 @@ const ExploreContent = ({
             ))}
           </div>
         ) : listings.length > 0 ? (
-          <ListingsGrid listings={listings} />
+          <ListingsGrid listings={listings} isLoading={isLoading} />
         ) : (
           <EmptyListingsState 
             searchTerm={searchTerm}

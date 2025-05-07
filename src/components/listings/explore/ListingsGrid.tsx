@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,10 +8,10 @@ import { useMobile } from "@/hooks/useMobile";
 
 interface ListingsGridProps {
   listings: any[];
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
+const ListingsGrid = ({ listings, isLoading = false }: ListingsGridProps) => {
   const [loadedImages, setLoadedImages] = useState(0);
   const [condominiumDetails, setCondominiumDetails] = useState<Record<string, any>>({});
   const { user } = useAuth();
