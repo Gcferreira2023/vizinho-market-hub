@@ -24,18 +24,23 @@ export const useListingImage = ({
   const [hasError, setHasError] = useState(false);
   const [isVisible, setIsVisible] = useState(!lazyLoad);
   
-  // Use a imagem placeholder local que sabemos que existe
-  const defaultPlaceholder = "/placeholder.svg";
+  // Use a known working fallback image
+  const defaultPlaceholder = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png";
   
   // Determinar a URL da imagem a ser usada
   const determineImageUrl = () => {
-    // Para anúncios mock ou URLs vazias, usar o placeholder
-    if (isMockListing || !imageUrl || imageUrl.trim() === '') {
+    // For mock listings or empty URLs, use the placeholder
+    if (isMockListing || !imageUrl || imageUrl.trim() === '' || imageUrl === '/placeholder.svg') {
       return defaultPlaceholder;
     }
     
-    // Para anúncios reais, usar a URL fornecida
-    return imageUrl;
+    // Verify if the URL is valid (starts with http or /)
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+      return imageUrl;
+    }
+    
+    // For invalid URLs, use the placeholder
+    return defaultPlaceholder;
   };
   
   const imgSrc = determineImageUrl();

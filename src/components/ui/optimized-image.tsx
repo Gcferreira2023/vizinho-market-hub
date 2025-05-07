@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMobile } from "@/hooks/useMobile";
 import { ImageIcon, ImageOff } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,7 +29,7 @@ export const OptimizedImage = ({
   priority = false,
   onLoad,
   blurDataUrl,
-  fallbackSrc = "/placeholder.svg",
+  fallbackSrc = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png",
   aspectRatio = "aspect-[4/3]",
   touchable = false
 }: OptimizedImageProps) => {
@@ -37,6 +37,14 @@ export const OptimizedImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
+
+  // Update image source if src prop changes
+  useEffect(() => {
+    if (src && src !== imgSrc && !hasError) {
+      setImgSrc(src);
+      setIsLoaded(false);
+    }
+  }, [src]);
 
   const objectFitClass = {
     cover: "object-cover",

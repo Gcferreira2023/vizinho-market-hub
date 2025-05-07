@@ -9,12 +9,12 @@ interface UseImageLoaderProps {
 
 export const useImageLoader = ({
   src,
-  fallbackSrc = "/placeholder.svg",
+  fallbackSrc = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png",
   onLoad
 }: UseImageLoaderProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>(fallbackSrc); // Start with fallback
+  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc); // Start with actual source
 
   // Reset state when the image URL changes
   useEffect(() => {
@@ -29,8 +29,16 @@ export const useImageLoader = ({
       return;
     }
     
-    console.log("Image src set to:", src);
-    setImgSrc(src);
+    // Check if the URL starts with "http" before trying to load
+    if (src.startsWith('http')) {
+      console.log("Image src set to:", src);
+      setImgSrc(src);
+    } else {
+      console.log("Invalid image URL format, using fallback:", fallbackSrc);
+      setImgSrc(fallbackSrc);
+      setIsLoaded(true);
+      if (onLoad) onLoad();
+    }
   }, [src, fallbackSrc, onLoad]);
 
   const handleLoad = () => {

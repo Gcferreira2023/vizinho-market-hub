@@ -54,10 +54,13 @@ export const uploadImage = async (file: File, listingId: string, userId: string,
     console.log(`Iniciando upload da imagem para ${filePath}`);
     
     // Upload da imagem
-    const { error: uploadError } = await supabase
+    const { error: uploadError, data } = await supabase
       .storage
       .from('ads')
-      .upload(filePath, file);
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
       
     if (uploadError) {
       console.error("Erro ao fazer upload da imagem:", uploadError);
@@ -83,5 +86,7 @@ export const uploadImage = async (file: File, listingId: string, userId: string,
 
 // Helper to get public URL for an image
 export const getPublicImageUrl = (bucket: string, path: string) => {
-  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  console.log(`Generated public URL for ${bucket}/${path}:`, data.publicUrl);
+  return data.publicUrl;
 };
