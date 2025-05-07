@@ -2,14 +2,15 @@
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // Usamos uma imagem local fixa do diretório public
-  const localImagePath = "/placeholder.svg";
-
+  // Use a static image file that we know exists
+  const heroImagePath = "/hero-image.jpg";
+  
   const handleLoad = () => {
     setIsLoaded(true);
     console.log("Hero image loaded successfully");
@@ -32,7 +33,7 @@ const HeroImage = () => {
         )}
         
         <img
-          src={localImagePath}
+          src={heroImagePath}
           alt="VizinhoMarket"
           className={`w-full aspect-[4/3] object-cover transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
