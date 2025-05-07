@@ -1,14 +1,43 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [imgSrc, setImgSrc] = useState("/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png");
 
   // Usamos uma imagem de condomínio
-  const imagePath = "/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png";
+  const mainImagePath = "/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png";
+  // Fallback image that we know exists and is NOT read-only
+  const fallbackImagePath = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png";
+  
+  // Reset loading state when image source changes
+  useEffect(() => {
+    setIsLoaded(false);
+    setHasError(false);
+    setImgSrc(mainImagePath);
+    
+    // Preload the image
+    const img = new Image();
+    img.src = mainImagePath;
+    
+    img.onload = () => {
+      setIsLoaded(true);
+      console.log("Hero image preloaded successfully");
+    };
+    
+    img.onerror = () => {
+      console.error("Failed to preload hero image, using fallback");
+      setImgSrc(fallbackImagePath);
+    };
+    
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, []);
   
   const handleLoad = () => {
     setIsLoaded(true);
@@ -16,8 +45,12 @@ const HeroImage = () => {
   };
   
   const handleError = () => {
-    console.error("Failed to load hero image");
-    setHasError(true);
+    console.error("Failed to load hero image, trying fallback");
+    if (imgSrc !== fallbackImagePath) {
+      setImgSrc(fallbackImagePath);
+    } else {
+      setHasError(true);
+    }
   };
   
   return (
@@ -32,7 +65,7 @@ const HeroImage = () => {
         )}
         
         <img
-          src={imagePath}
+          src={imgSrc}
           alt="VizinhoMarket - Condomínio"
           className={`w-full aspect-[4/3] object-cover transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
