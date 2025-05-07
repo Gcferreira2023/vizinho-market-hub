@@ -46,11 +46,6 @@ export const useListingImage = ({
       console.log(`Invalid image URL for listing ${id}, using placeholder`);
     }
   }, [id, imageUrl, isMockListing, defaultPlaceholder]);
-  
-  // Debug logging
-  useEffect(() => {
-    console.log(`Rendering listing ${id} image: category=${category}, type=${type}, isMock=${isMockListing}, src=${imgSrc}`);
-  }, [id, category, type, isMockListing, imgSrc]);
 
   // Lazy loading with Intersection Observer
   useEffect(() => {
@@ -73,33 +68,6 @@ export const useListingImage = ({
 
     return () => observer.disconnect();
   }, [id, lazyLoad]);
-
-  // Preload the image
-  useEffect(() => {
-    if (!isVisible || !imgSrc) return;
-    
-    const preloadImage = new Image();
-    preloadImage.src = imgSrc;
-    
-    preloadImage.onload = () => {
-      console.log(`Preloaded image for listing ${id}: ${imgSrc}`);
-    };
-    
-    preloadImage.onerror = () => {
-      console.error(`Error preloading image for listing ${id}: ${imgSrc}`);
-      setHasError(true);
-      
-      // If the image fails to load, switch to fallback
-      if (imgSrc !== defaultPlaceholder) {
-        setImgSrc(defaultPlaceholder);
-      }
-    };
-    
-    return () => {
-      preloadImage.onload = null;
-      preloadImage.onerror = null;
-    };
-  }, [imgSrc, isVisible, id, defaultPlaceholder]);
 
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);

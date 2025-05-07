@@ -74,7 +74,7 @@ const ListingsGrid = ({ listings, isLoading }: ListingsGridProps) => {
   };
 
   if (isLoading) {
-    // Ajustar o número de skeletons mostrados com base no dispositivo
+    // Adjust number of skeletons shown based on device
     const skeletonsCount = isMobile ? 4 : 8;
     
     return (
