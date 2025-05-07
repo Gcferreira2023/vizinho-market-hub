@@ -4,6 +4,7 @@ import { Edit, Eye, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Listing } from "@/types/listing";
 import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
+import { useImageLoader } from "@/hooks/useImageLoader";
 import ListingDetailsCard from "./ListingDetailsCard";
 
 interface ListingListViewProps {
@@ -23,6 +24,10 @@ const ListingListView = ({
   condominiumName,
   isUserCondominium = true 
 }: ListingListViewProps) => {
+  if (!listings || listings.length === 0) {
+    return <div className="text-center py-6">Nenhum anúncio encontrado.</div>;
+  }
+  
   return (
     <div className="space-y-4">
       {listings.map((listing) => (

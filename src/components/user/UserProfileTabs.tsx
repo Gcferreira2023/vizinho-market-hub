@@ -11,11 +11,11 @@ const UserProfileTabs = () => {
         <TabsTrigger value="favoritos">Favoritos</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="meus-anuncios">
+      <TabsContent value="meus-anuncios" className="focus:outline-none">
         <UserListings />
       </TabsContent>
       
-      <TabsContent value="favoritos">
+      <TabsContent value="favoritos" className="focus:outline-none">
         <UserFavorites />
       </TabsContent>
     </Tabs>

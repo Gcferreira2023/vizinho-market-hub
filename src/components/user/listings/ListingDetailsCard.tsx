@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Listing } from "@/types/listing";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import ListingMetrics from "./ListingMetrics";
+import { useImageLoader } from "@/hooks/useImageLoader";
 
 interface ListingDetailsCardProps {
   listing: Listing;
@@ -27,15 +28,21 @@ const ListingDetailsCard = ({
   isUserCondominium = true
 }: ListingDetailsCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const { imgSrc, handleLoad, handleError } = useImageLoader({
+    src: imageUrl,
+    fallbackSrc: "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png"
+  });
 
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-col md:flex-row">
         <div className="w-full md:w-1/4 relative">
           <img 
-            src={imageUrl} 
+            src={imgSrc} 
             alt={listing.title}
             className="w-full h-48 md:h-full object-cover"
+            onLoad={handleLoad}
+            onError={handleError}
           />
           {condominiumName && (
             <Badge 

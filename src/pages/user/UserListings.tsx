@@ -52,7 +52,8 @@ const UserListings = () => {
               totalListings={totalListings} 
               totalViews={totalViews} 
             />
-
+            
+            {/* Always render both components but control visibility with Tabs */}
             <Tabs defaultValue="grid" className="mb-6">
               <TabsList className="w-full sm:w-auto mb-4">
                 <TabsTrigger value="grid" className="flex-1">Visualização em Grid</TabsTrigger>
