@@ -11,6 +11,7 @@ interface WhatsAppButtonProps {
   variant?: "default" | "outline";
   size?: "default" | "sm" | "lg";
   showIcon?: boolean;
+  onButtonClick?: () => void;
 }
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ 
@@ -19,7 +20,8 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   className = "",
   variant = "default",
   size = "default",
-  showIcon = true
+  showIcon = true,
+  onButtonClick
 }) => {
   const isMobile = useMobile();
   
@@ -38,6 +40,15 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
 
   const handleClick = () => {
+    // Track click if callback is provided
+    if (onButtonClick) {
+      onButtonClick();
+    }
+    
+    // Log interaction for analytics purposes
+    console.log("WhatsApp button clicked for phone:", formattedPhone);
+    
+    // Open WhatsApp link
     window.open(whatsappUrl, '_blank');
   };
   

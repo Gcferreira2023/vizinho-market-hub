@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchLocationDetailsById } from "@/services/location/locationService";
 
 const ListingDataFetcher = ({ 
   id,
@@ -79,6 +80,17 @@ const ListingDataFetcher = ({
           .single();
           
         if (adError) throw adError;
+
+        // Buscar informações do condomínio se disponível
+        let condominiumInfo = null;
+        if (adData.condominium_id) {
+          const locationDetails = await fetchLocationDetailsById(
+            undefined, 
+            undefined, 
+            adData.condominium_id
+          );
+          condominiumInfo = locationDetails.condominium;
+        }
         
         // Preparar os dados de exibição com as informações do vendedor
         const displayData = {
@@ -86,7 +98,9 @@ const ListingDataFetcher = ({
           seller_name: adData.users?.name,
           phone: adData.users?.phone,
           apartment: adData.users?.apartment,
-          block: adData.users?.block
+          block: adData.users?.block,
+          condominium_name: condominiumInfo?.name,
+          condominium_id: adData.condominium_id
         };
         
         setListing(adData);

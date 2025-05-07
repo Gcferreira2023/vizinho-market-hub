@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Phone, User } from "lucide-react";
 import { useMobile } from "@/hooks/useMobile";
 import WhatsAppButton from "@/components/listings/WhatsAppButton";
+import UserLocationInfo from "@/components/user/UserLocationInfo";
 
 type ContactSellerProps = {
   listing: {
@@ -12,18 +13,30 @@ type ContactSellerProps = {
     seller_name?: string;
     location?: string;
     phone?: string;
+    apartment?: string;
+    block?: string;
+    condominium_name?: string;
+    condominium_id?: string;
   };
 };
 
 const ContactSeller = ({ listing }: ContactSellerProps) => {
   const sellerName = listing?.user_name || listing?.seller_name || "Anunciante";
   const isMobile = useMobile();
+  const [clickCount, setClickCount] = useState(0);
   
   // Usar o número de telefone do vendedor ou o padrão somente se necessário
   const phoneNumber = listing?.phone || "5511999999999";
   
   const handlePhoneClick = () => {
     window.location.href = `tel:+55${phoneNumber.replace(/\D/g, "")}`;
+    setClickCount(prev => prev + 1);
+  };
+  
+  const handleWhatsAppClick = () => {
+    setClickCount(prev => prev + 1);
+    // Esta função será encaminhada para o WhatsAppButton
+    console.log("WhatsApp button clicked, total clicks:", clickCount + 1);
   };
   
   return (
@@ -53,14 +66,22 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
           </div>
         )}
         
-        {phoneNumber && (
+        {/* Mostrar informações do condomínio se disponível */}
+        {listing?.condominium_id && (
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 p-2 rounded-full">
-              <Phone className="h-5 w-5 text-primary" />
+              <MapPin className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Telefone</p>
-              <p className="font-medium">{phoneNumber}</p>
+              <p className="text-sm text-gray-500">Condomínio</p>
+              <p className="font-medium">
+                {listing.condominium_name || "Condomínio do Vendedor"}
+              </p>
+              {listing.block && listing.apartment && (
+                <p className="text-xs text-gray-500">
+                  Bloco {listing.block}, Apt {listing.apartment}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -74,6 +95,7 @@ const ContactSeller = ({ listing }: ContactSellerProps) => {
             phone={phoneNumber}
             className={`w-full ${isMobile ? 'py-3' : ''}`}
             message="Olá! Vi seu anúncio e gostaria de mais informações."
+            onButtonClick={handleWhatsAppClick}
           />
           
           <Button 
