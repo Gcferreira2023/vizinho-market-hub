@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { ListingStatus, mapStatusFromDB } from "@/components/listings/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
-
-// Definindo um valor máximo de preço maior para o filtro
-const MAX_PRICE = 2000;
+import { useMaxPrice } from "./useMaxPrice";
 
 export function useListingsFilter(initialListings: any[] = []) {
   const location = useLocation();
@@ -14,8 +12,11 @@ export function useListingsFilter(initialListings: any[] = []) {
   const urlCondominiumId = queryParams.get("condominiumId");
   const { user } = useAuth();
 
+  // Buscar o preço máximo do banco de dados
+  const { maxPrice: dynamicMaxPrice, loading: maxPriceLoading } = useMaxPrice(2000);
+  
   const [searchTerm, setSearchTerm] = useState(urlSearchTerm || "");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, MAX_PRICE]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ListingStatus | null>(null);
@@ -30,6 +31,14 @@ export function useListingsFilter(initialListings: any[] = []) {
 
   // Obter o ID do condomínio do usuário dos metadados
   const userCondominiumId = user?.user_metadata?.condominiumId;
+
+  // Atualiza o preço máximo quando o hook terminar de carregá-lo
+  useEffect(() => {
+    if (!maxPriceLoading && dynamicMaxPrice) {
+      setPriceRange(prev => [prev[0], dynamicMaxPrice]);
+      console.log(`Atualizando range de preço com máximo dinâmico: R$${dynamicMaxPrice}`);
+    }
+  }, [dynamicMaxPrice, maxPriceLoading]);
 
   // Atualiza o termo de pesquisa quando os parâmetros da URL mudam
   useEffect(() => {
@@ -92,10 +101,10 @@ export function useListingsFilter(initialListings: any[] = []) {
         
         if (!urlSearchTerm) {
           // Use o valor salvo apenas se estiver dentro do novo range máximo
-          const savedPriceRange = filters.priceRange || [0, MAX_PRICE];
+          const savedPriceRange = filters.priceRange || [0, 2000];
           setPriceRange([
             savedPriceRange[0],
-            Math.min(savedPriceRange[1], MAX_PRICE)
+            Math.min(savedPriceRange[1], dynamicMaxPrice || 2000)
           ]);
           
           setSelectedCategory(filters.selectedCategory);
@@ -107,7 +116,7 @@ export function useListingsFilter(initialListings: any[] = []) {
     };
     
     loadFiltersFromLocalStorage();
-  }, []);
+  }, [dynamicMaxPrice]);
 
   // Set user's condominium ID when filter is toggled
   useEffect(() => {
@@ -120,7 +129,7 @@ export function useListingsFilter(initialListings: any[] = []) {
 
   const resetFilters = () => {
     setSearchTerm("");
-    setPriceRange([0, MAX_PRICE]);
+    setPriceRange([0, dynamicMaxPrice || 2000]);
     setSelectedCategory(null);
     setSelectedType(null);
     setSelectedStatus(null);
@@ -163,6 +172,9 @@ export function useListingsFilter(initialListings: any[] = []) {
     selectedCityId,
     setSelectedCityId,
     selectedCondominiumId,
-    setSelectedCondominiumId
+    setSelectedCondominiumId,
+    // Novo valor dinâmico de preço máximo
+    maxPrice: dynamicMaxPrice,
+    isMaxPriceLoading: maxPriceLoading
   };
 }

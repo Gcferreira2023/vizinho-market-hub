@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -46,7 +47,10 @@ export function useExploreListings() {
     selectedCityId,
     setSelectedCityId,
     selectedCondominiumId,
-    setSelectedCondominiumId
+    setSelectedCondominiumId,
+    // Novo valor dinâmico para preço máximo
+    maxPrice,
+    isMaxPriceLoading
   } = useListingsFilter([]);
   
   // Set initial values from URL params
@@ -108,7 +112,7 @@ export function useExploreListings() {
           searchParams.condominiumId = selectedCondominiumId || userCondominiumId;
         }
         
-        if (priceRange && priceRange[0] !== 0 && priceRange[1] !== 500) {
+        if (priceRange && (priceRange[0] !== 0 || priceRange[1] !== maxPrice)) {
           searchParams.priceRange = priceRange;
         }
         
@@ -151,7 +155,8 @@ export function useExploreListings() {
     selectedStateId,
     selectedCityId,
     selectedCondominiumId,
-    toast
+    toast,
+    maxPrice
   ]);
 
   return {
@@ -183,6 +188,9 @@ export function useExploreListings() {
     selectedCityId,
     setSelectedCityId,
     selectedCondominiumId,
-    setSelectedCondominiumId
+    setSelectedCondominiumId,
+    // Novo valor dinâmico para preço máximo
+    maxPrice,
+    isMaxPriceLoading
   };
 }

@@ -6,27 +6,27 @@ import { useState, useEffect } from "react";
 interface MobileFilterPriceProps {
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
+  maxPrice?: number; // Adicionando o prop para o preço máximo dinâmico
 }
 
 const MobileFilterPrice = ({
   priceRange,
-  setPriceRange
+  setPriceRange,
+  maxPrice = 2000 // Valor padrão caso não seja fornecido
 }: MobileFilterPriceProps) => {
-  // Determinar o valor máximo para o slider com base no range de preços
-  const MAX_PRICE = 2000; // Aumentamos para 2000 para cobrir produtos mais caros
   
   // Use useEffect to log when price range changes
   useEffect(() => {
-    console.log(`MobileFilterPrice - priceRange: ${priceRange[0]}-${priceRange[1]}`);
-  }, [priceRange]);
+    console.log(`MobileFilterPrice - priceRange: ${priceRange[0]}-${priceRange[1]}, maxPrice: ${maxPrice}`);
+  }, [priceRange, maxPrice]);
 
   return (
     <div className="space-y-4">
       <Label>Faixa de Preço</Label>
       <Slider
-        defaultValue={[0, MAX_PRICE / 2]}
-        max={MAX_PRICE}
-        step={50}
+        defaultValue={[0, maxPrice / 2]}
+        max={maxPrice}
+        step={Math.max(10, Math.floor(maxPrice / 40))} // Ajuste o step com base no maxPrice
         value={priceRange}
         onValueChange={(value) => {
           setPriceRange(value as [number, number]);

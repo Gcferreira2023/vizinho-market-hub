@@ -1,12 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FilterSidebar from "./FilterSidebar";
 import ListingsGrid from "./ListingsGrid";
-import EmptyListingsState from "./EmptyListingsState";
+import MobileFilterSheet from "../explore/mobile-filter/MobileFilterSheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ListingStatus } from "@/components/listings/StatusBadge";
-import { useMobile } from "@/hooks/useMobile";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { MobileFilterSheet } from "./mobile-filter";
+import EmptyListingsState from "./EmptyListingsState";
 
 interface ExploreContentProps {
   listings: any[];
@@ -23,7 +22,7 @@ interface ExploreContentProps {
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
   resetFilters: () => void;
-  // Location filters
+  // Location filter props
   selectedStateId: string | null;
   setSelectedStateId: (stateId: string | null) => void;
   selectedCityId: string | null;
@@ -33,6 +32,8 @@ interface ExploreContentProps {
   // Condominium filter toggle
   isCondominiumFilter: boolean;
   setIsCondominiumFilter: (isFiltered: boolean) => void;
+  // Preço máximo dinâmico
+  maxPrice?: number;
 }
 
 const ExploreContent = ({
@@ -50,7 +51,7 @@ const ExploreContent = ({
   priceRange,
   setPriceRange,
   resetFilters,
-  // Location filters
+  // Location filter props
   selectedStateId,
   setSelectedStateId,
   selectedCityId,
@@ -59,79 +60,83 @@ const ExploreContent = ({
   setSelectedCondominiumId,
   // Condominium filter toggle
   isCondominiumFilter,
-  setIsCondominiumFilter
+  setIsCondominiumFilter,
+  // Preço máximo dinâmico
+  maxPrice
 }: ExploreContentProps) => {
-  const isMobile = useMobile();
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   return (
-    <div className={`flex gap-6 ${isMobile ? 'flex-col' : ''}`}>
-      {/* Only show sidebar filters on desktop */}
-      {!isMobile && (
-        <FilterSidebar
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
-          showSoldItems={showSoldItems}
-          setShowSoldItems={setShowSoldItems}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          resetFilters={resetFilters}
-          // Location filters
-          selectedStateId={selectedStateId}
-          setSelectedStateId={setSelectedStateId}
-          selectedCityId={selectedCityId}
-          setSelectedCityId={setSelectedCityId}
-          selectedCondominiumId={selectedCondominiumId}
-          setSelectedCondominiumId={setSelectedCondominiumId}
-          // Condominium filter toggle
-          isCondominiumFilter={isCondominiumFilter}
-          setIsCondominiumFilter={setIsCondominiumFilter}
-        />
-      )}
+    <div className="flex gap-6 mt-6">
+      {/* Filtro Lateral para Desktop */}
+      <FilterSidebar 
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        showSoldItems={showSoldItems}
+        setShowSoldItems={setShowSoldItems}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        resetFilters={resetFilters}
+        selectedStateId={selectedStateId}
+        setSelectedStateId={setSelectedStateId}
+        selectedCityId={selectedCityId}
+        setSelectedCityId={setSelectedCityId}
+        selectedCondominiumId={selectedCondominiumId}
+        setSelectedCondominiumId={setSelectedCondominiumId}
+        isCondominiumFilter={isCondominiumFilter}
+        setIsCondominiumFilter={setIsCondominiumFilter}
+        maxPrice={maxPrice}
+      />
 
-      {/* Mobile Filter Sheet */}
-      {isMobile && (
-        <MobileFilterSheet
-          isOpen={isFilterSheetOpen}
-          setIsOpen={setIsFilterSheetOpen}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
-          showSoldItems={showSoldItems}
-          setShowSoldItems={setShowSoldItems}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          selectedStateId={selectedStateId}
-          setSelectedStateId={setSelectedStateId}
-          selectedCityId={selectedCityId}
-          setSelectedCityId={setSelectedCityId}
-          selectedCondominiumId={selectedCondominiumId}
-          setSelectedCondominiumId={setSelectedCondominiumId}
-          isCondominiumFilter={isCondominiumFilter}
-          setIsCondominiumFilter={setIsCondominiumFilter}
-        />
-      )}
-
+      {/* Conteúdo Principal com os Anúncios */}
       <div className="flex-1">
-        {listings.length === 0 && !isLoading ? (
-          <EmptyListingsState 
-            searchTerm={searchTerm} 
-            onReset={resetFilters}
-          />
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-64 w-full" />
+            ))}
+          </div>
+        ) : listings.length > 0 ? (
+          <ListingsGrid listings={listings} />
         ) : (
-          <ListingsGrid 
-            listings={listings} 
-            isLoading={isLoading}
+          <EmptyListingsState 
+            searchTerm={searchTerm}
+            hasFilters={!!(selectedCategory || selectedType || selectedStatus || 
+              priceRange[0] > 0 || priceRange[1] < (maxPrice || 2000) ||
+              selectedStateId || selectedCityId || selectedCondominiumId)}
+            onResetFilters={resetFilters}
           />
         )}
       </div>
+
+      {/* Modal de Filtros para Mobile */}
+      <MobileFilterSheet 
+        isOpen={isFilterSheetOpen}
+        setIsOpen={setIsFilterSheetOpen}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        showSoldItems={showSoldItems}
+        setShowSoldItems={setShowSoldItems}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        selectedStateId={selectedStateId}
+        setSelectedStateId={setSelectedStateId}
+        selectedCityId={selectedCityId}
+        setSelectedCityId={setSelectedCityId}
+        selectedCondominiumId={selectedCondominiumId}
+        setSelectedCondominiumId={setSelectedCondominiumId}
+        isCondominiumFilter={isCondominiumFilter}
+        setIsCondominiumFilter={setIsCondominiumFilter}
+        maxPrice={maxPrice}
+      />
     </div>
   );
 };

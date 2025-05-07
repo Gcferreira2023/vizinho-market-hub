@@ -1,3 +1,4 @@
+
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,6 @@ import { ListingStatus } from "@/components/listings/StatusBadge";
 import LocationFilter from "./LocationFilter";
 import MyCondominiumToggle from "./MyCondominiumToggle";
 import { useAuth } from "@/contexts/AuthContext";
-
-// Definindo um valor máximo consistente para toda a aplicação
-const MAX_PRICE = 2000; // Aumentado para 2000 reais
 
 interface FilterSidebarProps {
   selectedCategory: string | null;
@@ -33,6 +31,8 @@ interface FilterSidebarProps {
   // Condominium filter toggle
   isCondominiumFilter: boolean;
   setIsCondominiumFilter: (isFiltered: boolean) => void;
+  // Preço máximo dinâmico
+  maxPrice?: number;
 }
 
 const FilterSidebar = ({
@@ -56,7 +56,9 @@ const FilterSidebar = ({
   setSelectedCondominiumId,
   // Condominium filter toggle
   isCondominiumFilter,
-  setIsCondominiumFilter
+  setIsCondominiumFilter,
+  // Preço máximo dinâmico
+  maxPrice = 2000
 }: FilterSidebarProps) => {
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
@@ -171,13 +173,13 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Filtro de Preço - Atualizado com valor máximo maior */}
+        {/* Filtro de Preço - Atualizado para usar valor máximo dinâmico */}
         <div className="space-y-4">
           <Label>Faixa de Preço</Label>
           <Slider
-            defaultValue={[0, MAX_PRICE / 2]}
-            max={MAX_PRICE}
-            step={50}
+            defaultValue={[0, maxPrice / 2]}
+            max={maxPrice}
+            step={Math.max(10, Math.floor(maxPrice / 40))} // Ajuste o step com base no maxPrice
             value={priceRange}
             onValueChange={(value) => {
               setPriceRange(value as [number, number]);

@@ -42,6 +42,8 @@ interface MobileFilterSheetProps {
   // Condominium filter toggle
   isCondominiumFilter: boolean;
   setIsCondominiumFilter: (isFiltered: boolean) => void;
+  // Preço máximo dinâmico
+  maxPrice?: number;
 }
 
 const MobileFilterSheet = ({
@@ -66,7 +68,9 @@ const MobileFilterSheet = ({
   setSelectedCondominiumId,
   // Condominium filter toggle
   isCondominiumFilter,
-  setIsCondominiumFilter
+  setIsCondominiumFilter,
+  // Preço máximo dinâmico
+  maxPrice = 2000
 }: MobileFilterSheetProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -123,10 +127,11 @@ const MobileFilterSheet = ({
             setSelectedType={setSelectedType}
           />
 
-          {/* Price Filter - Agora usando o componente atualizado */}
+          {/* Price Filter - Agora passando o maxPrice dinâmico */}
           <MobileFilterPrice
             priceRange={priceRange}
             setPriceRange={setPriceRange}
+            maxPrice={maxPrice}
           />
 
           <Button 

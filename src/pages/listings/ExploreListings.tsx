@@ -41,7 +41,10 @@ const ExploreListings = () => {
     selectedCityId,
     setSelectedCityId,
     selectedCondominiumId,
-    setSelectedCondominiumId
+    setSelectedCondominiumId,
+    // Preço máximo dinâmico
+    maxPrice,
+    isMaxPriceLoading
   } = useExploreListings();
 
   // Helper functions to get location details for active filter badges
@@ -161,6 +164,7 @@ const ExploreListings = () => {
           setSelectedCondominiumId={setSelectedCondominiumId}
           isCondominiumFilter={isCondominiumFilter}
           setIsCondominiumFilter={setIsCondominiumFilter}
+          maxPrice={maxPrice}
         />
       </div>
     </Layout>
