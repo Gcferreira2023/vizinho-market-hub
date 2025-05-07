@@ -8,8 +8,10 @@ import { useExploreListings } from "@/hooks/useExploreListings";
 import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
 import { Building, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useMobile } from "@/hooks/useMobile";
 
 const ExploreListings = () => {
+  const isMobile = useMobile();
   const { 
     listings,
     isLoading,
@@ -42,19 +44,16 @@ const ExploreListings = () => {
     setSelectedCondominiumId
   } = useExploreListings();
 
-  // Get location details for displaying active filter badges
+  // Helper functions to get location details for active filter badges
   const getStateName = () => {
-    // This would ideally use a context or hook to get state name by ID
     return selectedStateId ? "Estado selecionado" : null;
   };
   
   const getCityName = () => {
-    // This would ideally use a context or hook to get city name by ID
     return selectedCityId ? "Cidade selecionada" : null;
   };
   
   const getCondominiumName = () => {
-    // This would ideally use a context or hook to get condominium name by ID
     return selectedCondominiumId ? "Condomínio selecionado" : null;
   };
 
@@ -135,16 +134,16 @@ const ExploreListings = () => {
         )}
 
         {/* Mobile Condominium Toggle */}
-        <div className="block md:hidden my-4">
-          {userCondominiumId && (
+        {isMobile && userCondominiumId && (
+          <div className="my-4">
             <div className="bg-primary/10 p-3 rounded-lg mb-4">
               <MyCondominiumToggle 
                 isCondominiumFilter={isCondominiumFilter}
                 onToggleCondominiumFilter={setIsCondominiumFilter}
               />
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <ExploreContent 
           listings={listings}

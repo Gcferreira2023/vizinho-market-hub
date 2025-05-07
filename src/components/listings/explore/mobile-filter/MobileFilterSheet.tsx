@@ -76,7 +76,7 @@ const MobileFilterSheet = ({
           Filtros
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Filtros</SheetTitle>
           <SheetDescription>
@@ -85,7 +85,7 @@ const MobileFilterSheet = ({
         </SheetHeader>
 
         <div className="mt-6 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2">
-          {/* My Condominium Toggle - Made more prominent */}
+          {/* My Condominium Toggle */}
           <div className="bg-primary/10 rounded-lg p-3 mb-4">
             <MyCondominiumToggle 
               isCondominiumFilter={isCondominiumFilter}
@@ -93,7 +93,7 @@ const MobileFilterSheet = ({
             />
           </div>
 
-          {/* Location Filter - Now using the dedicated component */}
+          {/* Location Filter */}
           <MobileFilterLocation
             selectedStateId={selectedStateId}
             setSelectedStateId={setSelectedStateId}

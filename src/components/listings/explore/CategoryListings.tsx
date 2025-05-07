@@ -27,7 +27,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
     const loadListings = async () => {
       setIsLoading(true);
       try {
-        // Incluímos o termo de busca se existir
+        // Include search term if it exists
         const searchParams: any = { 
           status: "active" 
         };
@@ -40,10 +40,10 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
           searchParams.search = searchTerm;
         }
         
-        console.log("Buscando com parâmetros:", searchParams);
+        console.log("Searching with parameters:", searchParams);
         
         const data = await fetchListings(searchParams);
-        console.log(`Encontrados ${data.length} resultados`);
+        console.log(`Found ${data.length} results`);
         
         setListings(data || []);
         
@@ -55,7 +55,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
           });
         }
       } catch (error) {
-        console.error("Erro ao carregar anúncios:", error);
+        console.error("Error loading listings:", error);
         toast({
           title: "Erro",
           description: "Ocorreu um erro ao carregar os anúncios",
@@ -132,7 +132,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
                          listing.ad_images[0].image_url : 
                          '/placeholder.svg';
           
-        // Obtém informações do usuário (vendedor)  
+        // Get user (seller) information  
         const location = listing.users 
           ? `${listing.users.block || ''} ${listing.users.apartment || ''}` 
           : '';

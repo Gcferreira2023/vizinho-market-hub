@@ -25,18 +25,18 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 }) => {
   const isMobile = useMobile();
   
-  // Remover caracteres não numéricos do telefone
+  // Clean up non-numeric characters from phone
   const cleanPhone = phone.replace(/\D/g, '');
   
-  // Garantir que o telefone comece com o código do país (Brasil = 55)
+  // Ensure the phone number starts with country code (Brazil = 55)
   const formattedPhone = cleanPhone.startsWith('55') 
     ? cleanPhone 
     : `55${cleanPhone}`;
   
-  // Codificar a mensagem para URL
+  // URL encode the message
   const encodedMessage = encodeURIComponent(message);
   
-  // Criar o link do WhatsApp
+  // Create WhatsApp URL
   const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
 
   const handleClick = () => {
@@ -52,15 +52,12 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     window.open(whatsappUrl, '_blank');
   };
   
-  // Ajustes de tamanho para mobile
-  const mobileClass = isMobile ? 'py-3 text-base' : '';
-  
   return (
     <Button 
       onClick={handleClick}
       variant={variant}
       size={size}
-      className={`bg-green-500 hover:bg-green-600 ${mobileClass} ${className}`}
+      className={`bg-green-500 hover:bg-green-600 ${isMobile ? 'py-3 text-base' : ''} ${className}`}
     >
       {showIcon && (
         <MessageSquare className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'} mr-2`} />

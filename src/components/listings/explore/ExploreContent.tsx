@@ -3,6 +3,7 @@ import FilterSidebar from "./FilterSidebar";
 import ListingsGrid from "./ListingsGrid";
 import EmptyListingsState from "./EmptyListingsState";
 import { ListingStatus } from "@/components/listings/StatusBadge";
+import { useMobile } from "@/hooks/useMobile";
 
 interface ExploreContentProps {
   listings: any[];
@@ -57,31 +58,36 @@ const ExploreContent = ({
   isCondominiumFilter,
   setIsCondominiumFilter
 }: ExploreContentProps) => {
+  const isMobile = useMobile();
+
   return (
-    <div className="flex gap-6">
-      <FilterSidebar
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        selectedStatus={selectedStatus}
-        setSelectedStatus={setSelectedStatus}
-        showSoldItems={showSoldItems}
-        setShowSoldItems={setShowSoldItems}
-        priceRange={priceRange}
-        setPriceRange={setPriceRange}
-        resetFilters={resetFilters}
-        // Location filters
-        selectedStateId={selectedStateId}
-        setSelectedStateId={setSelectedStateId}
-        selectedCityId={selectedCityId}
-        setSelectedCityId={setSelectedCityId}
-        selectedCondominiumId={selectedCondominiumId}
-        setSelectedCondominiumId={setSelectedCondominiumId}
-        // Condominium filter toggle
-        isCondominiumFilter={isCondominiumFilter}
-        setIsCondominiumFilter={setIsCondominiumFilter}
-      />
+    <div className={`flex gap-6 ${isMobile ? 'flex-col' : ''}`}>
+      {/* Only show sidebar filters on desktop */}
+      {!isMobile && (
+        <FilterSidebar
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+          showSoldItems={showSoldItems}
+          setShowSoldItems={setShowSoldItems}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          resetFilters={resetFilters}
+          // Location filters
+          selectedStateId={selectedStateId}
+          setSelectedStateId={setSelectedStateId}
+          selectedCityId={selectedCityId}
+          setSelectedCityId={setSelectedCityId}
+          selectedCondominiumId={selectedCondominiumId}
+          setSelectedCondominiumId={setSelectedCondominiumId}
+          // Condominium filter toggle
+          isCondominiumFilter={isCondominiumFilter}
+          setIsCondominiumFilter={setIsCondominiumFilter}
+        />
+      )}
 
       <div className="flex-1">
         {listings.length === 0 && !isLoading ? (
