@@ -8,36 +8,74 @@ const HeroImage = () => {
   const [hasError, setHasError] = useState(false);
   const [imgSrc, setImgSrc] = useState("");
 
-  // Usamos uma imagem de condomínio
-  const mainImagePath = "/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png";
-  // Fallback image that we know exists and is NOT read-only
-  const fallbackImagePath = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png";
+  // Array de imagens de condomínios/casas de alta qualidade de diferentes fontes
+  const heroImages = [
+    // Imagens hospedadas no bucket (já existentes no projeto)
+    "/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png", // Imagem principal
+    "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png", // Imagem fallback
+    
+    // Lista de URLs de imagens gratuitas (Unsplash)
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1170&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1460317442991-0ec209397118?q=80&w=1170&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1174&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1170&auto=format&fit=crop",
+  ];
   
-  // Reset loading state when image source changes
   useEffect(() => {
     setIsLoaded(false);
     setHasError(false);
-    setImgSrc(mainImagePath);
     
-    // Preload the image
-    const img = new Image();
-    img.src = mainImagePath;
+    // Primeiro tentamos a imagem principal do bucket
+    let selectedImage = heroImages[0];
+    console.log("Tentando carregar imagem principal:", selectedImage);
+    setImgSrc(selectedImage);
     
-    img.onload = () => {
+    // Preload da imagem para verificar se ela carrega corretamente
+    const preloadImage = new Image();
+    preloadImage.src = selectedImage;
+    
+    preloadImage.onload = () => {
       setIsLoaded(true);
-      console.log("Hero image preloaded successfully:", mainImagePath);
+      console.log("Hero image preloaded successfully:", selectedImage);
     };
     
-    img.onerror = () => {
-      console.error("Failed to preload hero image, using fallback");
-      setImgSrc(fallbackImagePath);
+    preloadImage.onerror = () => {
+      console.error("Failed to preload main hero image, trying alternatives");
+      // Se falhar, tentaremos o próximo da lista
+      tryNextImage(1);
     };
     
     return () => {
-      img.onload = null;
-      img.onerror = null;
+      preloadImage.onload = null;
+      preloadImage.onerror = null;
     };
   }, []);
+  
+  // Função para tentar carregar a próxima imagem da lista
+  const tryNextImage = (index) => {
+    if (index >= heroImages.length) {
+      console.error("All hero images failed to load");
+      setHasError(true);
+      return;
+    }
+    
+    const nextImage = heroImages[index];
+    console.log(`Trying next hero image (${index + 1}/${heroImages.length}):`, nextImage);
+    setImgSrc(nextImage);
+    
+    const img = new Image();
+    img.src = nextImage;
+    
+    img.onload = () => {
+      setIsLoaded(true);
+      console.log("Alternative hero image loaded successfully:", nextImage);
+    };
+    
+    img.onerror = () => {
+      console.error(`Failed to load hero image ${index + 1}, trying next one`);
+      tryNextImage(index + 1);
+    };
+  };
   
   const handleLoad = () => {
     setIsLoaded(true);
@@ -45,9 +83,12 @@ const HeroImage = () => {
   };
   
   const handleError = () => {
-    console.error("Failed to load hero image, trying fallback");
-    if (imgSrc !== fallbackImagePath) {
-      setImgSrc(fallbackImagePath);
+    console.error("Failed to load hero image in component:", imgSrc);
+    
+    // Se a imagem atual falhar, tente a próxima
+    const currentIndex = heroImages.indexOf(imgSrc);
+    if (currentIndex !== -1 && currentIndex + 1 < heroImages.length) {
+      tryNextImage(currentIndex + 1);
     } else {
       setHasError(true);
     }
