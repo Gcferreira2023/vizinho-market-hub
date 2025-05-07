@@ -7,8 +7,8 @@ const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // Use uma imagem estática que sabemos que existe
-  const imagePath = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png";
+  // Usamos uma imagem de condomínio
+  const imagePath = "/lovable-uploads/1eb7a9ee-15c6-4be9-bc68-ecfc1c5640be.png";
   
   const handleLoad = () => {
     setIsLoaded(true);
@@ -33,7 +33,7 @@ const HeroImage = () => {
         
         <img
           src={imagePath}
-          alt="VizinhoMarket"
+          alt="VizinhoMarket - Condomínio"
           className={`w-full aspect-[4/3] object-cover transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
