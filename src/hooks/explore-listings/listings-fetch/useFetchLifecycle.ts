@@ -63,12 +63,14 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
     return () => {
       console.log("useFetchLifecycle cleanup");
       isMounted.current = false;
+      cleanup();
     };
   }, [
     fetchData,
     resetError,
     paramsStr,
-    retryCount
+    retryCount,
+    cleanup
   ]);
 
   return {

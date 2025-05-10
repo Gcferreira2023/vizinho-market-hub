@@ -2,7 +2,6 @@
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import ListingsGrid from "../ListingsGrid";
 import EmptyListingsState from "../EmptyListingsState";
-import { useEffect, useState, useRef } from "react";
 
 interface MainContentProps {
   listings: any[];
@@ -27,7 +26,7 @@ const MainContent = ({
 }: MainContentProps) => {
   // Debug logging
   console.log("MainContent received props:", { 
-    listingsLength: listings.length, 
+    listingsLength: listings?.length || 0, 
     isLoading, 
     hasError, 
     hasFilters 
@@ -37,7 +36,7 @@ const MainContent = ({
     <>
       {isLoading ? (
         <LoadingSpinner message="Carregando anúncios..." />
-      ) : listings.length > 0 ? (
+      ) : listings && listings.length > 0 ? (
         <ListingsGrid listings={listings} />
       ) : (
         <EmptyListingsState 

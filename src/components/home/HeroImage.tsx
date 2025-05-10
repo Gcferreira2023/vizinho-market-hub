@@ -1,8 +1,8 @@
 
-import OptimizedImage from "@/components/ui/optimized-image";
+import React from "react";
 
 const HeroImage = () => {
-  // Use a reliable image source with timestamp to prevent caching issues
+  // Use the direct path to the image to avoid any loading issues
   const heroImageUrl = "/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png";
   
   return (
