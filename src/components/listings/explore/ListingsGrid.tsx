@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "../ListingCard";
@@ -16,21 +16,30 @@ interface ListingsGridProps {
   resetFilters?: () => void;
 }
 
-const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilters }: ListingsGridProps) => {
+// Memorizando o componente para evitar re-renderizações desnecessárias
+const ListingsGrid = memo(({ 
+  listings, 
+  isLoading = false, 
+  searchTerm = "", 
+  resetFilters 
+}: ListingsGridProps) => {
   const [loadedImages, setLoadedImages] = useState(0);
   const [condominiumDetails, setCondominiumDetails] = useState<Record<string, any>>({});
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
   const isMobile = useMobile();
   
+  // Memorize a função de carregamento de imagem para evitar recriações
+  const handleImageLoad = useCallback(() => {
+    setLoadedImages(prev => prev + 1);
+  }, []);
+  
   useEffect(() => {
-    // Log all listings for debugging
-    console.log("ListingsGrid - Full listings data:", listings);
-    if (listings.length > 0) {
-      listings.forEach(listing => {
-        console.log(`Listing ${listing.id} - Details:`, listing);
-      });
-    }
+    // Log listings data but limit to once per render
+    console.log(`ListingsGrid rendering with ${listings.length} listings`);
+    
+    // Reset loaded images counter when listings change
+    setLoadedImages(0);
   }, [listings]);
   
   useEffect(() => {
@@ -73,10 +82,6 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilte
     }
   }, [listings]);
   
-  const handleImageLoad = () => {
-    setLoadedImages(prev => prev + 1);
-  };
-
   if (isLoading) {
     // Adjust number of skeletons shown based on device
     const skeletonsCount = isMobile ? 4 : 8;
@@ -134,9 +139,6 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilte
             imageUrl = firstValidImage.image_url;
           }
         }
-        
-        console.log(`Rendering listing ${listing.id} with image URL:`, imageUrl);
-        console.log(`Category: ${listing.category}, Type: ${listing.type}`);
 
         // Map DB category value to UI category ID if needed
         let categoryForDisplay = listing.category;
@@ -165,6 +167,9 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilte
       })}
     </div>
   );
-};
+});
+
+// Adicionar displayName para depuração
+ListingsGrid.displayName = "ListingsGrid";
 
 export default ListingsGrid;

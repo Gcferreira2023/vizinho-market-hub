@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { categories, categoryMappings } from "@/constants/listings";
+import { useEffect } from "react";
 
 interface FilterCategoryProps {
   selectedCategory: string | null;
@@ -13,7 +14,12 @@ const FilterCategory = ({
   setSelectedCategory,
 }: FilterCategoryProps) => {
   // Log to debug category selection with clearer output
-  console.log(`FilterCategory rendering with selectedCategory: ${selectedCategory}`);
+  useEffect(() => {
+    console.log(`FilterCategory rendered with selectedCategory: ${selectedCategory}`);
+    if (selectedCategory && categoryMappings.idToDb[selectedCategory]) {
+      console.log(`Category in DB format: "${categoryMappings.idToDb[selectedCategory]}"`);
+    }
+  }, [selectedCategory]);
 
   // Find the category name if we have a selected category ID
   const getCategoryName = (categoryId: string | null) => {
