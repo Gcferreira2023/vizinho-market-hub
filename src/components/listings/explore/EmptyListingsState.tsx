@@ -5,11 +5,18 @@ import { Search, AlertCircle, RefreshCw } from "lucide-react";
 interface EmptyListingsStateProps {
   searchTerm?: string;
   hasError?: boolean;
+  hasFilters?: boolean;  // Added this prop
   onRetry?: () => void;
   onResetFilters?: () => void;
 }
 
-const EmptyListingsState = ({ searchTerm, hasError, onRetry, onResetFilters }: EmptyListingsStateProps) => {
+const EmptyListingsState = ({ 
+  searchTerm, 
+  hasError, 
+  hasFilters, 
+  onRetry, 
+  onResetFilters 
+}: EmptyListingsStateProps) => {
   // If there's an error, show error message with retry button
   if (hasError) {
     return (
@@ -58,9 +65,11 @@ const EmptyListingsState = ({ searchTerm, hasError, onRetry, onResetFilters }: E
         <p className="text-gray-600 mb-6">
           {searchTerm 
             ? "Tente usar termos mais gerais ou verifique se há erros de digitação." 
-            : "Não encontramos anúncios com os filtros selecionados."}
+            : hasFilters
+              ? "Não encontramos anúncios com os filtros selecionados."
+              : "Não encontramos anúncios disponíveis."}
         </p>
-        {onResetFilters && (
+        {onResetFilters && hasFilters && (
           <Button onClick={onResetFilters}>
             Limpar filtros
           </Button>

@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import ListingsGrid from "./ListingsGrid";
@@ -6,6 +5,7 @@ import FilterSidebar from "./filter-sidebar";
 import EmptyListingsState from "./EmptyListingsState";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import MobileFilterSheet from "./mobile-filter";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 interface ExploreContentProps {
   listings: any[];

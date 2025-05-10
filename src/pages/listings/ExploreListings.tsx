@@ -1,4 +1,3 @@
-
 import Layout from "@/components/layout/Layout";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
 import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
@@ -174,7 +173,7 @@ const ExploreListings = () => {
           selectedType={selectedType}
           setSelectedType={setSelectedType}
           selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
+          setSelectedStatus={(status) => setSelectedStatus(status as ListingStatus | null)}
           showSoldItems={showSoldItems}
           setShowSoldItems={setShowSoldItems}
           priceRange={priceRange}

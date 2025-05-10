@@ -94,7 +94,7 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilte
   if (listings.length === 0) {
     return <EmptyListingsState 
       searchTerm={searchTerm} 
-      hasFilters={true}
+      hasFilters={!!resetFilters}
       onResetFilters={resetFilters} 
     />;
   }
