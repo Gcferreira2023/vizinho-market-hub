@@ -1,19 +1,23 @@
+
 import Layout from "@/components/layout/Layout";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
 import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
 import ExploreContent from "@/components/listings/explore/ExploreContent";
 import { useExploreListings } from "@/hooks/explore-listings";
-import { Building, Filter, MapPin } from "lucide-react";
+import { Building, Filter, MapPin, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useMobile } from "@/hooks/useMobile";
 import { Button } from "@/components/ui/button";
 import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const ExploreListings = () => {
   const isMobile = useMobile();
   const { 
     listings,
     isLoading,
+    hasError,
+    retryLoadListings,
     isLoggedIn,
     userCondominiumId,
     searchTerm,
@@ -81,6 +85,25 @@ const ExploreListings = () => {
         {/* Alert for non-logged in users */}
         {!isLoggedIn && <NotLoggedInAlert />}
 
+        {/* Show connectivity error alert if we have persistent errors */}
+        {hasError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Erro na comunicação</AlertTitle>
+            <AlertDescription className="flex justify-between items-center">
+              <span>Estamos com problemas para carregar os anúncios.</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={retryLoadListings} 
+                className="bg-white"
+              >
+                Tentar novamente
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <SearchListingsForm
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -143,6 +166,8 @@ const ExploreListings = () => {
         <ExploreContent 
           listings={listings}
           isLoading={isLoading}
+          hasError={hasError}
+          retryLoadListings={retryLoadListings}
           searchTerm={searchTerm}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
@@ -164,6 +189,8 @@ const ExploreListings = () => {
           isCondominiumFilter={isCondominiumFilter}
           setIsCondominiumFilter={setIsCondominiumFilter}
           maxPrice={maxPrice}
+          isFilterSheetOpen={isFilterSheetOpen}
+          setIsFilterSheetOpen={setIsFilterSheetOpen}
         />
       </div>
     </Layout>

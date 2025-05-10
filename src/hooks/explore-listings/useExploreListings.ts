@@ -15,7 +15,7 @@ export function useExploreListings() {
   const filters = useExploreFilters();
   
   // Fetch listings based on the filters
-  const { listings, isLoading } = useListingsFetch({
+  const { listings, isLoading, hasError, retryLoadListings } = useListingsFetch({
     searchTerm: filters.searchTerm,
     selectedCategory: filters.selectedCategory,
     selectedType: filters.selectedType,
@@ -37,6 +37,8 @@ export function useExploreListings() {
     // Listings data
     listings,
     isLoading,
+    hasError,
+    retryLoadListings,
     
     // Forward all filter properties and methods
     ...filters
