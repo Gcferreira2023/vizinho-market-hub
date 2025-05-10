@@ -21,7 +21,7 @@ const MobileFilterType = ({
           <Checkbox 
             id="produtos-mobile" 
             checked={selectedType === "produto"}
-            onCheckedChange={() => setSelectedType(selectedType === "produto" ? null : "produto")}
+            onCheckedChange={(checked) => setSelectedType(checked ? "produto" : null)}
             className={selectedType === "produto" ? "border-primary text-primary" : ""}
           />
           <label 
@@ -35,7 +35,7 @@ const MobileFilterType = ({
           <Checkbox 
             id="servicos-mobile" 
             checked={selectedType === "serviço"}
-            onCheckedChange={() => setSelectedType(selectedType === "serviço" ? null : "serviço")}
+            onCheckedChange={(checked) => setSelectedType(checked ? "serviço" : null)}
             className={selectedType === "serviço" ? "border-primary text-primary" : ""}
           />
           <label 

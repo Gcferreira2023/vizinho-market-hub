@@ -18,6 +18,13 @@ const MobileFilterCategory = ({
   selectedCategory,
   setSelectedCategory,
 }: MobileFilterCategoryProps) => {
+  // Função para obter o nome da categoria a partir do ID
+  const getCategoryName = (categoryId: string | null) => {
+    if (!categoryId) return null;
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : categoryId;
+  };
+
   return (
     <div className="space-y-2">
       <Label className={selectedCategory ? "text-primary font-medium" : ""}>

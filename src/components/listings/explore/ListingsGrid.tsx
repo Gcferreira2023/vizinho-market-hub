@@ -6,6 +6,7 @@ import ListingCard from "../ListingCard";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingStatus, mapStatusFromDB } from "../StatusBadge";
 import { useMobile } from "@/hooks/useMobile";
+import EmptyListingsState from "./EmptyListingsState";
 
 interface ListingsGridProps {
   listings: any[];
@@ -85,6 +86,11 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "" }: Listings
         ))}
       </div>
     );
+  }
+
+  // Se não há anúncios, mostrar mensagem de estado vazio
+  if (listings.length === 0) {
+    return <EmptyListingsState searchTerm={searchTerm} hasFilters={true} />;
   }
 
   return (
