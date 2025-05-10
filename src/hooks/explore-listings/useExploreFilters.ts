@@ -4,11 +4,13 @@ import { useLocation } from "react-router-dom";
 import { ListingStatus } from "@/components/listings/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMaxPrice } from "../useMaxPrice";
+import { ExploreFilters } from "@/types/filters";
 
 /**
  * Hook for managing all filters related to listings exploration
+ * @returns All filter-related state and functions
  */
-export function useExploreFilters() {
+export function useExploreFilters(): ExploreFilters {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const urlSearchTerm = queryParams.get("search");

@@ -1,15 +1,15 @@
+
 import Layout from "@/components/layout/Layout";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
 import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
 import ExploreContent from "@/components/listings/explore/ExploreContent";
 import { useExploreListings } from "@/hooks/explore-listings";
-import { Building, Filter, MapPin, AlertCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { useMobile } from "@/hooks/useMobile";
-import { Button } from "@/components/ui/button";
-import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { ListingStatus } from "@/components/listings/StatusBadge";
+import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
+import ActiveFilters from "@/components/listings/explore/ActiveFilters";
+import ErrorAlert from "@/components/listings/explore/ErrorAlert";
+import ExploreHeader from "@/components/listings/explore/ExploreHeader";
 
 const ExploreListings = () => {
   const isMobile = useMobile();
@@ -50,106 +50,37 @@ const ExploreListings = () => {
     isMaxPriceLoading
   } = useExploreListings();
 
-  // Helper functions to get location details for active filter badges
-  const getStateName = () => {
-    return selectedStateId ? "Estado selecionado" : null;
-  };
-  
-  const getCityName = () => {
-    return selectedCityId ? "Cidade selecionada" : null;
-  };
-  
-  const getCondominiumName = () => {
-    return selectedCondominiumId ? "Condomínio selecionado" : null;
-  };
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Explorar Anúncios</h1>
-          
-          {/* Mobile Filter Button - Only displayed on mobile */}
-          {isMobile && (
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => setIsFilterSheetOpen(true)}
-            >
-              <Filter size={16} />
-              Filtros
-            </Button>
-          )}
-        </div>
+        {/* Header with title and mobile filter button */}
+        <ExploreHeader 
+          isMobile={isMobile}
+          setIsFilterSheetOpen={setIsFilterSheetOpen}
+        />
 
         {/* Alert for non-logged in users */}
         {!isLoggedIn && <NotLoggedInAlert />}
 
         {/* Show connectivity error alert if we have persistent errors */}
-        {hasError && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Erro na comunicação</AlertTitle>
-            <AlertDescription className="flex justify-between items-center">
-              <span>Estamos com problemas para carregar os anúncios.</span>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={retryLoadListings} 
-                className="bg-white"
-              >
-                Tentar novamente
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+        {hasError && <ErrorAlert retryLoadListings={retryLoadListings} />}
 
+        {/* Search form */}
         <SearchListingsForm
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           handleSearch={handleSearch}
         />
         
-        {/* Active filters display for quick feedback */}
-        {(selectedStateId || selectedCityId || selectedCondominiumId || isCondominiumFilter || selectedCategory) && (
-          <div className="flex flex-wrap gap-2 my-4">
-            <span className="text-sm font-medium text-gray-500 self-center">Filtros ativos:</span>
-            
-            {selectedStateId && (
-              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
-                <MapPin size={12} />
-                {getStateName()}
-              </Badge>
-            )}
-            
-            {selectedCityId && (
-              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
-                <MapPin size={12} />
-                {getCityName()}
-              </Badge>
-            )}
-            
-            {selectedCondominiumId && (
-              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
-                <Building size={12} />
-                {getCondominiumName()}
-              </Badge>
-            )}
-            
-            {isCondominiumFilter && userCondominiumId && (
-              <Badge variant="outline" className="flex items-center gap-1 bg-primary/20 text-primary">
-                <Building size={12} />
-                Meu Condomínio
-              </Badge>
-            )}
-            
-            {selectedCategory && (
-              <Badge variant="outline" className="flex items-center gap-1 bg-gray-100">
-                {selectedCategory}
-              </Badge>
-            )}
-          </div>
-        )}
+        {/* Active filters display */}
+        <ActiveFilters
+          selectedStateId={selectedStateId}
+          selectedCityId={selectedCityId}
+          selectedCondominiumId={selectedCondominiumId}
+          isCondominiumFilter={isCondominiumFilter}
+          userCondominiumId={userCondominiumId}
+          selectedCategory={selectedCategory}
+        />
 
         {/* Mobile Condominium Toggle - only when we have a user condominium */}
         {isMobile && userCondominiumId && (
@@ -163,6 +94,7 @@ const ExploreListings = () => {
           </div>
         )}
 
+        {/* Main content with listings and filters */}
         <ExploreContent 
           listings={listings}
           isLoading={isLoading}
