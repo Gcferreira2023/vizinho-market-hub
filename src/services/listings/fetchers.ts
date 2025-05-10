@@ -15,7 +15,7 @@ export const fetchListing = async (listingId: string) => {
   return adData;
 };
 
-// Helper function to handle category mapping - completely rewritten for better debugging
+// Helper function to handle category mapping
 const normalizeCategoryValue = (category?: string): string | undefined => {
   if (!category) return undefined;
   
@@ -137,29 +137,38 @@ export const fetchListings = async (searchParams: {
     // Log the price range for debugging
     console.log(`Price filter applied: min=${minPrice}, max=${maxPrice}`);
     
-    // Apply both min and max price constraints separately for clarity
-    query = query.gte('price', minPrice);
-    query = query.lte('price', maxPrice);
+    if (minPrice > 0) {
+      query = query.gte('price', minPrice);
+    }
+    
+    if (maxPrice > 0) {
+      query = query.lte('price', maxPrice);
+    }
   }
 
-  // Order by creation date (newest first)
-  const { data, error } = await query.order("created_at", { ascending: false });
-  
-  if (error) {
-    console.error("Error fetching listings:", error);
+  try {
+    // Order by creation date (newest first)
+    const { data, error } = await query.order("created_at", { ascending: false });
+    
+    if (error) {
+      console.error("Error fetching listings:", error);
+      throw error;
+    }
+    
+    console.log(`Results found: ${data?.length || 0}`);
+    if (data && data.length > 0) {
+      console.log("First result:", data[0].title);
+      console.log("Category of first result:", data[0].category);
+      console.log("Type of first result:", data[0].type);
+    } else {
+      console.log("No results found with applied filters");
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error in fetchListings:", error);
     throw error;
   }
-  
-  console.log(`Results found: ${data?.length || 0}`);
-  if (data && data.length > 0) {
-    console.log("First result:", data[0].title);
-    console.log("Category of first result:", data[0].category);
-    console.log("Type of first result:", data[0].type);
-  } else {
-    console.log("No results found with applied filters");
-  }
-  
-  return data || [];
 };
 
 // Fetch condominium information for a listing

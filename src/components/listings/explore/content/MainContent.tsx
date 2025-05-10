@@ -50,7 +50,7 @@ const MainContent = ({
           setIsStableLoading(false);
           // Only update listings when loading is complete
           setStableListings(listings);
-        }, 800); // Increased delay for more stability
+        }, 1000); // Increased delay for more stability
       }
     }
     

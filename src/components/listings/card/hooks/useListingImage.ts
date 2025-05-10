@@ -39,17 +39,18 @@ export const useListingImage = ({
     // Verify if the URL is valid (starts with http or /)
     if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
       setImgSrc(imageUrl);
-      console.log(`Setting image src for listing ${id} to:`, imageUrl);
     } else {
       // For invalid URLs, use the placeholder
       setImgSrc(defaultPlaceholder);
-      console.log(`Invalid image URL for listing ${id}, using placeholder`);
     }
   }, [id, imageUrl, isMockListing, defaultPlaceholder]);
 
   // Lazy loading with Intersection Observer
   useEffect(() => {
-    if (!lazyLoad) return;
+    if (!lazyLoad) {
+      setIsVisible(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -70,15 +71,12 @@ export const useListingImage = ({
   }, [id, lazyLoad]);
 
   const handleImageLoad = () => {
-    console.log(`Image loaded successfully for listing ${id}: ${imgSrc}`);
     setIsLoaded(true);
     setHasError(false);
     if (onImageLoad) onImageLoad();
   };
 
   const handleImageError = () => {
-    console.error(`Error loading image for listing ${id}: ${imgSrc}`);
-    
     // Only switch to fallback if not already using it
     if (imgSrc !== defaultPlaceholder) {
       setImgSrc(defaultPlaceholder);
