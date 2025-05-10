@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,6 +7,7 @@ import EmptyListingsState from "./EmptyListingsState";
 import { fetchListings } from "@/services/listings/listingService";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { categories } from "@/constants/listings";
 
 interface CategoryListingsProps {
   categoryId: string | undefined;
@@ -23,21 +23,6 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
   
-  // Helper function to map category IDs to database categories
-  const mapCategoryToDatabaseValue = (category: string | undefined): string | undefined => {
-    if (!category) return undefined;
-    
-    // Map from URL category to database value
-    const categoryMap: Record<string, string> = {
-      'produtos': 'Produtos Gerais',
-      'alimentos': 'Alimentos',
-      'servicos': 'Serviços',
-      'vagas': 'Vagas/Empregos'
-    };
-    
-    return categoryMap[category];
-  };
-  
   useEffect(() => {
     const loadListings = async () => {
       setIsLoading(true);
@@ -48,11 +33,9 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         };
         
         if (categoryId) {
-          const dbCategory = mapCategoryToDatabaseValue(categoryId);
-          if (dbCategory) {
-            searchParams.category = dbCategory;
-          }
-          console.log(`Filtering by category: ${categoryId} -> ${dbCategory}`);
+          // Use the categoryId directly from the URL parameter
+          searchParams.category = categoryId;
+          console.log(`Filtering by category ID: ${categoryId}`);
         }
         
         if (searchTerm) {

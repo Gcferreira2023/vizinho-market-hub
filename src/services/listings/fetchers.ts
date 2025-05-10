@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { categories } from "@/constants/listings";
 
 // Buscar dados de um anúncio
 export const fetchListing = async (listingId: string) => {
@@ -18,15 +19,24 @@ export const fetchListing = async (listingId: string) => {
 const normalizeCategoryValue = (category?: string): string | undefined => {
   if (!category) return undefined;
   
-  // Map UI category names to database values and vice versa
+  // First, try to lookup by id (from URL or filter selection)
+  const categoryById = categories.find(c => c.id === category);
+  if (categoryById) {
+    return categoryById.name;
+  }
+  
+  // If not found by id, try by name (from UI selections)
+  const categoryByName = categories.find(c => c.name === category);
+  if (categoryByName) {
+    return categoryByName.name;
+  }
+  
+  // Fallback direct mappings for legacy data
   const categoryMappings: Record<string, string> = {
-    'Produtos Gerais': 'produtos',
-    'produtos': 'produtos',
-    'Alimentos': 'Alimentos',
-    'Serviços': 'Serviços',
-    'servicos': 'Serviços',
+    'produtos': 'Produtos Gerais',
+    'servico': 'Serviços',
     'serviço': 'Serviços',
-    'Vagas/Empregos': 'Vagas/Empregos'
+    'servicos': 'Serviços'
   };
   
   return categoryMappings[category] || category;
@@ -73,7 +83,9 @@ export const fetchListings = async (searchParams: {
   if (searchParams.category) {
     const normalizedCategory = normalizeCategoryValue(searchParams.category);
     console.log(`Filtering by category: ${searchParams.category} -> ${normalizedCategory}`);
-    query = query.eq("category", normalizedCategory);
+    if (normalizedCategory) {
+      query = query.eq("category", normalizedCategory);
+    }
   }
   
   // Add type filter
