@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -147,6 +146,12 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         const location = listing.users 
           ? `${listing.users.block || ''} ${listing.users.apartment || ''}` 
           : '';
+          
+        // Map DB category value to UI category ID if needed
+        let categoryForDisplay = listing.category;
+        if (listing.category && categoryMappings.dbToId[listing.category]) {
+          categoryForDisplay = categoryMappings.dbToId[listing.category];
+        }
             
         return (
           <ListingCard
@@ -155,7 +160,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
             title={listing.title}
             price={listing.price}
             imageUrl={imageUrl}
-            category={listing.category}
+            category={categoryForDisplay}
             type={listing.type}
             location={location.trim()}
             status="disponível"

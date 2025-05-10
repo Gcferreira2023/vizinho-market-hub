@@ -1,6 +1,5 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { categories } from "@/constants/listings";
+import { categories, categoryMappings } from "@/constants/listings";
 
 // Buscar dados de um anúncio
 export const fetchListing = async (listingId: string) => {
@@ -23,38 +22,21 @@ const normalizeCategoryValue = (category?: string): string | undefined => {
   console.log(`Category filter requested: "${category}"`);
   
   // Direct mapping between category ID in the UI and the database value
-  const idToDbValue: Record<string, string> = {
-    'alimentos': 'Alimentos',
-    'servicos': 'Serviços',
-    'produtos': 'Produtos Gerais',
-    'vagas': 'Vagas/Empregos'
-  };
-  
-  // If it's a category ID, map it to database value
-  if (idToDbValue[category]) {
-    console.log(`Mapping category ID "${category}" to DB value "${idToDbValue[category]}"`);
-    return idToDbValue[category];
+  if (categoryMappings.idToDb[category]) {
+    const dbValue = categoryMappings.idToDb[category];
+    console.log(`Mapping category ID "${category}" to DB value "${dbValue}"`);
+    return dbValue;
   }
   
-  // Legacy cases for type values that might be passed here
-  if (category === 'serviço' || category === 'servico') {
-    console.log(`Legacy mapping: "${category}" -> "Serviços"`);
-    return 'Serviços';
+  // Check if this is a direct category name from DB (case insensitive)
+  for (const [dbKey, uiId] of Object.entries(categoryMappings.dbToId)) {
+    if (category.toLowerCase() === dbKey.toLowerCase()) {
+      console.log(`Direct match: "${category}" is a valid category name`);
+      return category;
+    }
   }
-  
-  if (category === 'produto') {
-    console.log(`Legacy mapping: "${category}" -> "Produtos Gerais"`);
-    return 'Produtos Gerais';
-  }
-  
-  // If it matches a valid database category name exactly, use it
-  const validDbValues = Object.values(idToDbValue);
-  if (validDbValues.includes(category)) {
-    console.log(`Category "${category}" is already a valid DB value, using as-is`);
-    return category;
-  }
-  
-  // Fallback - just return the original value and log a warning
+
+  // If none of the above, log warning and use as-is
   console.log(`WARNING: Unknown category value "${category}", using as-is`);
   return category;
 };
@@ -108,7 +90,12 @@ export const fetchListings = async (searchParams: {
   // Add type filter with better logging
   if (searchParams.type) {
     console.log(`Filtering by type: "${searchParams.type}"`);
-    query = query.eq("type", searchParams.type);
+    // Handle both "serviço" and "servico" variations
+    if (searchParams.type === "serviço") {
+      query = query.or("type.eq.serviço,type.eq.servico");
+    } else {
+      query = query.eq("type", searchParams.type);
+    }
   }
   
   // Add condominium filter

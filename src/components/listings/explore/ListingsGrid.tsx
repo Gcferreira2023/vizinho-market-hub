@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ListingStatus, mapStatusFromDB } from "../StatusBadge";
 import { useMobile } from "@/hooks/useMobile";
 import EmptyListingsState from "./EmptyListingsState";
+import { categoryMappings } from "@/constants/listings";
 
 interface ListingsGridProps {
   listings: any[];
@@ -136,6 +137,12 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilte
         
         console.log(`Rendering listing ${listing.id} with image URL:`, imageUrl);
         console.log(`Category: ${listing.category}, Type: ${listing.type}`);
+
+        // Map DB category value to UI category ID if needed
+        let categoryForDisplay = listing.category;
+        if (listing.category && categoryMappings.dbToId[listing.category]) {
+          categoryForDisplay = categoryMappings.dbToId[listing.category];
+        }
         
         return (
           <ListingCard
@@ -144,7 +151,7 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilte
             title={listing.title}
             price={listing.price}
             imageUrl={imageUrl}
-            category={listing.category}
+            category={categoryForDisplay}
             type={listing.type as "produto" | "serviço"}
             location={location || condoName}
             status={mapStatusFromDB(listing.status as string)}

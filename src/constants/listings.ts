@@ -26,6 +26,12 @@ export const categoryMappings = {
     'Alimentos': 'alimentos',
     'Serviços': 'servicos',
     'Produtos Gerais': 'produtos',
-    'Vagas/Empregos': 'vagas'
+    'Vagas/Empregos': 'vagas',
+    // Add lowercase versions for robustness
+    'produtos': 'produtos',
+    'servicos': 'servicos',
+    'serviço': 'servicos',
+    'servico': 'servicos',
+    'produto': 'produtos'
   }
 };
