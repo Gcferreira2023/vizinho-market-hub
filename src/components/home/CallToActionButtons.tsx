@@ -14,7 +14,7 @@ const CallToActionButtons = () => {
           {isLoggedIn ? "Anunciar Agora" : "Cadastrar e Anunciar"}
         </Link>
       </Button>
-      <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary" asChild>
+      <Button size="lg" variant="secondary" className="text-lg py-6" asChild>
         <Link to="/como-funciona">Como funciona</Link>
       </Button>
     </div>
