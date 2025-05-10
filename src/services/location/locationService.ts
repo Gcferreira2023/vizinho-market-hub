@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { City, Condominium, State } from "@/types/location";
 
@@ -28,8 +29,7 @@ export const fetchStates = async (): Promise<State[]> => {
     const { data, error } = await supabase
       .from('states')
       .select('*')
-      .order('name')
-      .timeout(5000); // Adding timeout to avoid infinite loading
+      .order('name');
     
     // Log request duration
     console.log(`Tempo de resposta da API: ${Date.now() - startTime}ms`);
@@ -66,8 +66,7 @@ export const fetchCitiesByState = async (stateId: string): Promise<City[]> => {
       .from('cities')
       .select('*, states(*)')
       .eq('state_id', stateId)
-      .order('name')
-      .timeout(5000);
+      .order('name');
     
     console.log(`Tempo de resposta para cidades: ${Date.now() - startTime}ms`);
     
@@ -104,8 +103,7 @@ export const fetchCondominiumsByCity = async (cityId: string): Promise<Condomini
       .select('*, cities!inner(*, states(*))')
       .eq('city_id', cityId)
       .eq('approved', true)
-      .order('name')
-      .timeout(5000);
+      .order('name');
     
     console.log(`Tempo de resposta para condomínios: ${Date.now() - startTime}ms`);
     
