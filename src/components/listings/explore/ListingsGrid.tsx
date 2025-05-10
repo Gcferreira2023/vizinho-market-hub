@@ -12,9 +12,10 @@ interface ListingsGridProps {
   listings: any[];
   isLoading?: boolean;
   searchTerm?: string;
+  resetFilters?: () => void;
 }
 
-const ListingsGrid = ({ listings, isLoading = false, searchTerm = "" }: ListingsGridProps) => {
+const ListingsGrid = ({ listings, isLoading = false, searchTerm = "", resetFilters }: ListingsGridProps) => {
   const [loadedImages, setLoadedImages] = useState(0);
   const [condominiumDetails, setCondominiumDetails] = useState<Record<string, any>>({});
   const { user } = useAuth();
@@ -90,7 +91,11 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "" }: Listings
 
   // Se não há anúncios, mostrar mensagem de estado vazio
   if (listings.length === 0) {
-    return <EmptyListingsState searchTerm={searchTerm} hasFilters={true} />;
+    return <EmptyListingsState 
+      searchTerm={searchTerm} 
+      hasFilters={true}
+      onResetFilters={resetFilters} 
+    />;
   }
 
   return (
@@ -130,6 +135,7 @@ const ListingsGrid = ({ listings, isLoading = false, searchTerm = "" }: Listings
         }
         
         console.log(`Rendering listing ${listing.id} with image URL:`, imageUrl);
+        console.log(`Category: ${listing.category}, Type: ${listing.type}`);
         
         return (
           <ListingCard

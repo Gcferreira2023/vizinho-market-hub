@@ -15,48 +15,47 @@ export const fetchListing = async (listingId: string) => {
   return adData;
 };
 
-// Helper function to handle category mapping - rewritten for clarity
+// Helper function to handle category mapping - completely rewritten for better debugging
 const normalizeCategoryValue = (category?: string): string | undefined => {
   if (!category) return undefined;
   
-  // Debug logs to see what's happening
-  console.log(`Normalizing category value: "${category}"`);
+  // Debug logs to help understand the input
+  console.log(`Category filter requested: "${category}"`);
   
-  // Direct mapping from ID to database value
-  const categoryMapping: Record<string, string> = {
+  // Direct mapping between category ID in the UI and the database value
+  const idToDbValue: Record<string, string> = {
     'alimentos': 'Alimentos',
     'servicos': 'Serviços',
     'produtos': 'Produtos Gerais',
     'vagas': 'Vagas/Empregos'
   };
   
-  // If we received a category ID, map it to its database name
-  if (categoryMapping[category]) {
-    console.log(`Found direct mapping: ${category} -> ${categoryMapping[category]}`);
-    return categoryMapping[category];
+  // If it's a category ID, map it to database value
+  if (idToDbValue[category]) {
+    console.log(`Mapping category ID "${category}" to DB value "${idToDbValue[category]}"`);
+    return idToDbValue[category];
   }
   
-  // If it's already a valid category name, use it directly
-  const validCategoryNames = Object.values(categoryMapping);
-  if (validCategoryNames.includes(category)) {
-    console.log(`Category "${category}" is already a valid name, using as-is`);
+  // Legacy cases for type values that might be passed here
+  if (category === 'serviço' || category === 'servico') {
+    console.log(`Legacy mapping: "${category}" -> "Serviços"`);
+    return 'Serviços';
+  }
+  
+  if (category === 'produto') {
+    console.log(`Legacy mapping: "${category}" -> "Produtos Gerais"`);
+    return 'Produtos Gerais';
+  }
+  
+  // If it matches a valid database category name exactly, use it
+  const validDbValues = Object.values(idToDbValue);
+  if (validDbValues.includes(category)) {
+    console.log(`Category "${category}" is already a valid DB value, using as-is`);
     return category;
   }
   
-  // For legacy reasons, handle a few special cases
-  const legacyMappings: Record<string, string> = {
-    'serviço': 'Serviços',
-    'servico': 'Serviços',
-    'produto': 'Produtos Gerais'
-  };
-  
-  if (legacyMappings[category]) {
-    console.log(`Found legacy mapping: ${category} -> ${legacyMappings[category]}`);
-    return legacyMappings[category];
-  }
-  
-  // If we can't map it, return the original value as a fallback
-  console.log(`No mapping found for "${category}", returning as-is`);
+  // Fallback - just return the original value and log a warning
+  console.log(`WARNING: Unknown category value "${category}", using as-is`);
   return category;
 };
 
@@ -68,8 +67,8 @@ export const fetchListings = async (searchParams: {
   status?: string;
   priceRange?: [number, number];
   condominiumId?: string; 
-  stateId?: string;   // New: filter by state ID
-  cityId?: string;    // New: filter by city ID
+  stateId?: string;
+  cityId?: string;
 }) => {
   // Construct select query with joins to get location data
   let query = supabase
@@ -100,14 +99,15 @@ export const fetchListings = async (searchParams: {
   // Add category filter with proper mapping
   if (searchParams.category) {
     const normalizedCategory = normalizeCategoryValue(searchParams.category);
-    console.log(`Using normalized category for filter: "${normalizedCategory}"`);
+    console.log(`Using normalized category for DB query: "${normalizedCategory}"`);
     if (normalizedCategory) {
       query = query.eq("category", normalizedCategory);
     }
   }
   
-  // Add type filter
+  // Add type filter with better logging
   if (searchParams.type) {
+    console.log(`Filtering by type: "${searchParams.type}"`);
     query = query.eq("type", searchParams.type);
   }
   
@@ -133,7 +133,7 @@ export const fetchListings = async (searchParams: {
     console.log(`Buscando por: "${searchTerm}"`);
   }
   
-  // Add price range filter - FIXED: Ensure proper price filtering
+  // Add price range filter
   if (searchParams.priceRange) {
     const [minPrice, maxPrice] = searchParams.priceRange;
     
@@ -157,7 +157,11 @@ export const fetchListings = async (searchParams: {
   if (data && data.length > 0) {
     console.log("Primeiro resultado:", data[0].title);
     console.log("Categoria do primeiro resultado:", data[0].category);
+    console.log("Tipo do primeiro resultado:", data[0].type);
     console.log("Preço do primeiro resultado:", data[0].price);
+  } else {
+    console.log("Nenhum resultado encontrado com os filtros aplicados");
+    console.log("Parâmetros de busca:", searchParams);
   }
   
   return data || [];

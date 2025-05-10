@@ -124,6 +124,7 @@ const ExploreContent = ({
           listings={listings} 
           isLoading={isLoading}
           searchTerm={searchTerm || ""}
+          resetFilters={resetFilters}
         />
       </div>
     </div>

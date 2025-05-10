@@ -11,3 +11,21 @@ export const listingTypes = [
   { id: "produto", name: "Produto" },
   { id: "serviço", name: "Serviço" },
 ];
+
+// Map to translate between database values and UI values
+export const categoryMappings = {
+  // From UI ID to DB value
+  idToDb: {
+    'alimentos': 'Alimentos',
+    'servicos': 'Serviços',
+    'produtos': 'Produtos Gerais',
+    'vagas': 'Vagas/Empregos'
+  },
+  // From DB value to UI ID
+  dbToId: {
+    'Alimentos': 'alimentos',
+    'Serviços': 'servicos',
+    'Produtos Gerais': 'produtos',
+    'Vagas/Empregos': 'vagas'
+  }
+};

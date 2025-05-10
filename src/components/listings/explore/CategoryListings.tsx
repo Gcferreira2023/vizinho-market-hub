@@ -8,7 +8,7 @@ import EmptyListingsState from "./EmptyListingsState";
 import { fetchListings } from "@/services/listings/listingService";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { categories } from "@/constants/listings";
+import { categories, categoryMappings } from "@/constants/listings";
 
 interface CategoryListingsProps {
   categoryId: string | undefined;
@@ -34,20 +34,27 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         };
         
         if (categoryId) {
-          // Always use the ID directly - let the service handle translation
+          // Use the category ID directly
           searchParams.category = categoryId;
           console.log(`Filtering by category ID: ${categoryId}`);
         }
         
         if (searchTerm) {
           searchParams.search = searchTerm;
+          console.log(`Searching for term: ${searchTerm}`);
         }
         
         console.log("Searching with parameters:", searchParams);
         
         const data = await fetchListings(searchParams);
         console.log(`Found ${data.length} results`);
-        console.log("Results:", data);
+        
+        // Log detailed information about each result
+        if (data.length > 0) {
+          data.forEach((item: any) => {
+            console.log(`Item ID: ${item.id}, Title: ${item.title}, Category: ${item.category}, Type: ${item.type}`);
+          });
+        }
         
         setListings(data || []);
         
