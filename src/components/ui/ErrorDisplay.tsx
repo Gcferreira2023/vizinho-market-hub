@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertCircle, XCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
@@ -22,14 +22,14 @@ export const ErrorDisplay = ({
   return (
     <Alert variant={variant} className={`animate-in fade-in duration-300 ${className}`}>
       <AlertCircle className="h-4 w-4" />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription className="mt-2">
-        <p className="text-sm">{message}</p>
+      <AlertTitle className="text-sm">{title}</AlertTitle>
+      <AlertDescription className="mt-1">
+        <p className="text-xs">{message}</p>
         {onRetry && (
           <Button 
             variant="outline" 
             size="sm" 
-            className="mt-2" 
+            className="mt-2 text-xs py-1 h-7" 
             onClick={onRetry}
           >
             Tentar novamente

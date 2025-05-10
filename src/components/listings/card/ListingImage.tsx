@@ -104,7 +104,7 @@ const ListingImage = ({
       {/* Mock indicator */}
       <MockIndicator isMockListing={isMockListing} />
       
-      {/* Só mostra skeleton enquanto não estiver visível */}
+      {/* Skeleton for lazy loading - appears when not yet visible */}
       {!isVisible && (
         <div className="flex items-center justify-center w-full h-full">
           <Skeleton className="w-full h-full absolute" />

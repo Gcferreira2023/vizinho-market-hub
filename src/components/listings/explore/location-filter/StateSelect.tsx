@@ -7,6 +7,7 @@ import { State } from "@/types/location";
 import { fetchStates } from "@/services/location/locationService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle } from "lucide-react";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 
 interface StateSelectProps {
   selectedStateId: string | null;
@@ -15,26 +16,30 @@ interface StateSelectProps {
 
 const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) => {
   const [states, setStates] = useState<State[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
 
+  // Load states when component mounts or retry is attempted
   useEffect(() => {
     const loadStates = async () => {
+      if (!isLoading && !loadError) return; // Don't reload if already loaded successfully
+      
       setIsLoading(true);
       setLoadError(null);
       
       try {
-        console.log("Iniciando carregamento de estados...");
+        console.log(`Iniciando carregamento de estados (tentativa ${retryCount + 1})...`);
         const statesData = await fetchStates();
         
         if (statesData && statesData.length > 0) {
           console.log(`${statesData.length} estados carregados com sucesso`);
           setStates(statesData);
+          setLoadError(null);
         } else {
           console.log("Nenhum estado encontrado ou erro ao carregar");
-          setLoadError("Erro ao carregar estados");
-          // We'll still have mock data from the service
+          setLoadError("Nenhum estado encontrado");
         }
       } catch (error) {
         console.error("Error fetching states:", error);
@@ -45,24 +50,55 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
     };
     
     loadStates();
-  }, []);
+  }, [retryCount]);
 
   // Handle state selection
   const handleStateChange = (value: string) => {
     setSelectedStateId(value === "all" ? null : value);
   };
+  
+  // Retry loading states
+  const handleRetry = () => {
+    setRetryCount(prevCount => prevCount + 1);
+  };
 
   return (
     <div className="space-y-1">
       <Label htmlFor="state-select">Estado</Label>
-      {isLoading ? (
+      
+      {loadError ? (
+        <div className="space-y-2">
+          <ErrorDisplay 
+            title="Erro ao carregar estados" 
+            message={loadError}
+            variant="warning"
+            onRetry={handleRetry}
+            className="py-2 text-sm"
+          />
+          <Select 
+            value={selectedStateId || "all"} 
+            onValueChange={handleStateChange}
+          >
+            <SelectTrigger id="state-select" className="border-amber-300">
+              <SelectValue placeholder="Selecione um estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os estados</SelectItem>
+              {/* Mock data as fallback */}
+              <SelectItem value="1">São Paulo (SP)</SelectItem>
+              <SelectItem value="2">Rio de Janeiro (RJ)</SelectItem>
+              <SelectItem value="3">Minas Gerais (MG)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      ) : isLoading ? (
         <Skeleton className="h-10 w-full" />
       ) : (
         <Select 
           value={selectedStateId || "all"} 
           onValueChange={handleStateChange}
         >
-          <SelectTrigger id="state-select" className={loadError ? "border-red-300" : ""}>
+          <SelectTrigger id="state-select">
             <SelectValue placeholder="Selecione um estado" />
           </SelectTrigger>
           <SelectContent>
@@ -74,12 +110,6 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
             ))}
           </SelectContent>
         </Select>
-      )}
-      {loadError && (
-        <div className="text-xs text-red-500 flex items-center gap-1 mt-1">
-          <AlertCircle className="h-3 w-3" />
-          <span>{loadError}</span>
-        </div>
       )}
     </div>
   );

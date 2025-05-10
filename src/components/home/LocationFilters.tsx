@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   StateSelect, 
@@ -7,25 +7,56 @@ import {
   CondominiumSelect 
 } from "../listings/explore/location-filter";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, AlertTriangle } from "lucide-react";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import { testSupabaseConnection } from "@/utils/supabaseTest";
+import { useToast } from "@/components/ui/use-toast";
 
 const LocationFilters = () => {
   const [selectedStateId, setSelectedStateId] = useState<string | null>(null);
   const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
   const [selectedCondominiumId, setSelectedCondominiumId] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [testingConnection, setTestingConnection] = useState(false);
+  const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Test connection on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      setTestingConnection(true);
+      const connectionTest = await testSupabaseConnection();
+      setConnectionError(connectionTest.success ? null : connectionTest.message);
+      setTestingConnection(false);
+    };
+    
+    checkConnection();
+  }, []);
+
   const handleSearch = async () => {
+    // Don't search if we're just testing connection
+    if (testingConnection) return;
+    
+    setTestingConnection(true);
+    
     // Test Supabase connection before navigating
     const connectionTest = await testSupabaseConnection();
+    setTestingConnection(false);
+    
     if (!connectionTest.success) {
       setConnectionError(connectionTest.message);
+      toast({
+        title: "Problema de conexão",
+        description: "Não foi possível conectar-se ao servidor. Verifique sua conexão com a internet.",
+        variant: "destructive"
+      });
       return;
     }
     
+    // Clear any previous connection error
+    setConnectionError(null);
+    
+    // Build query params and navigate
     let queryParams = new URLSearchParams();
 
     if (selectedStateId) {
@@ -46,9 +77,16 @@ const LocationFilters = () => {
   
   const retryConnection = async () => {
     setConnectionError(null);
+    setTestingConnection(true);
     const connectionTest = await testSupabaseConnection();
-    if (!connectionTest.success) {
-      setConnectionError(connectionTest.message);
+    setConnectionError(connectionTest.success ? null : connectionTest.message);
+    setTestingConnection(false);
+    
+    if (connectionTest.success) {
+      toast({
+        title: "Conexão restabelecida",
+        description: "A conexão com o servidor foi restabelecida com sucesso!"
+      });
     }
   };
 
@@ -62,6 +100,7 @@ const LocationFilters = () => {
           message={connectionError}
           onRetry={retryConnection}
           className="mb-4"
+          variant="warning"
         />
       )}
       
@@ -95,9 +134,19 @@ const LocationFilters = () => {
           onClick={handleSearch}
           size="lg"
           className="flex items-center justify-center gap-2"
+          disabled={testingConnection}
         >
-          <Search className="h-4 w-4" />
-          Buscar anúncios
+          {testingConnection ? (
+            <>
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              Verificando conexão...
+            </>
+          ) : (
+            <>
+              <Search className="h-4 w-4" />
+              Buscar anúncios
+            </>
+          )}
         </Button>
       </div>
     </div>
