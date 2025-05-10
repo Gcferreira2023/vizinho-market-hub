@@ -27,27 +27,25 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
       try {
         console.log("Iniciando carregamento de estados...");
         const statesData = await fetchStates();
-        console.log("Estados carregados:", statesData);
         
         if (statesData && statesData.length > 0) {
+          console.log(`${statesData.length} estados carregados com sucesso`);
           setStates(statesData);
         } else {
-          console.log("Nenhum estado encontrado na resposta");
-          // Show a less disruptive message for empty states
-          setStates([]);
-          // Still allow the user to see "all states" option
+          console.log("Nenhum estado encontrado ou erro ao carregar");
+          setLoadError("Erro ao carregar estados");
+          // We'll still have mock data from the service
         }
       } catch (error) {
         console.error("Error fetching states:", error);
         setLoadError("Erro ao carregar estados");
-        // Don't show toast for this common error to avoid disrupting UX
       } finally {
         setIsLoading(false);
       }
     };
     
     loadStates();
-  }, [toast]);
+  }, []);
 
   // Handle state selection
   const handleStateChange = (value: string) => {
@@ -64,7 +62,7 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
           value={selectedStateId || "all"} 
           onValueChange={handleStateChange}
         >
-          <SelectTrigger id="state-select">
+          <SelectTrigger id="state-select" className={loadError ? "border-red-300" : ""}>
             <SelectValue placeholder="Selecione um estado" />
           </SelectTrigger>
           <SelectContent>
@@ -78,9 +76,9 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
         </Select>
       )}
       {loadError && (
-        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+        <div className="text-xs text-red-500 flex items-center gap-1 mt-1">
           <AlertCircle className="h-3 w-3" />
-          <span>Erro ao carregar estados. Usando todos os estados.</span>
+          <span>{loadError}</span>
         </div>
       )}
     </div>

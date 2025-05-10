@@ -8,14 +8,24 @@ import {
 } from "../listings/explore/location-filter";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { testSupabaseConnection } from "@/utils/supabaseTest";
 
 const LocationFilters = () => {
   const [selectedStateId, setSelectedStateId] = useState<string | null>(null);
   const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
   const [selectedCondominiumId, setSelectedCondominiumId] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    // Test Supabase connection before navigating
+    const connectionTest = await testSupabaseConnection();
+    if (!connectionTest.success) {
+      setConnectionError(connectionTest.message);
+      return;
+    }
+    
     let queryParams = new URLSearchParams();
 
     if (selectedStateId) {
@@ -33,10 +43,28 @@ const LocationFilters = () => {
     const searchQuery = queryParams.toString();
     navigate(`/explorar${searchQuery ? `?${searchQuery}` : ''}`);
   };
+  
+  const retryConnection = async () => {
+    setConnectionError(null);
+    const connectionTest = await testSupabaseConnection();
+    if (!connectionTest.success) {
+      setConnectionError(connectionTest.message);
+    }
+  };
 
   return (
     <div className="bg-white p-4 rounded-lg border shadow-sm">
       <h3 className="font-medium text-lg mb-4">Filtrar por localização</h3>
+      
+      {connectionError && (
+        <ErrorDisplay 
+          title="Problema de conexão" 
+          message={connectionError}
+          onRetry={retryConnection}
+          className="mb-4"
+        />
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="flex flex-col">
           <StateSelect
