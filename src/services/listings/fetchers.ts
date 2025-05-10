@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { categories, categoryMappings } from "@/constants/listings";
 
@@ -29,8 +30,9 @@ const normalizeCategoryValue = (category?: string): string | undefined => {
   }
   
   // Check if this is a direct category name from DB (case insensitive)
+  const lowerCategory = category.toLowerCase();
   for (const [dbKey, uiId] of Object.entries(categoryMappings.dbToId)) {
-    if (category.toLowerCase() === dbKey.toLowerCase()) {
+    if (lowerCategory === dbKey.toLowerCase()) {
       console.log(`Direct match: "${category}" is a valid category name`);
       return category;
     }
@@ -52,6 +54,8 @@ export const fetchListings = async (searchParams: {
   stateId?: string;
   cityId?: string;
 }) => {
+  console.log("fetchListings called with params:", JSON.stringify(searchParams, null, 2));
+
   // Construct select query with joins to get location data
   let query = supabase
     .from("ads")
@@ -74,8 +78,10 @@ export const fetchListings = async (searchParams: {
   // Add status filter (active by default)
   if (searchParams.status) {
     query = query.eq("status", searchParams.status);
+    console.log(`Status filter applied: "${searchParams.status}"`);
   } else {
     query = query.eq("status", "active");
+    console.log("Default status filter applied: active");
   }
   
   // Add category filter with proper mapping
@@ -101,23 +107,26 @@ export const fetchListings = async (searchParams: {
   // Add condominium filter
   if (searchParams.condominiumId) {
     query = query.eq("condominium_id", searchParams.condominiumId);
+    console.log(`Condominium filter applied: "${searchParams.condominiumId}"`);
   }
   
   // Add city filter - requires join through condominiums
   if (searchParams.cityId) {
     query = query.eq("condominiums.city_id", searchParams.cityId);
+    console.log(`City filter applied: "${searchParams.cityId}"`);
   }
   
   // Add state filter - requires joins through condominiums and cities
   if (searchParams.stateId) {
     query = query.eq("condominiums.cities.state_id", searchParams.stateId);
+    console.log(`State filter applied: "${searchParams.stateId}"`);
   }
   
   // Add text search filter
   if (searchParams.search && searchParams.search.trim() !== "") {
     const searchTerm = searchParams.search.trim().toLowerCase();
     query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
-    console.log(`Buscando por: "${searchTerm}"`);
+    console.log(`Search filter applied: "${searchTerm}"`);
   }
   
   // Add price range filter
@@ -125,7 +134,7 @@ export const fetchListings = async (searchParams: {
     const [minPrice, maxPrice] = searchParams.priceRange;
     
     // Log the price range for debugging
-    console.log(`Applying price filter: min=${minPrice}, max=${maxPrice}`);
+    console.log(`Price filter applied: min=${minPrice}, max=${maxPrice}`);
     
     // Apply both min and max price constraints separately for clarity
     query = query.gte('price', minPrice);
@@ -136,19 +145,17 @@ export const fetchListings = async (searchParams: {
   const { data, error } = await query.order("created_at", { ascending: false });
   
   if (error) {
-    console.error("Erro ao buscar anúncios:", error);
+    console.error("Error fetching listings:", error);
     throw error;
   }
   
-  console.log(`Resultados encontrados: ${data?.length || 0}`);
+  console.log(`Results found: ${data?.length || 0}`);
   if (data && data.length > 0) {
-    console.log("Primeiro resultado:", data[0].title);
-    console.log("Categoria do primeiro resultado:", data[0].category);
-    console.log("Tipo do primeiro resultado:", data[0].type);
-    console.log("Preço do primeiro resultado:", data[0].price);
+    console.log("First result:", data[0].title);
+    console.log("Category of first result:", data[0].category);
+    console.log("Type of first result:", data[0].type);
   } else {
-    console.log("Nenhum resultado encontrado com os filtros aplicados");
-    console.log("Parâmetros de busca:", searchParams);
+    console.log("No results found with applied filters");
   }
   
   return data || [];

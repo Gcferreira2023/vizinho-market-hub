@@ -30,12 +30,13 @@ export function useListingsFetch(params: ListingsFetchParams): ListingsFetchResu
     resetError();
     
     const loadListings = async () => {
+      console.log("Starting to load listings with params:", params);
       setIsLoading(true);
       
       try {
         // Build search parameters based on selected filters
         const searchParams = buildSearchParams(params);
-        console.log("Fetching listings...");
+        console.log("Fetching listings with search params:", searchParams);
         
         const data = await fetchListings(searchParams);
         console.log(`Fetch successful: ${data.length} listings returned`);

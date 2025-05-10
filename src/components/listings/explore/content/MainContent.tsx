@@ -24,6 +24,8 @@ const MainContent = ({
   hasFilters,
   maxPrice = 10000
 }: MainContentProps) => {
+  console.log(`MainContent rendering with ${listings.length} listings, isLoading: ${isLoading}`);
+  
   return (
     <>
       {isLoading ? (

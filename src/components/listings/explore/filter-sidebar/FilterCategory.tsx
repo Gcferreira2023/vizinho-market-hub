@@ -12,12 +12,8 @@ const FilterCategory = ({
   selectedCategory,
   setSelectedCategory,
 }: FilterCategoryProps) => {
-  // Função para obter o nome da categoria a partir do ID
-  const getCategoryName = (categoryId: string | null) => {
-    if (!categoryId) return null;
-    const category = categories.find(cat => cat.id === categoryId);
-    return category ? category.name : categoryId;
-  };
+  // Log to debug category selection
+  console.log(`FilterCategory rendering with selectedCategory: ${selectedCategory}`);
 
   return (
     <div className="space-y-2">
@@ -26,9 +22,10 @@ const FilterCategory = ({
       </Label>
       <Select
         value={selectedCategory || "all"}
-        onValueChange={(value) => 
-          setSelectedCategory(value === "all" ? null : value)
-        }
+        onValueChange={(value) => {
+          console.log(`Category changed to: ${value}`);
+          setSelectedCategory(value === "all" ? null : value);
+        }}
       >
         <SelectTrigger className={selectedCategory ? "border-primary" : ""}>
           <SelectValue placeholder="Todas as categorias" />

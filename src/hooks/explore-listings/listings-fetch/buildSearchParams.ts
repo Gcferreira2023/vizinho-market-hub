@@ -1,5 +1,6 @@
 
 import { ListingsFetchParams } from './types';
+import { categoryMappings } from '@/constants/listings';
 
 /**
  * Builds search parameters object for the listings API based on filter state
@@ -14,10 +15,16 @@ export function buildSearchParams(params: ListingsFetchParams) {
     console.log(`Search term: "${params.searchTerm}"`);
   }
   
-  // Category filter
+  // Category filter - FIXED to ensure proper category mapping
   if (params.selectedCategory) {
+    // Use the category ID directly without any transformation
     searchParams.category = params.selectedCategory;
-    console.log(`Category filter: "${params.selectedCategory}"`);
+    console.log(`Category filter (original): "${params.selectedCategory}"`);
+    
+    // Log the mapping for debugging
+    if (categoryMappings.idToDb[params.selectedCategory]) {
+      console.log(`Will be mapped to DB value: "${categoryMappings.idToDb[params.selectedCategory]}"`);
+    }
   }
   
   // Type filter
