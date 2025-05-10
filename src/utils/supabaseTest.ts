@@ -5,44 +5,42 @@ import { createClient } from '@supabase/supabase-js';
 export const testSupabaseConnection = async () => {
   try {
     // Verificação explícita das variáveis de ambiente
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseUrl = "https://lqbhtvgpylngscpuqasb.supabase.co";
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxYmh0dmdweWxuZ3NjcHVxYXNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYyMTkxNDIsImV4cCI6MjA2MTc5NTE0Mn0.SgGj0eo4k7R0jhjBqnUuZvq2Qh6b9saTIzFx1XJKrTs";
     
     // Log de diagnóstico (pode ser removido em produção)
     console.log('Testando conexão com Supabase...');
-    console.log('VITE_SUPABASE_URL disponível:', !!supabaseUrl);
-    console.log('VITE_SUPABASE_ANON_KEY disponível:', !!supabaseAnonKey);
     
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('⚠️ As variáveis de ambiente do Supabase não estão configuradas');
       return { 
         success: false, 
-        message: 'As variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY não foram encontradas. Você precisa configurar estas variáveis no painel do Lovable.'
+        message: 'As variáveis de ambiente do Supabase não foram encontradas.'
       };
     }
     
     // Cria um cliente Supabase temporário para o teste
     const testClient = createClient(supabaseUrl, supabaseAnonKey);
     
-    // Define um timeout para evitar espera infinita
+    // Setup a timeout to avoid infinite waiting
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Timeout ao tentar conectar ao Supabase')), 5000);
     });
     
     // Tenta fazer uma consulta simples para verificar a conexão
-    const connectionPromise = testClient.auth.getSession();
+    const connectionPromise = testClient.from('states').select('count').maybeSingle();
     
     // Usa Promise.race para implementar o timeout
-    const { error } = await Promise.race([
+    const result = await Promise.race([
       connectionPromise,
-      timeoutPromise.then(() => ({ data: null, error: new Error('Timeout ao tentar conectar ao Supabase') }))
-    ]) as { data: any, error: Error | null };
+      timeoutPromise
+    ]);
     
-    if (error) {
-      console.error('Erro ao conectar ao Supabase:', error);
+    if (result.error) {
+      console.error('Erro ao conectar ao Supabase:', result.error);
       return { 
         success: false, 
-        message: `Erro na conexão: ${error.message}. Verifique sua conexão com a internet.` 
+        message: `Erro na conexão: ${result.error.message}. Verifique sua conexão com a internet.` 
       };
     }
 

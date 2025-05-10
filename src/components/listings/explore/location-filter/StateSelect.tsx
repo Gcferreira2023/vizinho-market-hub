@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { State } from "@/types/location";
 import { fetchStates } from "@/services/location/locationService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle } from "lucide-react";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 
 interface StateSelectProps {
@@ -24,33 +23,63 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
   // Load states when component mounts or retry is attempted
   useEffect(() => {
     const loadStates = async () => {
-      if (!isLoading && !loadError) return; // Don't reload if already loaded successfully
+      if (!isLoading && !loadError && states.length > 0) return; // Don't reload if already loaded successfully
       
       setIsLoading(true);
       setLoadError(null);
       
       try {
         console.log(`Iniciando carregamento de estados (tentativa ${retryCount + 1})...`);
+        
+        setTimeout(() => {
+          // Force UI update after a timeout if still loading
+          if (isLoading) {
+            setIsLoading(false);
+          }
+        }, 8000);
+        
         const statesData = await fetchStates();
         
         if (statesData && statesData.length > 0) {
-          console.log(`${statesData.length} estados carregados com sucesso`);
+          console.log(`${statesData.length} estados carregados com sucesso:`, statesData);
           setStates(statesData);
           setLoadError(null);
+          
+          // Notify successful load
+          if (retryCount > 0) {
+            toast({
+              title: "Dados carregados com sucesso",
+              description: "Lista de estados atualizada."
+            });
+          }
         } else {
           console.log("Nenhum estado encontrado ou erro ao carregar");
           setLoadError("Nenhum estado encontrado");
+          
+          // Use mock data as fallback
+          setStates([
+            { id: "1", name: "São Paulo", uf: "SP" },
+            { id: "2", name: "Rio de Janeiro", uf: "RJ" },
+            { id: "3", name: "Minas Gerais", uf: "MG" }
+          ]);
         }
       } catch (error) {
         console.error("Error fetching states:", error);
         setLoadError("Erro ao carregar estados");
+        
+        // Use mock data as fallback
+        setStates([
+          { id: "1", name: "São Paulo", uf: "SP" },
+          { id: "2", name: "Rio de Janeiro", uf: "RJ" },
+          { id: "3", name: "Minas Gerais", uf: "MG" }
+        ]);
       } finally {
         setIsLoading(false);
       }
     };
     
     loadStates();
-  }, [retryCount]);
+  }, [retryCount, toast, isLoading, loadError, states.length]);
 
   // Handle state selection
   const handleStateChange = (value: string) => {
@@ -60,56 +89,49 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
   // Retry loading states
   const handleRetry = () => {
     setRetryCount(prevCount => prevCount + 1);
+    toast({
+      title: "Tentando novamente",
+      description: "Buscando lista de estados..."
+    });
   };
 
+  // States are always rendered, even when there's an error
+  // This ensures the user can still interact with the app
   return (
     <div className="space-y-1">
       <Label htmlFor="state-select">Estado</Label>
       
-      {loadError ? (
-        <div className="space-y-2">
-          <ErrorDisplay 
-            title="Erro ao carregar estados" 
-            message={loadError}
-            variant="warning"
-            onRetry={handleRetry}
-            className="py-2 text-sm"
-          />
+      {isLoading ? (
+        <Skeleton className="h-10 w-full" />
+      ) : (
+        <>
+          {loadError && (
+            <ErrorDisplay 
+              title="Erro ao carregar estados" 
+              message={loadError}
+              variant="warning"
+              onRetry={handleRetry}
+              className="py-2 text-sm mb-2"
+            />
+          )}
+          
           <Select 
             value={selectedStateId || "all"} 
             onValueChange={handleStateChange}
           >
-            <SelectTrigger id="state-select" className="border-amber-300">
+            <SelectTrigger id="state-select" className={loadError ? "border-amber-300" : ""}>
               <SelectValue placeholder="Selecione um estado" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os estados</SelectItem>
-              {/* Mock data as fallback */}
-              <SelectItem value="1">São Paulo (SP)</SelectItem>
-              <SelectItem value="2">Rio de Janeiro (RJ)</SelectItem>
-              <SelectItem value="3">Minas Gerais (MG)</SelectItem>
+              {states.map((state) => (
+                <SelectItem key={state.id} value={state.id}>
+                  {state.name} ({state.uf})
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-        </div>
-      ) : isLoading ? (
-        <Skeleton className="h-10 w-full" />
-      ) : (
-        <Select 
-          value={selectedStateId || "all"} 
-          onValueChange={handleStateChange}
-        >
-          <SelectTrigger id="state-select">
-            <SelectValue placeholder="Selecione um estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os estados</SelectItem>
-            {states.map((state) => (
-              <SelectItem key={state.id} value={state.id}>
-                {state.name} ({state.uf})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        </>
       )}
     </div>
   );

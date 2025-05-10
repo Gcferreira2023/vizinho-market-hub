@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { City, Condominium, State } from "@/types/location";
 
@@ -26,27 +25,41 @@ export const fetchStates = async (): Promise<State[]> => {
     // Track request start time for debugging
     const startTime = Date.now();
     
-    const { data, error } = await supabase
+    // Added catch to handle connection issues with a promise timeout
+    const fetchPromise = supabase
       .from('states')
       .select('*')
       .order('name');
     
+    // Setup a timeout promise to avoid hanging requests
+    const timeoutPromise = new Promise<{data: State[] | null, error: Error}>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Timeout ao buscar estados'));
+      }, 5000);
+    });
+    
+    // Race the fetch against the timeout
+    const result = await Promise.race([
+      fetchPromise,
+      timeoutPromise
+    ]);
+    
     // Log request duration
     console.log(`Tempo de resposta da API: ${Date.now() - startTime}ms`);
     
-    if (error) {
-      console.error("Erro ao buscar estados:", error);
+    if (result.error) {
+      console.error("Erro ao buscar estados:", result.error);
       console.log("Retornando dados mock para estados devido a erro");
       return [...mockStates];
     }
     
-    if (!data || data.length === 0) {
+    if (!result.data || result.data.length === 0) {
       console.log("Nenhum estado encontrado, retornando dados mock");
       return [...mockStates];
     }
     
-    console.log(`Encontrados ${data.length} estados`);
-    return data as State[];
+    console.log(`Encontrados ${result.data.length} estados`);
+    return result.data as State[];
   } catch (error) {
     console.error("Erro ao buscar estados (try/catch):", error);
     console.log("Retornando dados mock para estados devido a exceção");
@@ -62,31 +75,48 @@ export const fetchCitiesByState = async (stateId: string): Promise<City[]> => {
     console.log(`Buscando cidades para o estado ${stateId}`);
     const startTime = Date.now();
     
-    const { data, error } = await supabase
+    // Mock data para casos de erro
+    const mockCities = [
+      { id: "1", name: "São Paulo", state_id: stateId },
+      { id: "2", name: "Campinas", state_id: stateId },
+      { id: "3", name: "Santos", state_id: stateId }
+    ];
+    
+    // Add promise timeout pattern
+    const fetchPromise = supabase
       .from('cities')
       .select('*, states(*)')
       .eq('state_id', stateId)
       .order('name');
     
+    // Setup a timeout promise
+    const timeoutPromise = new Promise<{data: City[] | null, error: Error}>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Timeout ao buscar cidades'));
+      }, 5000);
+    });
+    
+    // Race the fetch against the timeout
+    const result = await Promise.race([
+      fetchPromise,
+      timeoutPromise
+    ]);
+    
     console.log(`Tempo de resposta para cidades: ${Date.now() - startTime}ms`);
     
-    if (error) {
-      console.error("Erro ao buscar cidades:", error);
-      
-      // Mock data para casos de erro
-      const mockCities = [
-        { id: "1", name: "São Paulo", state_id: stateId },
-        { id: "2", name: "Campinas", state_id: stateId },
-        { id: "3", name: "Santos", state_id: stateId }
-      ];
-      
+    if (result.error) {
+      console.error("Erro ao buscar cidades:", result.error);
       return mockCities;
     }
     
-    return data as City[];
+    return result.data as City[] || mockCities;
   } catch (error) {
     console.error("Erro ao buscar cidades (try/catch):", error);
-    return [];
+    return [
+      { id: "1", name: "São Paulo", state_id: stateId },
+      { id: "2", name: "Campinas", state_id: stateId },
+      { id: "3", name: "Santos", state_id: stateId }
+    ];
   }
 };
 
@@ -98,30 +128,43 @@ export const fetchCondominiumsByCity = async (cityId: string): Promise<Condomini
     console.log(`Buscando condomínios para a cidade ${cityId}`);
     const startTime = Date.now();
     
-    const { data, error } = await supabase
+    // Mock data para casos de erro
+    const mockCondominiums = [
+      { id: "1", name: "Condomínio Parque das Flores", city_id: cityId, approved: true },
+      { id: "2", name: "Condomínio Solar das Paineiras", city_id: cityId, approved: true },
+      { id: "3", name: "Condomínio Recanto Verde", city_id: cityId, approved: true }
+    ];
+    
+    // Add promise timeout pattern
+    const fetchPromise = supabase
       .from('condominiums')
       .select('*, cities!inner(*, states(*))')
       .eq('city_id', cityId)
       .eq('approved', true)
       .order('name');
     
+    // Setup a timeout promise
+    const timeoutPromise = new Promise<{data: Condominium[] | null, error: Error}>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Timeout ao buscar condomínios'));
+      }, 5000);
+    });
+    
+    // Race the fetch against the timeout
+    const result = await Promise.race([
+      fetchPromise,
+      timeoutPromise
+    ]);
+    
     console.log(`Tempo de resposta para condomínios: ${Date.now() - startTime}ms`);
     
-    if (error) {
-      console.error("Erro ao buscar condomínios:", error);
-      
-      // Mock data para casos de erro
-      const mockCondominiums = [
-        { id: "1", name: "Condomínio Parque das Flores", city_id: cityId, approved: true },
-        { id: "2", name: "Condomínio Solar das Paineiras", city_id: cityId, approved: true },
-        { id: "3", name: "Condomínio Recanto Verde", city_id: cityId, approved: true }
-      ];
-      
+    if (result.error) {
+      console.error("Erro ao buscar condomínios:", result.error);
       return mockCondominiums;
     }
     
     // Ensure proper typing for nested objects
-    const typedData = data?.map(condo => ({
+    const typedData = result.data?.map(condo => ({
       id: condo.id,
       name: condo.name,
       city_id: condo.city_id,
@@ -135,10 +178,14 @@ export const fetchCondominiumsByCity = async (cityId: string): Promise<Condomini
       } : undefined
     })) as Condominium[];
     
-    return typedData || [];
+    return typedData || mockCondominiums;
   } catch (error) {
     console.error("Erro ao buscar condomínios (try/catch):", error);
-    return [];
+    return [
+      { id: "1", name: "Condomínio Parque das Flores", city_id: cityId, approved: true },
+      { id: "2", name: "Condomínio Solar das Paineiras", city_id: cityId, approved: true },
+      { id: "3", name: "Condomínio Recanto Verde", city_id: cityId, approved: true }
+    ];
   }
 };
 

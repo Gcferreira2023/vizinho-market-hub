@@ -7,10 +7,11 @@ import {
   CondominiumSelect 
 } from "../listings/explore/location-filter";
 import { Button } from "@/components/ui/button";
-import { Search, AlertTriangle } from "lucide-react";
+import { Search } from "lucide-react";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import { testSupabaseConnection } from "@/utils/supabaseTest";
 import { useToast } from "@/components/ui/use-toast";
+import { fetchStates } from "@/services/location/locationService";
 
 const LocationFilters = () => {
   const [selectedStateId, setSelectedStateId] = useState<string | null>(null);
@@ -18,19 +19,38 @@ const LocationFilters = () => {
   const [selectedCondominiumId, setSelectedCondominiumId] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [testingConnection, setTestingConnection] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Test connection on mount
+  // Test connection and preload states on mount
   useEffect(() => {
-    const checkConnection = async () => {
+    const initializeComponent = async () => {
       setTestingConnection(true);
-      const connectionTest = await testSupabaseConnection();
-      setConnectionError(connectionTest.success ? null : connectionTest.message);
-      setTestingConnection(false);
+      
+      try {
+        // Check connection first
+        const connectionTest = await testSupabaseConnection();
+        
+        if (connectionTest.success) {
+          setConnectionError(null);
+          
+          // Pre-load states to warm up the connection
+          const states = await fetchStates();
+          console.log(`Pre-loaded ${states.length} states for faster UI response`);
+        } else {
+          setConnectionError(connectionTest.message);
+        }
+      } catch (error) {
+        console.error("Error during initialization:", error);
+        setConnectionError("Erro ao inicializar componente. Tente novamente mais tarde.");
+      } finally {
+        setTestingConnection(false);
+        setInitialLoadComplete(true);
+      }
     };
     
-    checkConnection();
+    initializeComponent();
   }, []);
 
   const handleSearch = async () => {
@@ -39,56 +59,95 @@ const LocationFilters = () => {
     
     setTestingConnection(true);
     
-    // Test Supabase connection before navigating
-    const connectionTest = await testSupabaseConnection();
-    setTestingConnection(false);
-    
-    if (!connectionTest.success) {
-      setConnectionError(connectionTest.message);
+    try {
+      // Test Supabase connection before navigating
+      const connectionTest = await testSupabaseConnection();
+      
+      if (!connectionTest.success) {
+        setConnectionError(connectionTest.message);
+        toast({
+          title: "Problema de conexão",
+          description: "Não foi possível conectar-se ao servidor. Verifique sua conexão com a internet.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Clear any previous connection error
+      setConnectionError(null);
+      
+      // Build query params and navigate
+      let queryParams = new URLSearchParams();
+
+      if (selectedStateId) {
+        queryParams.append("stateId", selectedStateId);
+      }
+      
+      if (selectedCityId) {
+        queryParams.append("cityId", selectedCityId);
+      }
+      
+      if (selectedCondominiumId) {
+        queryParams.append("condominiumId", selectedCondominiumId);
+      }
+
+      const searchQuery = queryParams.toString();
+      navigate(`/explorar${searchQuery ? `?${searchQuery}` : ''}`);
+    } catch (error) {
+      console.error("Error during search:", error);
       toast({
-        title: "Problema de conexão",
-        description: "Não foi possível conectar-se ao servidor. Verifique sua conexão com a internet.",
+        title: "Erro",
+        description: "Ocorreu um erro ao processar sua solicitação. Tente novamente.",
         variant: "destructive"
       });
-      return;
+    } finally {
+      setTestingConnection(false);
     }
-    
-    // Clear any previous connection error
-    setConnectionError(null);
-    
-    // Build query params and navigate
-    let queryParams = new URLSearchParams();
-
-    if (selectedStateId) {
-      queryParams.append("stateId", selectedStateId);
-    }
-    
-    if (selectedCityId) {
-      queryParams.append("cityId", selectedCityId);
-    }
-    
-    if (selectedCondominiumId) {
-      queryParams.append("condominiumId", selectedCondominiumId);
-    }
-
-    const searchQuery = queryParams.toString();
-    navigate(`/explorar${searchQuery ? `?${searchQuery}` : ''}`);
   };
   
   const retryConnection = async () => {
     setConnectionError(null);
     setTestingConnection(true);
-    const connectionTest = await testSupabaseConnection();
-    setConnectionError(connectionTest.success ? null : connectionTest.message);
-    setTestingConnection(false);
     
-    if (connectionTest.success) {
+    try {
+      const connectionTest = await testSupabaseConnection();
+      setConnectionError(connectionTest.success ? null : connectionTest.message);
+      
+      if (connectionTest.success) {
+        toast({
+          title: "Conexão restabelecida",
+          description: "A conexão com o servidor foi restabelecida com sucesso!"
+        });
+      } else {
+        toast({
+          title: "Conexão ainda indisponível",
+          description: "Não foi possível estabelecer conexão. Tente novamente mais tarde.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error retrying connection:", error);
+      setConnectionError("Erro ao tentar reconectar. Verifique sua conexão com a internet.");
       toast({
-        title: "Conexão restabelecida",
-        description: "A conexão com o servidor foi restabelecida com sucesso!"
+        title: "Falha na reconexão",
+        description: "Não foi possível reconectar ao servidor. Tente novamente mais tarde.",
+        variant: "destructive"
       });
+    } finally {
+      setTestingConnection(false);
     }
   };
+
+  // Only show content when initial load is complete to avoid flash of content
+  if (!initialLoadComplete) {
+    return (
+      <div className="bg-white p-4 rounded-lg border shadow-sm">
+        <div className="w-full h-40 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-4 rounded-lg border shadow-sm">
