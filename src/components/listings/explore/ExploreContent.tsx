@@ -1,16 +1,13 @@
 
-import { useState, useEffect } from "react";
-import FilterSidebar from "./FilterSidebar";
-import ListingsGrid from "./ListingsGrid";
-import MobileFilterSheet from "../explore/mobile-filter/MobileFilterSheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ListingStatus } from "@/components/listings/StatusBadge";
-import EmptyListingsState from "./EmptyListingsState";
+import ListingsGrid from "./ListingsGrid";
+import { FilterSidebar } from "./filter-sidebar";
+import { MobileFilterSheet } from "./mobile-filter";
 
 interface ExploreContentProps {
   listings: any[];
   isLoading: boolean;
-  searchTerm: string;
+  searchTerm?: string;
   selectedCategory: string | null;
   setSelectedCategory: (category: string | null) => void;
   selectedType: string | null;
@@ -32,11 +29,14 @@ interface ExploreContentProps {
   // Condominium filter toggle
   isCondominiumFilter: boolean;
   setIsCondominiumFilter: (isFiltered: boolean) => void;
-  // Preço máximo dinâmico
-  maxPrice?: number;
+  // Filter sheet (mobile)
+  isFilterSheetOpen?: boolean;
+  setIsFilterSheetOpen?: (isOpen: boolean) => void;
+  // Dynamic max price
+  maxPrice?: number; 
 }
 
-const ExploreContent = ({
+const ExploreContent = ({ 
   listings,
   isLoading,
   searchTerm,
@@ -61,15 +61,16 @@ const ExploreContent = ({
   // Condominium filter toggle
   isCondominiumFilter,
   setIsCondominiumFilter,
-  // Preço máximo dinâmico
+  // Filter sheet (mobile)
+  isFilterSheetOpen = false,
+  setIsFilterSheetOpen = () => {},
+  // Dynamic max price
   maxPrice
 }: ExploreContentProps) => {
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-
   return (
-    <div className="flex gap-6 mt-6">
-      {/* Filtro Lateral para Desktop */}
-      <FilterSidebar 
+    <div className="flex flex-row gap-6">
+      {/* Filter Sidebar (Desktop) */}
+      <FilterSidebar
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         selectedType={selectedType}
@@ -91,29 +92,8 @@ const ExploreContent = ({
         setIsCondominiumFilter={setIsCondominiumFilter}
         maxPrice={maxPrice}
       />
-
-      {/* Conteúdo Principal com os Anúncios */}
-      <div className="flex-1">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-64 w-full" />
-            ))}
-          </div>
-        ) : listings.length > 0 ? (
-          <ListingsGrid listings={listings} isLoading={isLoading} />
-        ) : (
-          <EmptyListingsState 
-            searchTerm={searchTerm}
-            hasFilters={!!(selectedCategory || selectedType || selectedStatus || 
-              priceRange[0] > 0 || priceRange[1] < (maxPrice || 2000) ||
-              selectedStateId || selectedCityId || selectedCondominiumId)}
-            onResetFilters={resetFilters}
-          />
-        )}
-      </div>
-
-      {/* Modal de Filtros para Mobile */}
+      
+      {/* Mobile Filter Sheet */}
       <MobileFilterSheet 
         isOpen={isFilterSheetOpen}
         setIsOpen={setIsFilterSheetOpen}
@@ -137,6 +117,15 @@ const ExploreContent = ({
         setIsCondominiumFilter={setIsCondominiumFilter}
         maxPrice={maxPrice}
       />
+      
+      {/* Listings Grid */}
+      <div className="flex-1">
+        <ListingsGrid 
+          listings={listings} 
+          isLoading={isLoading}
+          searchTerm={searchTerm}
+        />
+      </div>
     </div>
   );
 };
