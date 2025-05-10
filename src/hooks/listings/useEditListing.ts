@@ -19,6 +19,7 @@ const initialFormData: EditListingFormData = {
   delivery: false,
   deliveryFee: "0",
   paymentMethods: "Dinheiro, Pix",
+  priceUponRequest: false,
 };
 
 export const useEditListing = (listingId: string) => {

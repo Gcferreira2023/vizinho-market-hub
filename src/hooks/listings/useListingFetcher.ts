@@ -45,6 +45,7 @@ export const useListingFetcher = (listingId: string, setIsLoading: (value: boole
         delivery: adData.delivery || false,
         deliveryFee: adData.delivery_fee?.toString() || "0",
         paymentMethods: adData.payment_methods || "",
+        priceUponRequest: adData.price_upon_request || false,
       });
       
       // Fetch listing images
