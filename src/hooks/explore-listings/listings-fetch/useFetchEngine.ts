@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchListings } from "@/services/listings/listingService";
 import { buildSearchParams } from "./buildSearchParams";
@@ -13,6 +13,8 @@ export function useFetchEngine(params: ListingsFetchParams) {
   const [listings, setListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const isMountedRef = useRef(true);
+  const fetchingRef = useRef(false);
   
   // Get retry utilities
   const { 
@@ -26,6 +28,13 @@ export function useFetchEngine(params: ListingsFetchParams) {
 
   // Memoize the fetch function to avoid unnecessary re-renders
   const fetchData = useCallback(async () => {
+    // Prevent concurrent fetches
+    if (fetchingRef.current) {
+      console.log("Fetch already in progress, skipping...");
+      return;
+    }
+    
+    fetchingRef.current = true;
     setIsLoading(true);
     console.log("Starting to load listings with params:", JSON.stringify(params, null, 2));
     
@@ -36,15 +45,19 @@ export function useFetchEngine(params: ListingsFetchParams) {
       
       const data = await fetchListings(searchParams);
       console.log(`Fetch successful: ${data.length} listings returned`);
-      setListings(data || []);
       
-      // Show toast for empty search results with search term
-      if (params.searchTerm && data.length === 0) {
-        toast({
-          title: "Nenhum resultado",
-          description: `Não encontramos resultados para "${params.searchTerm}"`,
-          variant: "destructive"
-        });
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        setListings(data || []);
+      
+        // Show toast for empty search results with search term
+        if (params.searchTerm && data.length === 0) {
+          toast({
+            title: "Nenhum resultado",
+            description: `Não encontramos resultados para "${params.searchTerm}"`,
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       // Enhanced error handling
@@ -61,18 +74,33 @@ export function useFetchEngine(params: ListingsFetchParams) {
       });
       
       // Handle the error with the retry logic
-      handleError(error);
+      if (isMountedRef.current) {
+        handleError(error);
+      }
     } finally {
-      // Only set loading to false after a minimum delay to prevent flickering
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
+      // Only set loading to false if component is still mounted
+      if (isMountedRef.current) {
+        // Minimum delay to prevent flickering
+        setTimeout(() => {
+          setIsLoading(false);
+          fetchingRef.current = false;
+        }, 500);
+      } else {
+        fetchingRef.current = false;
+      }
     }
   }, [
     params,
     toast,
     handleError
   ]);
+
+  // Handle cleanup when component unmounts
+  const cleanup = useCallback(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   return {
     listings,
@@ -81,6 +109,7 @@ export function useFetchEngine(params: ListingsFetchParams) {
     resetError,
     retryCount,
     hasError,
-    manualRetry
+    manualRetry,
+    cleanup
   };
 }

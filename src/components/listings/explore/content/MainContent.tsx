@@ -1,4 +1,3 @@
-
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import ListingsGrid from "../ListingsGrid";
 import EmptyListingsState from "../EmptyListingsState";

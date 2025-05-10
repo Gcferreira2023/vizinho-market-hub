@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "../ListingCard";
 import { supabase } from "@/integrations/supabase/client";
-import { ListingStatus, mapStatusFromDB } from "../StatusBadge";
+import { mapStatusFromDB } from "../StatusBadge";
 import { useMobile } from "@/hooks/useMobile";
 import EmptyListingsState from "./EmptyListingsState";
 import { categoryMappings } from "@/constants/listings";
@@ -28,8 +28,14 @@ const ListingsGrid = memo(({
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
   const isMobile = useMobile();
+  const listingsRef = useRef(listings);
   
-  // Memoize the image loading function to avoid recreations
+  // Update ref when listings change
+  useEffect(() => {
+    listingsRef.current = listings;
+  }, [listings]);
+  
+  // Memoize the image loading function
   const handleImageLoad = useCallback(() => {
     setLoadedImages(prev => prev + 1);
   }, []);
@@ -37,56 +43,65 @@ const ListingsGrid = memo(({
   // Reset loaded images counter when listings change
   useEffect(() => {
     setLoadedImages(0);
-    // Log basic info about the listings
-    console.log(`ListingsGrid rendering with ${listings.length} listings`);
   }, [listings]);
   
   // Fetch condominium info for listings if needed
   useEffect(() => {
+    // Skip if no listings or already loaded all needed info
+    if (listings.length === 0) return;
+    
     const fetchCondominiumData = async () => {
-      const details: Record<string, any> = {};
+      // Only fetch for listings we don't already have info for
+      const listingsToFetch = listings.filter(
+        listing => listing.condominium_id && !condominiumDetails[listing.condominium_id]
+      );
       
-      for (const listing of listings) {
-        if (listing.condominium_id && !details[listing.condominium_id]) {
-          try {
-            const { data, error } = await supabase
-              .from('condominiums')
-              .select(`
+      if (listingsToFetch.length === 0) return;
+      
+      const details = {...condominiumDetails};
+      
+      // Group by condominium ID to reduce number of queries
+      const condominiumIds = [...new Set(listingsToFetch.map(l => l.condominium_id))];
+      
+      for (const condominiumId of condominiumIds) {
+        if (!condominiumId || details[condominiumId]) continue;
+        
+        try {
+          const { data, error } = await supabase
+            .from('condominiums')
+            .select(`
+              name,
+              cities (
                 name,
-                cities (
+                states (
                   name,
-                  states (
-                    name,
-                    uf
-                  )
+                  uf
                 )
-              `)
-              .eq('id', listing.condominium_id)
-              .single();
-              
-            if (!error && data) {
-              details[listing.condominium_id] = data;
-            }
-          } catch (error) {
-            console.error(`Error fetching condominium for listing ${listing.id}:`, error);
+              )
+            `)
+            .eq('id', condominiumId)
+            .single();
+            
+          if (!error && data) {
+            details[condominiumId] = data;
           }
+        } catch (error) {
+          console.error(`Error fetching condominium data:`, error);
         }
       }
       
       setCondominiumDetails(details);
     };
     
-    if (listings.length > 0) {
-      fetchCondominiumData();
-    }
-  }, [listings]);
+    fetchCondominiumData();
+  }, [listings, condominiumDetails]);
   
   if (isLoading) {
     // Adjust number of skeletons shown based on device
     const skeletonsCount = isMobile ? 4 : 8;
     
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {Array.from({ length: skeletonsCount }).map((_, index) => (
           <Skeleton key={index} className="h-[280px] md:h-[350px] rounded-lg" />
         ))}
@@ -111,9 +126,6 @@ const ListingsGrid = memo(({
         const condoName = condoInfo?.name || 
                           listing.condominiums?.name || 
                           "Não informado";
-        
-        // Get the city name if available
-        const cityName = condoInfo?.cities?.name || listing.condominiums?.cities?.name || "";
         
         // For location display in card
         let location = "";
@@ -143,7 +155,6 @@ const ListingsGrid = memo(({
         let categoryForDisplay = listing.category;
         if (listing.category && categoryMappings.dbToId[listing.category]) {
           categoryForDisplay = categoryMappings.dbToId[listing.category];
-          console.log(`Mapped category from DB "${listing.category}" to UI "${categoryForDisplay}"`);
         }
         
         return (
@@ -173,3 +184,8 @@ const ListingsGrid = memo(({
 ListingsGrid.displayName = "ListingsGrid";
 
 export default ListingsGrid;
+
+function useRef(listings: any[]): { current: any[]; } {
+  const [ref] = useState({ current: listings });
+  return ref;
+}

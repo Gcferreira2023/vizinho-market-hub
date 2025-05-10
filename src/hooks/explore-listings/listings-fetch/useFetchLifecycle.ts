@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { ListingsFetchParams } from "./types";
 import { useFetchEngine } from "./useFetchEngine";
 
@@ -7,6 +7,10 @@ import { useFetchEngine } from "./useFetchEngine";
  * Hook that manages the lifecycle of fetching listings
  */
 export function useFetchLifecycle(params: ListingsFetchParams) {
+  // Track if we need to fetch data
+  const shouldFetchRef = useRef(true);
+  const prevParamsRef = useRef<string>("");
+  
   // Get the core fetch functionality
   const {
     listings,
@@ -15,7 +19,8 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
     resetError,
     retryCount,
     hasError,
-    manualRetry
+    manualRetry,
+    cleanup
   } = useFetchEngine(params);
   
   // Create a stable dependency array for the effect
@@ -49,6 +54,15 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
 
   // Effect to fetch listings from database based on filters
   useEffect(() => {
+    // Skip initial fetch if params haven't changed - avoid double fetch on mount
+    if (prevParamsRef.current === paramsStr && !shouldFetchRef.current) {
+      console.log("Skipping duplicate fetch with same params");
+      return;
+    }
+    
+    prevParamsRef.current = paramsStr;
+    shouldFetchRef.current = false;
+    
     // Reset error state on new filter params
     resetError();
     
@@ -68,11 +82,15 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
       // First attempt
       fetchData();
     }
+    
+    // Apply cleanup function when component unmounts
+    return cleanup();
   }, [
     fetchData,
     retryCount,
     resetError,
-    paramsStr
+    paramsStr,
+    cleanup
   ]);
 
   return {
