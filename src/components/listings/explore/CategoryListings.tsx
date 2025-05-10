@@ -29,7 +29,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
     
     // Map from URL category to database value
     const categoryMap: Record<string, string> = {
-      'produtos': 'produtos',
+      'produtos': 'Produtos Gerais',
       'alimentos': 'Alimentos',
       'servicos': 'Serviços',
       'vagas': 'Vagas/Empregos'

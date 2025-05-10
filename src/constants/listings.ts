@@ -9,5 +9,5 @@ export const categories = [
 
 export const listingTypes = [
   { id: "produto", name: "Produto" },
-  { id: "servico", name: "Serviço" },
+  { id: "serviço", name: "Serviço" },
 ];

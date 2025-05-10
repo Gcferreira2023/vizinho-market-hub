@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { categories } from "@/constants/listings";
 
 interface MobileFilterCategoryProps {
   selectedCategory: string | null;
@@ -31,11 +32,11 @@ const MobileFilterCategory = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas as categorias</SelectItem>
-          <SelectItem value="Alimentos">Alimentos</SelectItem>
-          <SelectItem value="Serviços">Serviços</SelectItem>
-          <SelectItem value="Produtos Gerais">Produtos Gerais</SelectItem>
-          <SelectItem value="produtos">Produtos Gerais</SelectItem>
-          <SelectItem value="Vagas/Empregos">Vagas/Empregos</SelectItem>
+          {categories.map((category) => (
+            <SelectItem key={category.id} value={category.name}>
+              {category.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

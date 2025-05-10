@@ -21,7 +21,12 @@ const normalizeCategoryValue = (category?: string): string | undefined => {
   // Map UI category names to database values and vice versa
   const categoryMappings: Record<string, string> = {
     'Produtos Gerais': 'produtos',
-    'produtos': 'produtos'
+    'produtos': 'produtos',
+    'Alimentos': 'Alimentos',
+    'Serviços': 'Serviços',
+    'servicos': 'Serviços',
+    'serviço': 'Serviços',
+    'Vagas/Empregos': 'Vagas/Empregos'
   };
   
   return categoryMappings[category] || category;
