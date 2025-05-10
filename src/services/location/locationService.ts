@@ -1,36 +1,53 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { City, Condominium, State } from "@/types/location";
 
 // Buscar todos os estados
 export const fetchStates = async (): Promise<State[]> => {
-  const { data, error } = await supabase
-    .from('states')
-    .select('*')
-    .order('name');
-  
-  if (error) {
-    console.error("Erro ao buscar estados:", error);
-    throw error;
+  try {
+    const { data, error } = await supabase
+      .from('states')
+      .select('*')
+      .order('name');
+    
+    if (error) {
+      console.error("Erro ao buscar estados:", error);
+      throw error;
+    }
+    
+    if (!data || data.length === 0) {
+      console.log("Nenhum estado encontrado");
+      return [];
+    }
+    
+    return data as State[];
+  } catch (error) {
+    console.error("Erro ao buscar estados (try/catch):", error);
+    // Return empty array instead of throwing error to prevent UI crash
+    return [];
   }
-  
-  return data as State[];
 };
 
 // Buscar cidades por estado
 export const fetchCitiesByState = async (stateId: string): Promise<City[]> => {
-  const { data, error } = await supabase
-    .from('cities')
-    .select('*, states(*)')
-    .eq('state_id', stateId)
-    .order('name');
-  
-  if (error) {
-    console.error("Erro ao buscar cidades:", error);
-    throw error;
+  try {
+    if (!stateId) return [];
+    
+    const { data, error } = await supabase
+      .from('cities')
+      .select('*, states(*)')
+      .eq('state_id', stateId)
+      .order('name');
+    
+    if (error) {
+      console.error("Erro ao buscar cidades:", error);
+      throw error;
+    }
+    
+    return data as City[];
+  } catch (error) {
+    console.error("Erro ao buscar cidades (try/catch):", error);
+    return [];
   }
-  
-  return data as City[];
 };
 
 // Buscar condomínios por cidade

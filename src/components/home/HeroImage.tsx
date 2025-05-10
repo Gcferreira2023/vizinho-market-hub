@@ -1,5 +1,6 @@
 
 import React from "react";
+import OptimizedImage from "@/components/ui/optimized-image";
 
 const HeroImage = () => {
   // Imagem que remete ao comércio entre vizinhos (compartilhar, vender, trocar)
@@ -8,12 +9,11 @@ const HeroImage = () => {
   return (
     <div className="md:w-1/2 flex justify-center px-4 md:px-0">
       <div className="w-full max-w-lg relative rounded-lg shadow-xl overflow-hidden bg-gray-100">
-        <img 
+        <OptimizedImage 
           src={heroImageUrl}
           alt="VizinhoMarket - Comércio entre vizinhos no condomínio"
-          className="w-full aspect-[4/3] object-cover"
-          loading="eager"
-          fetchPriority="high"
+          className="w-full aspect-[4/3]"
+          priority={true}
         />
       </div>
     </div>

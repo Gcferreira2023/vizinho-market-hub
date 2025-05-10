@@ -10,10 +10,7 @@ import {
   CondominiumBadge, 
   MockIndicator 
 } from "./components/ListingBadges";
-import { 
-  ImageLoadingState, 
-  ImageErrorState 
-} from "./components/ImageLoadingState";
+import OptimizedImage from "@/components/ui/optimized-image";
 
 interface ListingImageProps {
   id: string;
@@ -69,26 +66,16 @@ const ListingImage = ({
         </div>
       )}
       
-      {/* Main image */}
+      {/* Main image using OptimizedImage component */}
       {isVisible && (
-        <img
+        <OptimizedImage
           src={imgSrc}
           alt={title}
           className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
           onLoad={handleImageLoad}
-          onError={handleImageError}
-          loading={lazyLoad ? "lazy" : "eager"}
-          fetchPriority={lazyLoad ? "auto" : "high"}
+          fallbackSrc="/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png"
+          priority={!lazyLoad}
         />
-      )}
-      
-      {/* Error state */}
-      {hasError && isVisible && (
-        <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
-          <div className="bg-background/80 p-3 rounded-full">
-            <ImageIcon className="h-8 w-8 text-gray-500" />
-          </div>
-        </div>
       )}
       
       {/* Type badge */}
