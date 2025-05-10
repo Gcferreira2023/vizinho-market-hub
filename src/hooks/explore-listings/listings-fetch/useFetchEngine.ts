@@ -49,7 +49,7 @@ export function useFetchEngine(params: ListingsFetchParams) {
       // Only update state if component is still mounted
       if (isMountedRef.current) {
         setListings(data || []);
-        setIsLoading(false); // Important: Move this inside the success path
+        setIsLoading(false);
       
         // Show toast for empty search results with search term
         if (params.searchTerm && data.length === 0) {
@@ -63,23 +63,12 @@ export function useFetchEngine(params: ListingsFetchParams) {
       
       fetchingRef.current = false;
     } catch (error) {
-      // Enhanced error handling
-      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("Error fetching listings:", error);
-      console.error("Error details:", { 
-        message: errorMessage, 
-        filters: { 
-          searchTerm: params.searchTerm, 
-          category: params.selectedCategory, 
-          type: params.selectedType,
-          status: params.selectedStatus
-        } 
-      });
       
       // Handle the error with the retry logic
       if (isMountedRef.current) {
         handleError(error);
-        setIsLoading(false); // Important: Also update loading state on error
+        setIsLoading(false); // Make sure we set loading to false even on error
       }
       
       fetchingRef.current = false;
@@ -93,6 +82,7 @@ export function useFetchEngine(params: ListingsFetchParams) {
   // Handle cleanup when component unmounts
   const cleanup = useCallback(() => {
     return () => {
+      console.log("Cleanup function called");
       isMountedRef.current = false;
     };
   }, []);

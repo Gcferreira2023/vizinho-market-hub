@@ -27,25 +27,13 @@ const MainContent = ({
   // Use refs to keep track of previous state to prevent unnecessary re-renders
   const prevListingsLengthRef = useRef(listings.length);
   
-  // Simplify loading state management to fix flickering and stuck loading issues
+  // Simplified loading state management - no delay to make sure we show content faster
   const [isStableLoading, setIsStableLoading] = useState(isLoading);
 
-  // Update stable loading state with a short delay to prevent flicker but ensure updates
+  // Update loading state more directly to prevent stuck loading states
   useEffect(() => {
-    // For initial load or when loading starts, update immediately
-    if (isLoading) {
-      setIsStableLoading(true);
-      return;
-    }
-    
-    // When loading completes, add a small delay before updating UI
-    const timer = setTimeout(() => {
-      setIsStableLoading(false);
-    }, 300);
-    
-    return () => {
-      clearTimeout(timer);
-    };
+    console.log("Loading state changed:", isLoading);
+    setIsStableLoading(isLoading);
   }, [isLoading]);
   
   // Log filtering info for debugging
@@ -58,7 +46,7 @@ const MainContent = ({
   
   return (
     <>
-      {isStableLoading ? (
+      {isLoading ? (
         <LoadingSpinner message="Carregando anúncios..." />
       ) : listings.length > 0 ? (
         <ListingsGrid listings={listings} />

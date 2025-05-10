@@ -54,49 +54,39 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
 
   // Effect to fetch listings from database based on filters
   useEffect(() => {
+    console.log("useFetchLifecycle effect running, isLoading:", isLoading);
+    
     // Skip fetch if already loading to prevent duplicates
     if (isLoading && !shouldFetchRef.current) {
+      console.log("Skipping fetch because already loading");
       return;
     }
     
-    // Skip initial fetch if params haven't changed - avoid double fetch on mount
+    // Always fetch on first render
     if (prevParamsRef.current === paramsStr && !shouldFetchRef.current) {
       console.log("Skipping duplicate fetch with same params");
       return;
     }
     
+    console.log("Executing fetch for params:", paramsStr);
     prevParamsRef.current = paramsStr;
     shouldFetchRef.current = false;
     
     // Reset error state on new filter params
     resetError();
     
-    // Execute fetch or retry with delay based on retry count
-    if (retryCount > 0) {
-      // Exponential backoff for retries (1s, 2s, 4s)
-      const retryDelay = Math.pow(2, retryCount - 1) * 1000;
-      
-      console.log(`Scheduling retry in ${retryDelay}ms`);
-      const timerId = setTimeout(() => {
-        fetchData();
-      }, retryDelay);
-      
-      // Cleanup timer on unmount or filter change
-      return () => clearTimeout(timerId);
-    } else {
-      // First attempt
-      fetchData();
-    }
+    // Execute fetch immediately
+    fetchData();
     
     // Apply cleanup function when component unmounts
     return cleanup();
   }, [
     fetchData,
-    retryCount,
     resetError,
     paramsStr,
     cleanup,
-    isLoading
+    isLoading,
+    retryCount
   ]);
 
   return {

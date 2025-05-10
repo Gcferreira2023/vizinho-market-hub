@@ -36,19 +36,18 @@ export const OptimizedImage = ({
   const isMobile = useMobile();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
-  
-  // Atualizar a fonte da imagem quando a prop src mudar
+  const [imgSrc, setImgSrc] = useState<string>("");
+
+  // Set initial image source
   useEffect(() => {
+    console.log("OptimizedImage: Setting image source", { src, fallbackSrc });
+    
     if (!src || src.trim() === "" || src === "/placeholder.svg") {
       setImgSrc(fallbackSrc);
-    } else if (src.startsWith('http') || src.startsWith('/')) {
-      setImgSrc(src);
     } else {
-      setImgSrc(fallbackSrc);
+      setImgSrc(src);
     }
     
-    // Resetar estados quando a fonte muda
     setIsLoaded(false);
     setHasError(false);
   }, [src, fallbackSrc]);
@@ -65,13 +64,13 @@ export const OptimizedImage = ({
     : "";
 
   const handleLoad = () => {
-    console.log(`Image loaded successfully: ${imgSrc} for "${alt}"`);
+    console.log(`Image loaded successfully: ${imgSrc}`);
     setIsLoaded(true);
     if (onLoad) onLoad();
   };
 
   const handleError = () => {
-    console.error(`Error loading image: ${imgSrc} for "${alt}"`);
+    console.error(`Error loading image: ${imgSrc}`);
     
     if (imgSrc !== fallbackSrc) {
       console.log(`Switching to fallback: ${fallbackSrc}`);
@@ -100,7 +99,6 @@ export const OptimizedImage = ({
         height={height}
         className={`w-full h-full transition-opacity duration-300 ${objectFitClass} ${isLoaded && !hasError ? "opacity-100" : "opacity-0"} ${touchableClass}`}
         loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
         onLoad={handleLoad}
         onError={handleError}
       />
