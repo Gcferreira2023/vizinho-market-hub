@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -63,6 +62,28 @@ const FilterSidebar = ({
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
   
+  // Helper to handle category mapping
+  const handleCategoryChange = (value: string) => {
+    if (value === "all") {
+      setSelectedCategory(null);
+      return;
+    }
+    
+    // Map UI category names to database values if needed
+    if (value === "Produtos Gerais") {
+      setSelectedCategory("produtos");
+    } else {
+      setSelectedCategory(value);
+    }
+  };
+  
+  // Helper to get display value for category
+  const getCategoryDisplayValue = () => {
+    if (!selectedCategory) return "all";
+    if (selectedCategory === "produtos") return "Produtos Gerais";
+    return selectedCategory;
+  };
+  
   return (
     <div className="hidden md:block w-64 space-y-6">
       <div className="bg-white p-4 rounded-lg border space-y-5">
@@ -92,10 +113,8 @@ const FilterSidebar = ({
         <div className="space-y-2">
           <Label>Categoria</Label>
           <Select
-            value={selectedCategory || "all"}
-            onValueChange={(value) => 
-              setSelectedCategory(value === "all" ? null : value)
-            }
+            value={getCategoryDisplayValue()}
+            onValueChange={handleCategoryChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="Todas as categorias" />

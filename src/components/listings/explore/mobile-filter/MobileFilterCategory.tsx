@@ -34,6 +34,7 @@ const MobileFilterCategory = ({
           <SelectItem value="Alimentos">Alimentos</SelectItem>
           <SelectItem value="Serviços">Serviços</SelectItem>
           <SelectItem value="Produtos Gerais">Produtos Gerais</SelectItem>
+          <SelectItem value="produtos">Produtos Gerais</SelectItem>
           <SelectItem value="Vagas/Empregos">Vagas/Empregos</SelectItem>
         </SelectContent>
       </Select>

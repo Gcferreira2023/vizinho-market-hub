@@ -23,6 +23,21 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
   
+  // Helper function to map category IDs to database categories
+  const mapCategoryToDatabaseValue = (category: string | undefined): string | undefined => {
+    if (!category) return undefined;
+    
+    // Map from URL category to database value
+    const categoryMap: Record<string, string> = {
+      'produtos': 'produtos',
+      'alimentos': 'Alimentos',
+      'servicos': 'Serviços',
+      'vagas': 'Vagas/Empregos'
+    };
+    
+    return categoryMap[category];
+  };
+  
   useEffect(() => {
     const loadListings = async () => {
       setIsLoading(true);
@@ -33,7 +48,11 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         };
         
         if (categoryId) {
-          searchParams.category = categoryId;
+          const dbCategory = mapCategoryToDatabaseValue(categoryId);
+          if (dbCategory) {
+            searchParams.category = dbCategory;
+          }
+          console.log(`Filtering by category: ${categoryId} -> ${dbCategory}`);
         }
         
         if (searchTerm) {
@@ -44,6 +63,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         
         const data = await fetchListings(searchParams);
         console.log(`Found ${data.length} results`);
+        console.log("Results:", data);
         
         setListings(data || []);
         

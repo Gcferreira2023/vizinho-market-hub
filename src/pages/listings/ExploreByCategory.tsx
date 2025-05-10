@@ -20,6 +20,8 @@ const ExploreByCategory = () => {
   // Nome da categoria para exibição
   const categoryTitle = categoryTitles[categoryId || ""] || "Categoria";
 
+  console.log(`Exploring category: ${categoryId}, title: ${categoryTitle}`);
+  
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">

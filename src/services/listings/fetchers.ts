@@ -14,6 +14,19 @@ export const fetchListing = async (listingId: string) => {
   return adData;
 };
 
+// Helper function to handle category mapping
+const normalizeCategoryValue = (category?: string): string | undefined => {
+  if (!category) return undefined;
+  
+  // Map UI category names to database values and vice versa
+  const categoryMappings: Record<string, string> = {
+    'Produtos Gerais': 'produtos',
+    'produtos': 'produtos'
+  };
+  
+  return categoryMappings[category] || category;
+};
+
 // Buscar listagens com filtro de pesquisa
 export const fetchListings = async (searchParams: {
   search?: string;
@@ -50,9 +63,11 @@ export const fetchListings = async (searchParams: {
     query = query.eq("status", "active");
   }
   
-  // Add category filter
+  // Add category filter with proper mapping
   if (searchParams.category) {
-    query = query.eq("category", searchParams.category);
+    const normalizedCategory = normalizeCategoryValue(searchParams.category);
+    console.log(`Filtering by category: ${searchParams.category} -> ${normalizedCategory}`);
+    query = query.eq("category", normalizedCategory);
   }
   
   // Add type filter
@@ -105,6 +120,7 @@ export const fetchListings = async (searchParams: {
   console.log(`Resultados encontrados: ${data?.length || 0}`);
   if (data && data.length > 0) {
     console.log("Primeiro resultado:", data[0].title);
+    console.log("Categoria do primeiro resultado:", data[0].category);
     console.log("Preço do primeiro resultado:", data[0].price);
   }
   
