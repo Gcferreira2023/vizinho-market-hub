@@ -21,6 +21,23 @@ const FilterCategory = ({
     const category = categories.find(cat => cat.id === categoryId);
     return category ? category.name : categoryId;
   };
+  
+  const handleCategoryChange = (value: string) => {
+    const newCategory = value === "all" ? null : value;
+    console.log(`Category changed to: ${newCategory} (original value: ${value})`);
+    
+    // Apply category selection
+    setSelectedCategory(newCategory);
+    
+    // Log additional debug info
+    if (newCategory) {
+      console.log(`Selected category details - ID: ${newCategory}, Name: ${getCategoryName(newCategory)}`);
+      
+      if (categoryMappings.idToDb[newCategory]) {
+        console.log(`Will be mapped to DB value: "${categoryMappings.idToDb[newCategory]}"`);
+      }
+    }
+  };
 
   return (
     <div className="space-y-2">
@@ -29,22 +46,7 @@ const FilterCategory = ({
       </Label>
       <Select
         value={selectedCategory || "all"}
-        onValueChange={(value) => {
-          const newCategory = value === "all" ? null : value;
-          console.log(`Category changed to: ${newCategory} (original value: ${value})`);
-          
-          // Debug what's being passed to setSelectedCategory
-          setSelectedCategory(newCategory);
-          
-          // Log additional debug info
-          if (newCategory) {
-            console.log(`Selected category details - ID: ${newCategory}, Name: ${getCategoryName(newCategory)}`);
-            
-            if (categoryMappings.idToDb[newCategory]) {
-              console.log(`Will be mapped to DB value: "${categoryMappings.idToDb[newCategory]}"`);
-            }
-          }
-        }}
+        onValueChange={handleCategoryChange}
       >
         <SelectTrigger className={selectedCategory ? "border-primary" : ""}>
           <SelectValue placeholder="Todas as categorias" />

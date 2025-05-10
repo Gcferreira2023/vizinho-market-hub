@@ -15,18 +15,18 @@ export function buildSearchParams(params: ListingsFetchParams) {
     console.log(`Search term: "${params.searchTerm}"`);
   }
   
-  // Category filter - FIX: ensure we're using the correct mapping by checking both ways
+  // Category filter - FIX: ensure we're using the correct mapping
   if (params.selectedCategory) {
-    // Critical fix: Use the original category ID as the parameter name 
-    // and let the fetchers.ts file handle the mapping to DB value
-    searchParams.category = params.selectedCategory;
-    console.log(`Category filter (ID): "${params.selectedCategory}"`);
+    // Map UI category ID to database value before sending to API
+    const dbCategory = categoryMappings.idToDb[params.selectedCategory];
     
-    // Log the mapping that will be used in fetchers.ts
-    if (categoryMappings.idToDb[params.selectedCategory]) {
-      console.log(`Will be mapped to DB value: "${categoryMappings.idToDb[params.selectedCategory]}"`);
+    if (dbCategory) {
+      searchParams.category = dbCategory;
+      console.log(`Category filter: "${params.selectedCategory}" -> DB value: "${dbCategory}"`);
     } else {
-      console.log(`⚠️ WARNING: No mapping found for category ID "${params.selectedCategory}"`);
+      // Fallback: use the original ID if no mapping exists
+      searchParams.category = params.selectedCategory;
+      console.log(`Category filter (unmapped): "${params.selectedCategory}"`);
     }
   }
   

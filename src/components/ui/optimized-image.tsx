@@ -37,9 +37,13 @@ export const OptimizedImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imgSrc, setImgSrc] = useState("");
+  const [isImageSet, setIsImageSet] = useState(false);
   
   // Set initial image source based on provided src or fallback
   useEffect(() => {
+    // Only update image source once to prevent flickering
+    if (isImageSet) return;
+    
     if (!src || src.trim() === "" || src === "/placeholder.svg") {
       console.log(`OptimizedImage: No valid source provided, using fallback for "${alt}"`);
       setImgSrc(fallbackSrc);
@@ -50,17 +54,9 @@ export const OptimizedImage = ({
       console.log(`OptimizedImage: Invalid URL format, using fallback for "${alt}"`);
       setImgSrc(fallbackSrc);
     }
-  }, [src, fallbackSrc, alt]);
-
-  // Update image source if src prop changes
-  useEffect(() => {
-    if (src && src !== imgSrc && !hasError && src !== "/placeholder.svg") {
-      if (src.startsWith('http') || src.startsWith('/')) {
-        setImgSrc(src);
-        setIsLoaded(false);
-      }
-    }
-  }, [src, imgSrc, hasError]);
+    
+    setIsImageSet(true);
+  }, [src, fallbackSrc, alt, isImageSet]);
 
   const objectFitClass = {
     cover: "object-cover",
@@ -118,7 +114,7 @@ export const OptimizedImage = ({
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
           <div className="bg-background/80 p-3 rounded-full">
-            <ImageOff className="w-8 w-8 text-muted-foreground" />
+            <ImageOff className="w-8 h-8 text-muted-foreground" />
           </div>
         </div>
       )}

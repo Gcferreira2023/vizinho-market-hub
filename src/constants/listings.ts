@@ -33,6 +33,9 @@ export const categoryMappings = {
     // Add common variations for robustness
     'serviço': 'servicos',
     'servico': 'servicos',
-    'produto': 'produtos'
+    'produto': 'produtos',
+    // Add lowercase variations for case insensitivity
+    'alimentos': 'alimentos',
+    'serviços': 'servicos'
   }
 };

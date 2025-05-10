@@ -25,8 +25,19 @@ const MobileFilterCategory = ({
     return category ? category.name : categoryId;
   };
   
-  // Log for mobile component as well
+  // Log for mobile component
   console.log(`MobileFilterCategory rendering with selectedCategory: ${selectedCategory}`);
+
+  const handleCategoryChange = (value: string) => {
+    const newCategory = value === "all" ? null : value;
+    console.log(`[Mobile] Category changed to: ${newCategory} (original value: ${value})`);
+    setSelectedCategory(newCategory);
+    
+    // Debug log for mobile filter
+    if (newCategory && categoryMappings.idToDb[newCategory]) {
+      console.log(`[Mobile] Will map to DB value: "${categoryMappings.idToDb[newCategory]}"`);
+    }
+  };
 
   return (
     <div className="space-y-2">
@@ -35,16 +46,7 @@ const MobileFilterCategory = ({
       </Label>
       <Select
         value={selectedCategory || "all"}
-        onValueChange={(value) => {
-          const newCategory = value === "all" ? null : value;
-          console.log(`[Mobile] Category changed to: ${newCategory} (original value: ${value})`);
-          setSelectedCategory(newCategory);
-          
-          // Debug log for mobile filter
-          if (newCategory && categoryMappings.idToDb[newCategory]) {
-            console.log(`[Mobile] Will map to DB value: "${categoryMappings.idToDb[newCategory]}"`);
-          }
-        }}
+        onValueChange={handleCategoryChange}
       >
         <SelectTrigger className={selectedCategory ? "border-primary" : ""}>
           <SelectValue placeholder="Todas as categorias" />

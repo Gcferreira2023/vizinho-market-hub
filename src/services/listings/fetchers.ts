@@ -19,27 +19,24 @@ export const fetchListing = async (listingId: string) => {
 const normalizeCategoryValue = (category?: string): string | undefined => {
   if (!category) return undefined;
   
-  // Debug logs to help understand the input
   console.log(`Category filter requested: "${category}"`);
   
   // Direct mapping between category ID in the UI and the database value
   if (categoryMappings.idToDb[category]) {
     const dbValue = categoryMappings.idToDb[category];
-    console.log(`Mapping category ID "${category}" to DB value "${dbValue}"`);
+    console.log(`Using direct mapping: category ID "${category}" -> DB value "${dbValue}"`);
     return dbValue;
   }
   
-  // Check if this is a direct category name from DB (case insensitive)
-  const lowerCategory = category.toLowerCase();
-  for (const [dbKey, uiId] of Object.entries(categoryMappings.dbToId)) {
-    if (lowerCategory === dbKey.toLowerCase()) {
-      console.log(`Direct match: "${category}" is a valid category name`);
-      return category;
-    }
+  // In case the category is already a database value, just return it
+  const allDBValues = Object.values(categoryMappings.idToDb);
+  if (allDBValues.includes(category)) {
+    console.log(`Category "${category}" is already a valid DB value, using as-is`);
+    return category;
   }
-
+  
   // If none of the above, log warning and use as-is
-  console.log(`WARNING: Unknown category value "${category}", using as-is`);
+  console.log(`WARNING: No mapping found for category "${category}", using as-is`);
   return category;
 };
 
@@ -84,14 +81,14 @@ export const fetchListings = async (searchParams: {
     console.log("Default status filter applied: active");
   }
   
-  // Add category filter with proper mapping - FIX HERE
+  // Add category filter with proper mapping
   if (searchParams.category) {
-    // First normalize the category ID to its DB value
+    // Use the normalized category value
     const normalizedCategory = normalizeCategoryValue(searchParams.category);
     console.log(`Using normalized category for DB query: "${normalizedCategory}"`);
     
     if (normalizedCategory) {
-      // Apply the category filter - this is the critical fix
+      // Apply the category filter
       query = query.eq("category", normalizedCategory);
       console.log(`Applied category filter: category = "${normalizedCategory}"`);
     }
