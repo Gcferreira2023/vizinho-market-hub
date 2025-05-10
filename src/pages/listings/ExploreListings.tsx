@@ -9,6 +9,7 @@ import { useMobile } from "@/hooks/useMobile";
 import { Button } from "@/components/ui/button";
 import MyCondominiumToggle from "@/components/listings/explore/MyCondominiumToggle";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 const ExploreListings = () => {
   const isMobile = useMobile();

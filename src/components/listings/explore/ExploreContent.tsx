@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import ListingsGrid from "./ListingsGrid";
@@ -82,8 +83,8 @@ const ExploreContent: React.FC<ExploreContentProps> = ({
           setSelectedCategory={setSelectedCategory}
           selectedType={selectedType}
           setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
+          selectedStatus={selectedStatus as ListingStatus | null}
+          setSelectedStatus={(status) => setSelectedStatus(status)}
           showSoldItems={showSoldItems}
           setShowSoldItems={setShowSoldItems}
           priceRange={priceRange}
@@ -112,7 +113,8 @@ const ExploreContent: React.FC<ExploreContentProps> = ({
             searchTerm={searchTerm} 
             hasError={hasError}
             onRetry={retryLoadListings}
-            onResetFilters={resetFilters} 
+            onResetFilters={resetFilters}
+            hasFilters={!!(selectedCategory || selectedType || selectedStatus || selectedStateId || selectedCityId || selectedCondominiumId || (priceRange[0] > 0 || priceRange[1] < maxPrice))}
           />
         )}
       </div>
@@ -124,8 +126,8 @@ const ExploreContent: React.FC<ExploreContentProps> = ({
           setSelectedCategory={setSelectedCategory}
           selectedType={selectedType}
           setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
+          selectedStatus={selectedStatus as ListingStatus | null}
+          setSelectedStatus={(status) => setSelectedStatus(status)}
           showSoldItems={showSoldItems}
           setShowSoldItems={setShowSoldItems}
           priceRange={priceRange}
