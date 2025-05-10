@@ -20,13 +20,16 @@ export const createListing = async (formData: ListingFormData, userId: string): 
   
   const condominiumId = userData?.condominium_id;
   
+  // Define the price as 0 if priceUponRequest is true
+  const price = formData.priceUponRequest ? 0 : parseFloat(formData.price);
+  
   const { data: adData, error: adError } = await supabase
     .from('ads')
     .insert({
       user_id: userId,
       title: formData.title,
       description: formData.description,
-      price: parseFloat(formData.price),
+      price: price,
       category: formData.category,
       type: formData.type,
       availability: formData.availability,
@@ -34,6 +37,7 @@ export const createListing = async (formData: ListingFormData, userId: string): 
       delivery_fee: formData.delivery ? parseFloat(formData.deliveryFee) : null,
       payment_methods: formData.paymentMethods,
       condominium_id: condominiumId,
+      price_upon_request: formData.priceUponRequest,
     })
     .select('id')
     .single();

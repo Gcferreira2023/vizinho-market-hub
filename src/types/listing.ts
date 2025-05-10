@@ -12,6 +12,7 @@ export type ListingFormData = {
   delivery: boolean;
   deliveryFee: string;
   paymentMethods: string;
+  priceUponRequest: boolean;
 };
 
 // Type for a listing from the database
@@ -30,6 +31,7 @@ export type Listing = {
   viewCount?: number;
   created_at?: string;
   condominium_id?: string;
+  priceUponRequest?: boolean;
 };
 
 // Type for editing a listing
@@ -45,4 +47,5 @@ export const initialListingFormData: ListingFormData = {
   delivery: false,
   deliveryFee: "0",
   paymentMethods: "Dinheiro, Pix",
+  priceUponRequest: false,
 };

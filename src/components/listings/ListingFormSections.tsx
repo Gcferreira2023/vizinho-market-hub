@@ -100,17 +100,33 @@ const ListingFormSections = ({
         
         <div className="space-y-2">
           <Label htmlFor="price">Preço (R$)</Label>
-          <Input
-            id="price"
-            name="price"
-            type="number"
-            value={formData.price}
-            onChange={handleChange}
-            placeholder="0,00"
-            step="0.01"
-            min="0"
-            required
-          />
+          <div className="flex flex-col space-y-3">
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="0,00"
+              step="0.01"
+              min="0"
+              disabled={formData.priceUponRequest}
+              required={!formData.priceUponRequest}
+            />
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="priceUponRequest" 
+                checked={formData.priceUponRequest}
+                onCheckedChange={(checked) => {
+                  if (handleCheckboxChange) {
+                    handleCheckboxChange("priceUponRequest", checked === true);
+                  }
+                }}
+              />
+              <Label htmlFor="priceUponRequest">Preço a combinar</Label>
+            </div>
+          </div>
         </div>
       </div>
       
