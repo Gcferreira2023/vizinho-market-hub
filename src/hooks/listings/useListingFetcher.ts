@@ -45,7 +45,8 @@ export const useListingFetcher = (listingId: string, setIsLoading: (value: boole
         delivery: adData.delivery || false,
         deliveryFee: adData.delivery_fee?.toString() || "0",
         paymentMethods: adData.payment_methods || "",
-        priceUponRequest: adData.price_upon_request || false,
+        // Use a type-safe way to access the property, using any as a workaround
+        priceUponRequest: Boolean((adData as any).price_upon_request) || false,
       });
       
       // Fetch listing images

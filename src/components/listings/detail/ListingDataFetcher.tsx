@@ -68,6 +68,7 @@ const ListingDataFetcher = ({
           .from('ads')
           .select(`
             *,
+            price_upon_request,
             users:user_id (
               id,
               name,
@@ -102,7 +103,8 @@ const ListingDataFetcher = ({
           condominium_name: condominiumInfo?.name,
           condominium_id: adData.condominium_id,
           // Ensure price is included in display data
-          price: adData.price
+          price: adData.price,
+          price_upon_request: adData.price_upon_request
         };
         
         setListing(adData);

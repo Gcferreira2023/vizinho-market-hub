@@ -1,11 +1,10 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Buscar dados de um anúncio
 export const fetchListing = async (listingId: string) => {
   const { data: adData, error: adError } = await supabase
     .from('ads')
-    .select('*')
+    .select('*, price_upon_request')
     .eq('id', listingId)
     .single();
     
@@ -43,6 +42,7 @@ export const fetchListings = async (searchParams: {
     .from("ads")
     .select(`
       *,
+      price_upon_request,
       ad_images (*),
       users!ads_user_id_fkey (name, block, apartment),
       condominiums:condominium_id (
