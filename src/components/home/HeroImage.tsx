@@ -3,7 +3,6 @@ import React from "react";
 import OptimizedImage from "@/components/ui/optimized-image";
 
 const HeroImage = () => {
-  // Imagem que remete ao comércio entre vizinhos (compartilhar, vender, trocar)
   const heroImageUrl = "/lovable-uploads/e2f53080-25f1-41fe-9777-edff03f14f94.png";
   
   return (
@@ -14,6 +13,7 @@ const HeroImage = () => {
           alt="VizinhoMarket - Comércio entre vizinhos no condomínio"
           className="w-full aspect-[4/3]"
           priority={true}
+          objectFit="cover"
         />
       </div>
     </div>

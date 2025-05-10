@@ -32,21 +32,15 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
         if (statesData && statesData.length > 0) {
           setStates(statesData);
         } else {
-          setLoadError("Nenhum estado encontrado");
-          toast({
-            variant: "destructive",
-            title: "Sem dados de estados",
-            description: "Não foi possível encontrar a lista de estados."
-          });
+          console.log("Nenhum estado encontrado na resposta");
+          // Show a less disruptive message for empty states
+          setStates([]);
+          // Still allow the user to see "all states" option
         }
       } catch (error) {
         console.error("Error fetching states:", error);
         setLoadError("Erro ao carregar estados");
-        toast({
-          variant: "destructive",
-          title: "Erro ao carregar estados",
-          description: "Não foi possível carregar a lista de estados."
-        });
+        // Don't show toast for this common error to avoid disrupting UX
       } finally {
         setIsLoading(false);
       }
@@ -65,11 +59,6 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
       <Label htmlFor="state-select">Estado</Label>
       {isLoading ? (
         <Skeleton className="h-10 w-full" />
-      ) : loadError ? (
-        <div className="text-sm text-destructive flex items-center gap-1 mt-1">
-          <AlertCircle className="h-4 w-4" />
-          <span>{loadError}</span>
-        </div>
       ) : (
         <Select 
           value={selectedStateId || "all"} 
@@ -87,6 +76,12 @@ const StateSelect = ({ selectedStateId, setSelectedStateId }: StateSelectProps) 
             ))}
           </SelectContent>
         </Select>
+      )}
+      {loadError && (
+        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+          <AlertCircle className="h-3 w-3" />
+          <span>Erro ao carregar estados. Usando todos os estados.</span>
+        </div>
       )}
     </div>
   );
