@@ -1,9 +1,8 @@
-
 import Layout from "@/components/layout/Layout";
 import SearchListingsForm from "@/components/listings/explore/SearchListingsForm";
 import NotLoggedInAlert from "@/components/listings/explore/NotLoggedInAlert";
 import ExploreContent from "@/components/listings/explore/ExploreContent";
-import { useExploreListings } from "@/hooks/useExploreListings";
+import { useExploreListings } from "@/hooks/explore-listings";
 import { Building, Filter, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useMobile } from "@/hooks/useMobile";
