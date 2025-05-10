@@ -100,7 +100,9 @@ const ListingDataFetcher = ({
           apartment: adData.users?.apartment,
           block: adData.users?.block,
           condominium_name: condominiumInfo?.name,
-          condominium_id: adData.condominium_id
+          condominium_id: adData.condominium_id,
+          // Ensure price is included in display data
+          price: adData.price
         };
         
         setListing(adData);

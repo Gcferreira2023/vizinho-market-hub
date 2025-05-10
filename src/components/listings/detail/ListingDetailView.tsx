@@ -5,6 +5,7 @@ import { ListingImageGallery } from "@/components/listings/detail/ListingImageGa
 import ListingDetailTabs from "./ListingDetailTabs";
 import ContactSeller from "./ContactSeller";
 import StatusBadge, { mapStatusFromDB } from "../StatusBadge";
+import ListingHeader from "./ListingHeader";
 
 const ListingDetailView = ({
   listing,
@@ -28,13 +29,8 @@ const ListingDetailView = ({
   
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Título do anúncio */}
-      <h1 className="text-2xl font-bold mb-4">{listing.title}</h1>
-      
-      {/* Badge de status e controles do proprietário */}
-      <div className="flex items-center justify-between mb-4">
-        <StatusBadge status={mapStatusFromDB(listingStatus)} />
-        
+      {/* Status controls for owner */}
+      <div className="flex justify-end mb-4">
         {isOwner && (
           <div className="space-x-2">
             <button 
@@ -55,6 +51,27 @@ const ListingDetailView = ({
       
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-2/3">
+          {/* Listing Header with Price */}
+          <ListingHeader
+            title={listing.title}
+            category={listing.category}
+            type={listing.type}
+            rating={4.5}
+            price={listing.price}
+            status={mapStatusFromDB(listingStatus)}
+            adId={id || ''}
+            userId={user?.id}
+            ownerId={listing.user_id}
+            onStatusChange={handleStatusChange}
+            condominiumName={displayListing.condominium_name}
+            isUserCondominium={user?.user_metadata?.condominiumId === listing.condominium_id}
+          />
+          
+          {/* Status Badge */}
+          <div className="mb-6">
+            <StatusBadge status={mapStatusFromDB(listingStatus)} />
+          </div>
+          
           {/* Galeria de imagens */}
           <ListingImageGallery images={listingImages} />
           

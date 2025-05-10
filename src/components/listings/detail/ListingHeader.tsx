@@ -68,6 +68,18 @@ const ListingHeader = ({
             : price}
         </span>
       </div>
+      
+      {condominiumName && (
+        <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+          <MapPin size={16} />
+          <span>{condominiumName}</span>
+          {isUserCondominium && (
+            <Badge variant="outline" className="text-xs bg-primary/10 text-primary">
+              Seu condomínio
+            </Badge>
+          )}
+        </div>
+      )}
     </>
   );
 };

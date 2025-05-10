@@ -4,9 +4,11 @@ import Layout from "@/components/layout/Layout";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import ListingDetailView from "@/components/listings/detail/ListingDetailView";
 import ListingDataFetcher from "@/components/listings/detail/ListingDataFetcher";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
+  useScrollToTop();
   
   return (
     <Layout>
