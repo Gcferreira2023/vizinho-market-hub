@@ -35,6 +35,7 @@ export interface ExploreFilters {
   
   // Actions
   resetFilters: () => void;
+  handleSearch: (e: React.FormEvent) => void;
   
   // UI state 
   isFilterSheetOpen: boolean;
