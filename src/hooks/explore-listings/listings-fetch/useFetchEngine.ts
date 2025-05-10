@@ -14,6 +14,7 @@ export function useFetchEngine(params: ListingsFetchParams) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const isMountedRef = useRef(true);
+  const previousParams = useRef<string>("");
   
   // Get retry utilities
   const { 
@@ -27,7 +28,15 @@ export function useFetchEngine(params: ListingsFetchParams) {
 
   // Memoize the fetch function to avoid unnecessary re-renders
   const fetchData = useCallback(async () => {
-    setIsLoading(true);
+    const currentParams = JSON.stringify(params);
+    
+    // Não definir loading como true se os parâmetros não mudaram
+    // Isso evita o efeito de "piscar" quando os filtros não mudam
+    if (currentParams !== previousParams.current) {
+      setIsLoading(true);
+      previousParams.current = currentParams;
+    }
+    
     console.log("Starting to load listings with params:", JSON.stringify(params, null, 2));
     
     try {

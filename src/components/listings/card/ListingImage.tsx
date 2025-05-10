@@ -61,51 +61,63 @@ const ListingImage = ({
 
   return (
     <div className="relative h-full overflow-hidden bg-gray-100">
-      {isVisible ? (
-        <>
-          {/* Loading state */}
-          <ImageLoadingState isLoaded={isLoaded} />
-          
-          {/* Main image */}
-          <img
-            src={imgSrc}
-            alt={title}
-            className={`w-full h-full object-cover transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            loading={lazyLoad ? "lazy" : "eager"}
-            fetchPriority={lazyLoad ? "auto" : "high"}
-          />
-          
-          {/* Error state */}
-          <ImageErrorState hasError={hasError} />
-          
-          {/* Type badge */}
-          <TypeBadge type={type} />
-          
-          {/* Category and status badges */}
-          <CategoryAndStatusBadges category={category} status={status} />
-          
-          {/* Favorite button */}
-          <div className="absolute bottom-2 right-2 z-10">
-            <FavoriteButton
-              listingId={id}
-              size="sm"
-              variant="ghost"
-              className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
-            />
+      {/* Loading state - mostrado apenas enquanto a imagem não é carregada */}
+      {!isLoaded && isVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted z-10">
+          <Skeleton className="w-full h-full absolute" />
+          <ImageIcon className="w-8 h-8 text-muted-foreground opacity-50 z-20" />
+        </div>
+      )}
+      
+      {/* Main image */}
+      {isVisible && (
+        <img
+          src={imgSrc}
+          alt={title}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          loading={lazyLoad ? "lazy" : "eager"}
+          fetchpriority={lazyLoad ? "auto" : "high"}
+        />
+      )}
+      
+      {/* Error state */}
+      {hasError && isVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-20">
+          <div className="bg-background/80 p-3 rounded-full">
+            <ImageIcon className="h-8 w-8 text-gray-500" />
           </div>
-          
-          {/* Condominium badge */}
-          <CondominiumBadge 
-            condominiumName={condominiumName} 
-            isUserCondominium={isUserCondominium} 
-          />
-          
-          {/* Mock indicator */}
-          <MockIndicator isMockListing={isMockListing} />
-        </>
-      ) : (
+        </div>
+      )}
+      
+      {/* Type badge */}
+      <TypeBadge type={type} />
+      
+      {/* Category and status badges */}
+      <CategoryAndStatusBadges category={category} status={status} />
+      
+      {/* Favorite button */}
+      <div className="absolute bottom-2 right-2 z-10">
+        <FavoriteButton
+          listingId={id}
+          size="sm"
+          variant="ghost"
+          className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+        />
+      </div>
+      
+      {/* Condominium badge */}
+      <CondominiumBadge 
+        condominiumName={condominiumName} 
+        isUserCondominium={isUserCondominium} 
+      />
+      
+      {/* Mock indicator */}
+      <MockIndicator isMockListing={isMockListing} />
+      
+      {/* Só mostra skeleton enquanto não estiver visível */}
+      {!isVisible && (
         <div className="flex items-center justify-center w-full h-full">
           <Skeleton className="w-full h-full absolute" />
           <ImageIcon className="h-8 w-8 text-gray-400" />

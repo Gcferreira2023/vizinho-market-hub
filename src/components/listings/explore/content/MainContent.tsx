@@ -32,22 +32,25 @@ const MainContent = ({
     hasFilters 
   });
   
+  // Se estiver carregando, mostra o spinner
+  if (isLoading) {
+    return <LoadingSpinner message="Carregando anúncios..." />;
+  }
+  
+  // Se tiver listagens, mostra o grid
+  if (listings && listings.length > 0) {
+    return <ListingsGrid listings={listings} />;
+  }
+  
+  // Se não tiver resultados ou ocorreu um erro
   return (
-    <>
-      {isLoading ? (
-        <LoadingSpinner message="Carregando anúncios..." />
-      ) : listings && listings.length > 0 ? (
-        <ListingsGrid listings={listings} />
-      ) : (
-        <EmptyListingsState 
-          searchTerm={searchTerm} 
-          hasError={hasError}
-          onRetry={retryLoadListings}
-          onResetFilters={resetFilters}
-          hasFilters={hasFilters}
-        />
-      )}
-    </>
+    <EmptyListingsState 
+      searchTerm={searchTerm} 
+      hasError={hasError}
+      onRetry={retryLoadListings}
+      onResetFilters={resetFilters}
+      hasFilters={hasFilters}
+    />
   );
 };
 
