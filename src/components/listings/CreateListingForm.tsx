@@ -42,7 +42,7 @@ const CreateListingForm = ({ storageAvailable = true }: CreateListingFormProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    await createListing(formData, storageAvailable ? images : []);
+    await createListing();
   };
   
   return (

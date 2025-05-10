@@ -12,14 +12,14 @@ export const useCreateListing = () => {
   const imagesHook = useListingImages();
   
   // Use the creator hook
-  const { createListing, isLoading } = useListingCreator();
+  const { createListing: createListingAction, isLoading } = useListingCreator();
   
   // Define a function to handle the listing creation
   const handleCreateListing = async () => {
     // Validate images
     if (!imagesHook.validateImages()) return false;
     
-    return await createListing(formHook.formData, imagesHook.images);
+    return await createListingAction(formHook.formData, imagesHook.images);
   };
 
   return {
