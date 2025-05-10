@@ -1,5 +1,6 @@
 
 import { useEffect } from "react";
+import { ListingStatus } from "@/components/listings/StatusBadge";
 
 /**
  * Hook for handling filter persistence in localStorage and URL params
@@ -43,8 +44,8 @@ export function useFiltersPersistence({
   setSelectedCategory: (value: string | null) => void;
   selectedType: string | null;
   setSelectedType: (value: string | null) => void;
-  selectedStatus: string | null;
-  setSelectedStatus: (value: string | null) => void;
+  selectedStatus: ListingStatus | null;
+  setSelectedStatus: (value: ListingStatus | null) => void;
   showSoldItems: boolean;
   setShowSoldItems: (value: boolean) => void;
   maxPrice: number | undefined;

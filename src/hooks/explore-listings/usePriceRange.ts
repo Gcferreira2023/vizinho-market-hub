@@ -16,10 +16,12 @@ export function usePriceRange(
   // Update price range when dynamic max price loads
   useEffect(() => {
     if (!maxPriceLoading && dynamicMaxPrice) {
-      setPriceRange(prev => [prev[0], dynamicMaxPrice]);
+      // Create a new array for the updated price range
+      const newPriceRange: [number, number] = [priceRange[0], dynamicMaxPrice];
+      setPriceRange(newPriceRange);
       console.log(`Atualizando range de preço com máximo dinâmico: R$${dynamicMaxPrice}`);
     }
-  }, [dynamicMaxPrice, maxPriceLoading, setPriceRange]);
+  }, [dynamicMaxPrice, maxPriceLoading, setPriceRange, priceRange]);
 
   return {
     maxPrice: dynamicMaxPrice,

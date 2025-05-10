@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useExploreFilters } from "./useExploreFilters";
-import { useListingsFetch } from "./useListingsFetch";
+import { useListingsFetch } from "./listings-fetch";
 
 /**
  * Main hook for the Explore Listings page, combining filters and data fetching
