@@ -14,6 +14,8 @@ const FilterPrice = ({
   setPriceRange,
   maxPrice = 2000
 }: FilterPriceProps) => {
+  // Check if price filter is active (not at default min/max values)
+  const isPriceFilterActive = priceRange[0] > 0 || priceRange[1] < maxPrice;
   
   // Log when price range changes for debugging
   useEffect(() => {
@@ -22,7 +24,10 @@ const FilterPrice = ({
   
   return (
     <div className="space-y-4">
-      <Label>Faixa de Preço</Label>
+      <Label className={isPriceFilterActive ? "text-primary font-medium" : ""}>
+        Faixa de Preço
+        {isPriceFilterActive && <span className="text-xs ml-1 text-primary">• Ativo</span>}
+      </Label>
       <Slider
         defaultValue={[0, maxPrice / 2]}
         max={maxPrice}
@@ -32,10 +37,15 @@ const FilterPrice = ({
           setPriceRange(value as [number, number]);
           console.log(`Sidebar slider changed to: ${value[0]}-${value[1]}`);
         }}
+        className={isPriceFilterActive ? "text-primary" : ""}
       />
       <div className="flex justify-between">
-        <span className="text-sm">R$ {priceRange[0]}</span>
-        <span className="text-sm">R$ {priceRange[1]}</span>
+        <span className={`text-sm ${isPriceFilterActive ? "text-primary font-medium" : ""}`}>
+          R$ {priceRange[0]}
+        </span>
+        <span className={`text-sm ${isPriceFilterActive ? "text-primary font-medium" : ""}`}>
+          R$ {priceRange[1]}
+        </span>
       </div>
     </div>
   );

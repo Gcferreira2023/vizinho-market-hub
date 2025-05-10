@@ -46,18 +46,22 @@ const MyCondominiumToggle = ({
 
   return (
     <div className="flex items-center space-x-2">
-      <Building size={18} className={isCondominiumFilter ? "text-primary" : "text-muted-foreground"} />
+      <Building 
+        size={18} 
+        className={isCondominiumFilter ? "text-primary" : "text-muted-foreground"} 
+      />
       <Switch 
         id="condominium-filter"
         checked={isCondominiumFilter}
         onCheckedChange={onToggleCondominiumFilter}
-        className="transition-transform duration-200 data-[state=checked]:bg-primary"
+        className={`transition-all duration-200 ${isCondominiumFilter ? "bg-primary" : ""}`}
       />
       <Label 
         htmlFor="condominium-filter" 
-        className="cursor-pointer font-medium"
+        className={`cursor-pointer ${isCondominiumFilter ? "font-medium text-primary" : ""}`}
       >
         Apenas meu condomínio
+        {isCondominiumFilter && <span className="text-xs ml-1 text-primary block">• Filtro ativo</span>}
       </Label>
     </div>
   );

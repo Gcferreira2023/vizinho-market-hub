@@ -14,14 +14,16 @@ const FilterCategory = ({
 }: FilterCategoryProps) => {
   return (
     <div className="space-y-2">
-      <Label>Categoria</Label>
+      <Label className={selectedCategory ? "text-primary font-medium" : ""}>
+        Categoria {selectedCategory && <span className="text-xs ml-1 text-primary">• Ativo</span>}
+      </Label>
       <Select
         value={selectedCategory || "all"}
         onValueChange={(value) => 
           setSelectedCategory(value === "all" ? null : value)
         }
       >
-        <SelectTrigger>
+        <SelectTrigger className={selectedCategory ? "border-primary" : ""}>
           <SelectValue placeholder="Todas as categorias" />
         </SelectTrigger>
         <SelectContent>

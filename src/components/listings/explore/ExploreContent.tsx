@@ -123,7 +123,7 @@ const ExploreContent = ({
         <ListingsGrid 
           listings={listings} 
           isLoading={isLoading}
-          searchTerm={searchTerm}
+          searchTerm={searchTerm || ""}
         />
       </div>
     </div>

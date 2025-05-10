@@ -13,17 +13,20 @@ const FilterType = ({
 }: FilterTypeProps) => {
   return (
     <div className="space-y-2">
-      <Label>Tipo</Label>
+      <Label className={selectedType ? "text-primary font-medium" : ""}>
+        Tipo {selectedType && <span className="text-xs ml-1 text-primary">• Ativo</span>}
+      </Label>
       <div className="flex flex-col gap-3">
         <div className="flex items-center space-x-2">
           <Checkbox 
             id="produtos" 
             checked={selectedType === "produto"}
             onCheckedChange={() => setSelectedType(selectedType === "produto" ? null : "produto")}
+            className={selectedType === "produto" ? "border-primary text-primary" : ""}
           />
           <label 
             htmlFor="produtos"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${selectedType === "produto" ? "text-primary" : ""}`}
           >
             Produtos
           </label>
@@ -33,10 +36,11 @@ const FilterType = ({
             id="servicos" 
             checked={selectedType === "serviço"}
             onCheckedChange={() => setSelectedType(selectedType === "serviço" ? null : "serviço")}
+            className={selectedType === "serviço" ? "border-primary text-primary" : ""}
           />
           <label 
             htmlFor="servicos"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${selectedType === "serviço" ? "text-primary" : ""}`}
           >
             Serviços
           </label>

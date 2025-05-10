@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { MapPin } from "lucide-react";
+import { MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { StateSelect, CitySelect, CondominiumSelect } from "../location-filter";
 
@@ -22,6 +22,9 @@ const MobileFilterLocation = ({
   setSelectedCondominiumId
 }: MobileFilterLocationProps) => {
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Check if any location filter is active
+  const isLocationFilterActive = selectedStateId || selectedCityId || selectedCondominiumId;
 
   return (
     <div className="space-y-4 border-b pb-4">
@@ -30,9 +33,19 @@ const MobileFilterLocation = ({
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center">
-          <MapPin size={18} className="mr-2 text-primary" />
-          <Label className="font-medium text-base cursor-pointer">Localização</Label>
+          <MapPin 
+            size={18} 
+            className={isLocationFilterActive ? "text-primary" : "text-muted-foreground"} 
+          />
+          <Label className={`font-medium text-base cursor-pointer ml-2 ${isLocationFilterActive ? "text-primary" : ""}`}>
+            Localização
+            {isLocationFilterActive && <span className="text-xs ml-1 text-primary">• Ativo</span>}
+          </Label>
         </div>
+        {isOpen ? 
+          <ChevronUp size={18} className="text-muted-foreground" /> : 
+          <ChevronDown size={18} className="text-muted-foreground" />
+        }
       </div>
       
       {isOpen && (

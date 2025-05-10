@@ -26,14 +26,16 @@ const FilterStatus = ({
   return (
     <>
       <div className="space-y-2">
-        <Label>Status</Label>
+        <Label className={selectedStatus ? "text-primary font-medium" : ""}>
+          Status {selectedStatus && <span className="text-xs ml-1 text-primary">• Ativo</span>}
+        </Label>
         <Select
           value={selectedStatus || "all"}
           onValueChange={(value) => 
             setSelectedStatus(value === "all" ? null : value as ListingStatus)
           }
         >
-          <SelectTrigger>
+          <SelectTrigger className={selectedStatus ? "border-primary" : ""}>
             <SelectValue placeholder="Todos os status" />
           </SelectTrigger>
           <SelectContent>
@@ -50,8 +52,15 @@ const FilterStatus = ({
           id="show-sold"
           checked={showSoldItems}
           onCheckedChange={(checked) => setShowSoldItems(!!checked)}
+          className={!showSoldItems ? "border-primary text-primary" : ""}
         />
-        <Label htmlFor="show-sold">Mostrar itens vendidos</Label>
+        <Label 
+          htmlFor="show-sold" 
+          className={!showSoldItems ? "text-primary font-medium" : ""}
+        >
+          Mostrar itens vendidos
+          {!showSoldItems && <span className="text-xs ml-1 text-primary block">• Filtro ativo</span>}
+        </Label>
       </div>
     </>
   );
