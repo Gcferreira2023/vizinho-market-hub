@@ -58,6 +58,7 @@ const ListingDetailView = ({
             type={listing.type}
             rating={4.5}
             price={listing.price}
+            priceUponRequest={listing.price_upon_request}
             status={mapStatusFromDB(listingStatus)}
             adId={id || ''}
             userId={user?.id}

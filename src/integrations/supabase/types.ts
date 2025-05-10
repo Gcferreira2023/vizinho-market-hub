@@ -50,6 +50,7 @@ export type Database = {
           id: string
           payment_methods: string | null
           price: number
+          price_upon_request: boolean | null
           status: string | null
           title: string
           type: string | null
@@ -68,6 +69,7 @@ export type Database = {
           id?: string
           payment_methods?: string | null
           price: number
+          price_upon_request?: boolean | null
           status?: string | null
           title: string
           type?: string | null
@@ -86,6 +88,7 @@ export type Database = {
           id?: string
           payment_methods?: string | null
           price?: number
+          price_upon_request?: boolean | null
           status?: string | null
           title?: string
           type?: string | null

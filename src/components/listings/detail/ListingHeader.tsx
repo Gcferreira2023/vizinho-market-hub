@@ -10,6 +10,7 @@ interface ListingHeaderProps {
   type: "produto" | "serviço";
   rating: number;
   price: number | string;
+  priceUponRequest?: boolean;
   status: ListingStatus;
   adId: string;
   userId?: string;
@@ -25,6 +26,7 @@ const ListingHeader = ({
   type,
   rating,
   price,
+  priceUponRequest = false,
   status,
   adId,
   userId,
@@ -63,9 +65,11 @@ const ListingHeader = ({
 
       <div className="mb-6">
         <span className="text-2xl font-bold text-primary">
-          {typeof price === "number"
-            ? `R$ ${price.toFixed(2)}`
-            : price}
+          {priceUponRequest 
+            ? "Sob consulta" 
+            : typeof price === "number"
+              ? `R$ ${price.toFixed(2)}`
+              : price}
         </span>
       </div>
       

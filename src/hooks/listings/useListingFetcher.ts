@@ -36,17 +36,16 @@ export const useListingFetcher = (listingId: string, setIsLoading: (value: boole
       
       // Fill form with existing data
       setFormData({
-        title: adData.title || "",
-        description: adData.description || "",
-        price: adData.price?.toString() || "0",
-        category: adData.category || "",
-        type: adData.type || "produto",
-        availability: adData.availability || "",
-        delivery: adData.delivery || false,
-        deliveryFee: adData.delivery_fee?.toString() || "0",
-        paymentMethods: adData.payment_methods || "",
-        // Use a type-safe way to access the property, using any as a workaround
-        priceUponRequest: Boolean((adData as any).price_upon_request) || false,
+        title: adData?.title || "",
+        description: adData?.description || "",
+        price: adData?.price?.toString() || "0",
+        category: adData?.category || "",
+        type: adData?.type || "produto",
+        availability: adData?.availability || "",
+        delivery: adData?.delivery || false,
+        deliveryFee: adData?.delivery_fee?.toString() || "0",
+        paymentMethods: adData?.payment_methods || "",
+        priceUponRequest: Boolean(adData?.price_upon_request) || false,
       });
       
       // Fetch listing images

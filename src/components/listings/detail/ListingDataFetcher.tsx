@@ -68,7 +68,6 @@ const ListingDataFetcher = ({
           .from('ads')
           .select(`
             *,
-            price_upon_request,
             users:user_id (
               id,
               name,
@@ -84,7 +83,7 @@ const ListingDataFetcher = ({
 
         // Buscar informações do condomínio se disponível
         let condominiumInfo = null;
-        if (adData.condominium_id) {
+        if (adData?.condominium_id) {
           const locationDetails = await fetchLocationDetailsById(
             undefined, 
             undefined, 
@@ -94,22 +93,24 @@ const ListingDataFetcher = ({
         }
         
         // Preparar os dados de exibição com as informações do vendedor
-        const displayData = {
-          ...adData,
-          seller_name: adData.users?.name,
-          phone: adData.users?.phone,
-          apartment: adData.users?.apartment,
-          block: adData.users?.block,
-          condominium_name: condominiumInfo?.name,
-          condominium_id: adData.condominium_id,
-          // Ensure price is included in display data
-          price: adData.price,
-          price_upon_request: adData.price_upon_request
-        };
-        
-        setListing(adData);
-        setDisplayListing(displayData);
-        setListingStatus(adData.status);
+        if (adData) {
+          const displayData = {
+            ...adData,
+            seller_name: adData.users?.name,
+            phone: adData.users?.phone,
+            apartment: adData.users?.apartment,
+            block: adData.users?.block,
+            condominium_name: condominiumInfo?.name,
+            condominium_id: adData.condominium_id,
+            // Ensure price is included in display data
+            price: adData.price,
+            price_upon_request: adData.price_upon_request || false
+          };
+          
+          setListing(adData);
+          setDisplayListing(displayData);
+          setListingStatus(adData.status || "active");
+        }
         
         const { data: imageData, error: imgError } = await supabase
           .from('ad_images')
