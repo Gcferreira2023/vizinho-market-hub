@@ -127,7 +127,7 @@ const MobileFilterSheet = ({
             setSelectedType={setSelectedType}
           />
 
-          {/* Price Filter - Agora passando o maxPrice dinâmico */}
+          {/* Price Filter */}
           <MobileFilterPrice
             priceRange={priceRange}
             setPriceRange={setPriceRange}
