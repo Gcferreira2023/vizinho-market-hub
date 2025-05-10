@@ -13,7 +13,7 @@ const HeroImage = () => {
           alt="VizinhoMarket - Comércio entre vizinhos no condomínio"
           className="w-full aspect-[4/3] object-cover"
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
         />
       </div>
     </div>
