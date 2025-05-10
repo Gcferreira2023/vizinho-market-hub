@@ -14,22 +14,23 @@ export const listingTypes = [
 
 // Map to translate between database values and UI values
 export const categoryMappings = {
-  // From UI ID to DB value
+  // From UI ID to DB value (used when sending filter to API)
   idToDb: {
     'alimentos': 'Alimentos',
     'servicos': 'Serviços',
     'produtos': 'Produtos Gerais',
     'vagas': 'Vagas/Empregos'
   },
-  // From DB value to UI ID
+  // From DB value to UI ID (used when receiving data from API)
   dbToId: {
     'Alimentos': 'alimentos',
     'Serviços': 'servicos',
-    'Produtos Gerais': 'produtos',
-    'Vagas/Empregos': 'vagas',
-    // Add lowercase versions for robustness
-    'produtos': 'produtos',
     'servicos': 'servicos',
+    'Produtos Gerais': 'produtos',
+    'produtos': 'produtos',
+    'Vagas/Empregos': 'vagas',
+    'vagas': 'vagas',
+    // Add common variations for robustness
     'serviço': 'servicos',
     'servico': 'servicos',
     'produto': 'produtos'

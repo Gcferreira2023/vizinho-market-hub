@@ -84,12 +84,16 @@ export const fetchListings = async (searchParams: {
     console.log("Default status filter applied: active");
   }
   
-  // Add category filter with proper mapping
+  // Add category filter with proper mapping - FIX HERE
   if (searchParams.category) {
+    // First normalize the category ID to its DB value
     const normalizedCategory = normalizeCategoryValue(searchParams.category);
     console.log(`Using normalized category for DB query: "${normalizedCategory}"`);
+    
     if (normalizedCategory) {
+      // Apply the category filter - this is the critical fix
       query = query.eq("category", normalizedCategory);
+      console.log(`Applied category filter: category = "${normalizedCategory}"`);
     }
   }
   

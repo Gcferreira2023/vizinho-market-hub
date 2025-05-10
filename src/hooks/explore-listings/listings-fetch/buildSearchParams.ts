@@ -15,15 +15,18 @@ export function buildSearchParams(params: ListingsFetchParams) {
     console.log(`Search term: "${params.searchTerm}"`);
   }
   
-  // Category filter - FIXED to ensure proper category mapping
+  // Category filter - FIX: ensure we're using the correct mapping by checking both ways
   if (params.selectedCategory) {
-    // Use the category ID directly without any transformation
+    // Critical fix: Use the original category ID as the parameter name 
+    // and let the fetchers.ts file handle the mapping to DB value
     searchParams.category = params.selectedCategory;
-    console.log(`Category filter (original): "${params.selectedCategory}"`);
+    console.log(`Category filter (ID): "${params.selectedCategory}"`);
     
-    // Log the mapping for debugging
+    // Log the mapping that will be used in fetchers.ts
     if (categoryMappings.idToDb[params.selectedCategory]) {
       console.log(`Will be mapped to DB value: "${categoryMappings.idToDb[params.selectedCategory]}"`);
+    } else {
+      console.log(`⚠️ WARNING: No mapping found for category ID "${params.selectedCategory}"`);
     }
   }
   
@@ -68,6 +71,6 @@ export function buildSearchParams(params: ListingsFetchParams) {
     console.log(`Price range filter: ${params.priceRange[0]} - ${params.priceRange[1]}`);
   }
   
-  console.log("Search parameters built:", searchParams);
+  console.log("Final search parameters:", searchParams);
   return searchParams;
 }

@@ -33,9 +33,14 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         };
         
         if (categoryId) {
-          // Use the category ID directly
+          // Use the category ID directly, no transformation needed here
           searchParams.category = categoryId;
-          console.log(`Filtering by category ID: ${categoryId}`);
+          console.log(`CategoryListings - Filtering by category ID: ${categoryId}`);
+          
+          // Log mapping information for debugging
+          if (categoryMappings.idToDb[categoryId]) {
+            console.log(`CategoryListings - Will map to DB value: ${categoryMappings.idToDb[categoryId]}`);
+          }
         }
         
         if (searchTerm) {
@@ -43,10 +48,10 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
           console.log(`Searching for term: ${searchTerm}`);
         }
         
-        console.log("Searching with parameters:", searchParams);
+        console.log("CategoryListings - Searching with parameters:", searchParams);
         
         const data = await fetchListings(searchParams);
-        console.log(`Found ${data.length} results`);
+        console.log(`CategoryListings - Found ${data.length} results`);
         
         // Log detailed information about each result
         if (data.length > 0) {
