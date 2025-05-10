@@ -15,31 +15,49 @@ export const fetchListing = async (listingId: string) => {
   return adData;
 };
 
-// Helper function to handle category mapping
+// Helper function to handle category mapping - rewritten for clarity
 const normalizeCategoryValue = (category?: string): string | undefined => {
   if (!category) return undefined;
   
-  // First, try to lookup by id (from URL or filter selection)
-  const categoryById = categories.find(c => c.id === category);
-  if (categoryById) {
-    return categoryById.name;
-  }
+  // Debug logs to see what's happening
+  console.log(`Normalizing category value: "${category}"`);
   
-  // If not found by id, try by name (from UI selections)
-  const categoryByName = categories.find(c => c.name === category);
-  if (categoryByName) {
-    return categoryByName.name;
-  }
-  
-  // Fallback direct mappings for legacy data
-  const categoryMappings: Record<string, string> = {
+  // Direct mapping from ID to database value
+  const categoryMapping: Record<string, string> = {
+    'alimentos': 'Alimentos',
+    'servicos': 'Serviços',
     'produtos': 'Produtos Gerais',
-    'servico': 'Serviços',
-    'serviço': 'Serviços',
-    'servicos': 'Serviços'
+    'vagas': 'Vagas/Empregos'
   };
   
-  return categoryMappings[category] || category;
+  // If we received a category ID, map it to its database name
+  if (categoryMapping[category]) {
+    console.log(`Found direct mapping: ${category} -> ${categoryMapping[category]}`);
+    return categoryMapping[category];
+  }
+  
+  // If it's already a valid category name, use it directly
+  const validCategoryNames = Object.values(categoryMapping);
+  if (validCategoryNames.includes(category)) {
+    console.log(`Category "${category}" is already a valid name, using as-is`);
+    return category;
+  }
+  
+  // For legacy reasons, handle a few special cases
+  const legacyMappings: Record<string, string> = {
+    'serviço': 'Serviços',
+    'servico': 'Serviços',
+    'produto': 'Produtos Gerais'
+  };
+  
+  if (legacyMappings[category]) {
+    console.log(`Found legacy mapping: ${category} -> ${legacyMappings[category]}`);
+    return legacyMappings[category];
+  }
+  
+  // If we can't map it, return the original value as a fallback
+  console.log(`No mapping found for "${category}", returning as-is`);
+  return category;
 };
 
 // Buscar listagens com filtro de pesquisa
@@ -82,7 +100,7 @@ export const fetchListings = async (searchParams: {
   // Add category filter with proper mapping
   if (searchParams.category) {
     const normalizedCategory = normalizeCategoryValue(searchParams.category);
-    console.log(`Filtering by category: ${searchParams.category} -> ${normalizedCategory}`);
+    console.log(`Using normalized category for filter: "${normalizedCategory}"`);
     if (normalizedCategory) {
       query = query.eq("category", normalizedCategory);
     }

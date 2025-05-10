@@ -3,13 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import CategoryHeader from "@/components/listings/explore/CategoryHeader";
 import CategoryListings from "@/components/listings/explore/CategoryListings";
-
-const categoryTitles: Record<string, string> = {
-  alimentos: "Alimentos",
-  servicos: "Serviços",
-  produtos: "Produtos Gerais",
-  vagas: "Vagas e Empregos"
-};
+import { categories } from "@/constants/listings";
 
 const ExploreByCategory = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -17,8 +11,9 @@ const ExploreByCategory = () => {
   const searchParams = new URLSearchParams(location.search);
   const searchTerm = searchParams.get("search") || undefined;
   
-  // Nome da categoria para exibição
-  const categoryTitle = categoryTitles[categoryId || ""] || "Categoria";
+  // Find the category by ID
+  const category = categories.find(cat => cat.id === categoryId);
+  const categoryTitle = category ? category.name : "Categoria";
 
   console.log(`Exploring category: ${categoryId}, title: ${categoryTitle}`);
   

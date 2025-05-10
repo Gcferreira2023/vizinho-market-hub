@@ -1,4 +1,3 @@
-
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import MobileLocationFilter from "./MobileLocationFilter";
 import MyCondominiumToggle from "./MyCondominiumToggle";
+import { categories } from "@/constants/listings";
 
 interface MobileFilterSheetProps {
   isOpen: boolean;
@@ -46,6 +46,7 @@ interface MobileFilterSheetProps {
   // Condominium filter toggle
   isCondominiumFilter: boolean;
   setIsCondominiumFilter: (isFiltered: boolean) => void;
+  maxPrice?: number;
 }
 
 const MobileFilterSheet = ({
@@ -70,7 +71,8 @@ const MobileFilterSheet = ({
   setSelectedCondominiumId,
   // Condominium filter toggle
   isCondominiumFilter,
-  setIsCondominiumFilter
+  setIsCondominiumFilter,
+  maxPrice = 500
 }: MobileFilterSheetProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -119,10 +121,11 @@ const MobileFilterSheet = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as categorias</SelectItem>
-                <SelectItem value="Alimentos">Alimentos</SelectItem>
-                <SelectItem value="Serviços">Serviços</SelectItem>
-                <SelectItem value="Produtos Gerais">Produtos Gerais</SelectItem>
-                <SelectItem value="Vagas/Empregos">Vagas/Empregos</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

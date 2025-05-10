@@ -7,6 +7,7 @@ import { ListingStatus } from "@/components/listings/StatusBadge";
 import LocationFilter from "./LocationFilter";
 import MyCondominiumToggle from "./MyCondominiumToggle";
 import { useAuth } from "@/contexts/AuthContext";
+import { categories } from "@/constants/listings";
 
 interface FilterSidebarProps {
   selectedCategory: string | null;
@@ -62,28 +63,6 @@ const FilterSidebar = ({
   const { user } = useAuth();
   const userCondominiumId = user?.user_metadata?.condominiumId;
   
-  // Helper to handle category mapping
-  const handleCategoryChange = (value: string) => {
-    if (value === "all") {
-      setSelectedCategory(null);
-      return;
-    }
-    
-    // Map UI category names to database values if needed
-    if (value === "Produtos Gerais") {
-      setSelectedCategory("produtos");
-    } else {
-      setSelectedCategory(value);
-    }
-  };
-  
-  // Helper to get display value for category
-  const getCategoryDisplayValue = () => {
-    if (!selectedCategory) return "all";
-    if (selectedCategory === "produtos") return "Produtos Gerais";
-    return selectedCategory;
-  };
-  
   return (
     <div className="hidden md:block w-64 space-y-6">
       <div className="bg-white p-4 rounded-lg border space-y-5">
@@ -113,18 +92,21 @@ const FilterSidebar = ({
         <div className="space-y-2">
           <Label>Categoria</Label>
           <Select
-            value={getCategoryDisplayValue()}
-            onValueChange={handleCategoryChange}
+            value={selectedCategory || "all"}
+            onValueChange={(value) => 
+              setSelectedCategory(value === "all" ? null : value)
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Todas as categorias" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as categorias</SelectItem>
-              <SelectItem value="Alimentos">Alimentos</SelectItem>
-              <SelectItem value="Serviços">Serviços</SelectItem>
-              <SelectItem value="Produtos Gerais">Produtos Gerais</SelectItem>
-              <SelectItem value="Vagas/Empregos">Vagas/Empregos</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

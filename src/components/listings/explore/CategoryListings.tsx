@@ -34,7 +34,7 @@ const CategoryListings = ({ categoryId, searchTerm }: CategoryListingsProps) => 
         };
         
         if (categoryId) {
-          // Use the categoryId directly from the URL parameter
+          // Always use the ID directly - let the service handle translation
           searchParams.category = categoryId;
           console.log(`Filtering by category ID: ${categoryId}`);
         }
