@@ -8,13 +8,10 @@ const HeroImage = () => {
   return (
     <div className="md:w-1/2 flex justify-center px-4 md:px-0">
       <div className="w-full max-w-lg relative rounded-lg shadow-xl overflow-hidden bg-gray-100">
-        <OptimizedImage
+        <img 
           src={heroImageUrl}
           alt="VizinhoMarket - Condomínio Residencial"
-          className="w-full aspect-[4/3]"
-          objectFit="cover"
-          priority={true}
-          aspectRatio="aspect-[4/3]"
+          className="w-full aspect-[4/3] object-cover"
         />
       </div>
     </div>

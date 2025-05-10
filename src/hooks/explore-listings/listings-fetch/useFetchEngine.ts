@@ -14,7 +14,6 @@ export function useFetchEngine(params: ListingsFetchParams) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const isMountedRef = useRef(true);
-  const fetchingRef = useRef(false);
   
   // Get retry utilities
   const { 
@@ -28,13 +27,6 @@ export function useFetchEngine(params: ListingsFetchParams) {
 
   // Memoize the fetch function to avoid unnecessary re-renders
   const fetchData = useCallback(async () => {
-    // Prevent concurrent fetches
-    if (fetchingRef.current) {
-      console.log("Fetch already in progress, skipping...");
-      return;
-    }
-    
-    fetchingRef.current = true;
     setIsLoading(true);
     console.log("Starting to load listings with params:", JSON.stringify(params, null, 2));
     
@@ -60,8 +52,6 @@ export function useFetchEngine(params: ListingsFetchParams) {
           });
         }
       }
-      
-      fetchingRef.current = false;
     } catch (error) {
       console.error("Error fetching listings:", error);
       
@@ -70,8 +60,6 @@ export function useFetchEngine(params: ListingsFetchParams) {
         handleError(error);
         setIsLoading(false); // Make sure we set loading to false even on error
       }
-      
-      fetchingRef.current = false;
     }
   }, [
     params,

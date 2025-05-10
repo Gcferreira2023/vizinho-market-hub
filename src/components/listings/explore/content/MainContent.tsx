@@ -1,3 +1,4 @@
+
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import ListingsGrid from "../ListingsGrid";
 import EmptyListingsState from "../EmptyListingsState";
@@ -24,25 +25,13 @@ const MainContent = ({
   hasFilters,
   maxPrice = 10000
 }: MainContentProps) => {
-  // Use refs to keep track of previous state to prevent unnecessary re-renders
-  const prevListingsLengthRef = useRef(listings.length);
-  
-  // Simplified loading state management - no delay to make sure we show content faster
-  const [isStableLoading, setIsStableLoading] = useState(isLoading);
-
-  // Update loading state more directly to prevent stuck loading states
-  useEffect(() => {
-    console.log("Loading state changed:", isLoading);
-    setIsStableLoading(isLoading);
-  }, [isLoading]);
-  
-  // Log filtering info for debugging
-  useEffect(() => {
-    if (prevListingsLengthRef.current !== listings.length || isLoading) {
-      console.log(`MainContent rendering with ${listings.length} listings, isLoading: ${isLoading}, hasFilters: ${hasFilters}, stableLoading: ${isStableLoading}`);
-      prevListingsLengthRef.current = listings.length;
-    }
-  }, [listings.length, isLoading, hasFilters, isStableLoading]);
+  // Debug logging
+  console.log("MainContent received props:", { 
+    listingsLength: listings.length, 
+    isLoading, 
+    hasError, 
+    hasFilters 
+  });
   
   return (
     <>
