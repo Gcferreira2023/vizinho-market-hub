@@ -73,9 +73,9 @@ const ListingImage = ({
           alt={title}
           className={`w-full h-full ${isLoaded ? "opacity-100" : "opacity-0"}`}
           onLoad={handleImageLoad}
-          onError={handleImageError}
           fallbackSrc="/lovable-uploads/a761c01e-ede6-4e1b-b09e-cd61fdb6b0c6.png"
           priority={!lazyLoad}
+          objectFit="cover"
         />
       )}
       
