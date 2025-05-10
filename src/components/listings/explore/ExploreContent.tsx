@@ -1,11 +1,6 @@
+
 import { useEffect } from "react";
-import { Sheet } from "@/components/ui/sheet";
-import ListingsGrid from "./ListingsGrid";
-import FilterSidebar from "./filter-sidebar";
-import EmptyListingsState from "./EmptyListingsState";
-import LoadingSpinner from "@/components/ui/loading-spinner";
-import MobileFilterSheet from "./mobile-filter";
-import { ListingStatus } from "@/components/listings/StatusBadge";
+import { DesktopSidebar, MainContent, MobileFilterWrapper } from "./content";
 
 interface ExploreContentProps {
   listings: any[];
@@ -73,78 +68,82 @@ const ExploreContent: React.FC<ExploreContentProps> = ({
     };
   }, [setIsFilterSheetOpen]);
 
+  // Check if any filters are active
+  const hasFilters = !!(
+    selectedCategory || 
+    selectedType || 
+    selectedStatus || 
+    selectedStateId || 
+    selectedCityId || 
+    selectedCondominiumId || 
+    (priceRange[0] > 0 || priceRange[1] < maxPrice)
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 mt-6">
       {/* Desktop sidebar filter */}
-      <div className="hidden md:block">
-        <FilterSidebar 
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus as ListingStatus | null}
-          setSelectedStatus={(status) => setSelectedStatus(status)}
-          showSoldItems={showSoldItems}
-          setShowSoldItems={setShowSoldItems}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          resetFilters={resetFilters}
-          isCondominiumFilter={isCondominiumFilter}
-          setIsCondominiumFilter={setIsCondominiumFilter}
-          selectedStateId={selectedStateId}
-          setSelectedStateId={setSelectedStateId}
-          selectedCityId={selectedCityId} 
-          setSelectedCityId={setSelectedCityId}
-          selectedCondominiumId={selectedCondominiumId}
-          setSelectedCondominiumId={setSelectedCondominiumId}
-          maxPrice={maxPrice}
-        />
-      </div>
+      <DesktopSidebar
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        showSoldItems={showSoldItems}
+        setShowSoldItems={setShowSoldItems}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        resetFilters={resetFilters}
+        isCondominiumFilter={isCondominiumFilter}
+        setIsCondominiumFilter={setIsCondominiumFilter}
+        selectedStateId={selectedStateId}
+        setSelectedStateId={setSelectedStateId}
+        selectedCityId={selectedCityId}
+        setSelectedCityId={setSelectedCityId}
+        selectedCondominiumId={selectedCondominiumId}
+        setSelectedCondominiumId={setSelectedCondominiumId}
+        maxPrice={maxPrice}
+      />
       
       {/* Main content area */}
       <div>
-        {isLoading ? (
-          <LoadingSpinner message="Carregando anúncios..." />
-        ) : listings.length > 0 ? (
-          <ListingsGrid listings={listings} />
-        ) : (
-          <EmptyListingsState 
-            searchTerm={searchTerm} 
-            hasError={hasError}
-            onRetry={retryLoadListings}
-            onResetFilters={resetFilters}
-            hasFilters={!!(selectedCategory || selectedType || selectedStatus || selectedStateId || selectedCityId || selectedCondominiumId || (priceRange[0] > 0 || priceRange[1] < maxPrice))}
-          />
-        )}
+        <MainContent 
+          listings={listings}
+          isLoading={isLoading}
+          hasError={hasError}
+          retryLoadListings={retryLoadListings}
+          searchTerm={searchTerm}
+          resetFilters={resetFilters}
+          hasFilters={hasFilters}
+          maxPrice={maxPrice}
+        />
       </div>
       
       {/* Mobile filter sheet */}
-      <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
-        <MobileFilterSheet 
-          isOpen={isFilterSheetOpen}
-          setIsOpen={setIsFilterSheetOpen}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-          selectedStatus={selectedStatus as ListingStatus | null}
-          setSelectedStatus={(status) => setSelectedStatus(status)}
-          showSoldItems={showSoldItems}
-          setShowSoldItems={setShowSoldItems}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          resetFilters={resetFilters}
-          isCondominiumFilter={isCondominiumFilter}
-          setIsCondominiumFilter={setIsCondominiumFilter}
-          selectedStateId={selectedStateId}
-          setSelectedStateId={setSelectedStateId}
-          selectedCityId={selectedCityId}
-          setSelectedCityId={setSelectedCityId}
-          selectedCondominiumId={selectedCondominiumId}
-          setSelectedCondominiumId={setSelectedCondominiumId}
-          maxPrice={maxPrice}
-        />
-      </Sheet>
+      <MobileFilterWrapper
+        isFilterSheetOpen={isFilterSheetOpen}
+        setIsFilterSheetOpen={setIsFilterSheetOpen}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        showSoldItems={showSoldItems}
+        setShowSoldItems={setShowSoldItems}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        resetFilters={resetFilters}
+        isCondominiumFilter={isCondominiumFilter}
+        setIsCondominiumFilter={setIsCondominiumFilter}
+        selectedStateId={selectedStateId}
+        setSelectedStateId={setSelectedStateId}
+        selectedCityId={selectedCityId}
+        setSelectedCityId={setSelectedCityId}
+        selectedCondominiumId={selectedCondominiumId}
+        setSelectedCondominiumId={setSelectedCondominiumId}
+        maxPrice={maxPrice}
+      />
     </div>
   );
 };
