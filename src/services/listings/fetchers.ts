@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { categories, categoryMappings } from "@/constants/listings";
 
-// Buscar dados de um anúncio
+// Fetch data for a specific listing
 export const fetchListing = async (listingId: string) => {
   const { data: adData, error: adError } = await supabase
     .from('ads')
@@ -40,7 +40,7 @@ const normalizeCategoryValue = (category?: string): string | undefined => {
   return category;
 };
 
-// Buscar listagens com filtro de pesquisa
+// Fetch listings with search filter
 export const fetchListings = async (searchParams: {
   search?: string;
   category?: string;

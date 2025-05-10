@@ -58,7 +58,7 @@ export const useListingImage = ({
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: "200px" }
     );
 
     const currentCard = document.getElementById(`listing-card-${id}`);

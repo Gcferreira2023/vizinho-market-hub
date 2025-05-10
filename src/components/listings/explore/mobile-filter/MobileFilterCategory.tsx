@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { categories, categoryMappings } from "@/constants/listings";
-import { useEffect } from "react";
 
 interface MobileFilterCategoryProps {
   selectedCategory: string | null;
@@ -19,15 +18,7 @@ const MobileFilterCategory = ({
   selectedCategory,
   setSelectedCategory,
 }: MobileFilterCategoryProps) => {
-  // Log para debug quando o componente é renderizado ou a categoria muda
-  useEffect(() => {
-    console.log(`MobileFilterCategory rendered with selectedCategory: ${selectedCategory}`);
-    if (selectedCategory && categoryMappings.idToDb[selectedCategory]) {
-      console.log(`[Mobile] Category in DB format: "${categoryMappings.idToDb[selectedCategory]}"`);
-    }
-  }, [selectedCategory]);
-  
-  // Função para obter o nome da categoria a partir do ID
+  // Function to get the category name from ID
   const getCategoryName = (categoryId: string | null) => {
     if (!categoryId) return null;
     const category = categories.find(cat => cat.id === categoryId);

@@ -16,7 +16,7 @@ interface ListingsGridProps {
   resetFilters?: () => void;
 }
 
-// Memorizando o componente para evitar re-renderizações desnecessárias
+// Memoize the component to prevent unnecessary re-renders
 const ListingsGrid = memo(({ 
   listings, 
   isLoading = false, 
@@ -29,21 +29,20 @@ const ListingsGrid = memo(({
   const userCondominiumId = user?.user_metadata?.condominiumId;
   const isMobile = useMobile();
   
-  // Memorize a função de carregamento de imagem para evitar recriações
+  // Memoize the image loading function to avoid recreations
   const handleImageLoad = useCallback(() => {
     setLoadedImages(prev => prev + 1);
   }, []);
   
+  // Reset loaded images counter when listings change
   useEffect(() => {
-    // Log listings data but limit to once per render
-    console.log(`ListingsGrid rendering with ${listings.length} listings`);
-    
-    // Reset loaded images counter when listings change
     setLoadedImages(0);
+    // Log basic info about the listings
+    console.log(`ListingsGrid rendering with ${listings.length} listings`);
   }, [listings]);
   
+  // Fetch condominium info for listings if needed
   useEffect(() => {
-    // Fetch condominium info for listings if needed
     const fetchCondominiumData = async () => {
       const details: Record<string, any> = {};
       
@@ -95,7 +94,7 @@ const ListingsGrid = memo(({
     );
   }
 
-  // Se não há anúncios, mostrar mensagem de estado vazio
+  // Show empty state if no listings are available
   if (listings.length === 0) {
     return <EmptyListingsState 
       searchTerm={searchTerm} 
@@ -144,6 +143,7 @@ const ListingsGrid = memo(({
         let categoryForDisplay = listing.category;
         if (listing.category && categoryMappings.dbToId[listing.category]) {
           categoryForDisplay = categoryMappings.dbToId[listing.category];
+          console.log(`Mapped category from DB "${listing.category}" to UI "${categoryForDisplay}"`);
         }
         
         return (
@@ -169,7 +169,7 @@ const ListingsGrid = memo(({
   );
 });
 
-// Adicionar displayName para depuração
+// Add displayName for debugging
 ListingsGrid.displayName = "ListingsGrid";
 
 export default ListingsGrid;

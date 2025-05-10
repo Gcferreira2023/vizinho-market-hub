@@ -1,3 +1,4 @@
+
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import ListingsGrid from "../ListingsGrid";
 import EmptyListingsState from "../EmptyListingsState";
@@ -49,7 +50,7 @@ const MainContent = ({
           setIsStableLoading(false);
           // Only update listings when loading is complete
           setStableListings(listings);
-        }, 500); // Increased delay for more stability
+        }, 800); // Increased delay for more stability
       }
     }
     

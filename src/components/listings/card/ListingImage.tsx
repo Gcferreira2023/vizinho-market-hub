@@ -70,10 +70,11 @@ const ListingImage = ({
           <img
             src={imgSrc}
             alt={title}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+            className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
             onLoad={handleImageLoad}
             onError={handleImageError}
             loading={lazyLoad ? "lazy" : "eager"}
+            fetchpriority={lazyLoad ? "auto" : "high"}
           />
           
           {/* Error state */}

@@ -15,7 +15,7 @@ export function buildSearchParams(params: ListingsFetchParams) {
     console.log(`Search term: "${params.searchTerm}"`);
   }
   
-  // Category filter - Garantir que estamos usando o mapeamento correto
+  // Category filter - Ensure we're using the correct mapping
   if (params.selectedCategory) {
     // Map UI category ID to database value before sending to API
     const dbCategory = categoryMappings.idToDb[params.selectedCategory];
