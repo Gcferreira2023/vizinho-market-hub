@@ -2,8 +2,9 @@
 import OptimizedImage from "@/components/ui/optimized-image";
 
 const HeroImage = () => {
-  // Single, reliable high-quality image from Unsplash (with proper licensing)
-  const heroImageUrl = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1600&auto=format&fit=crop";
+  // Use uma URL de imagem direta e confiável da Unsplash (com licenciamento adequado)
+  // Adicionando parâmetros de cache-busting para garantir o carregamento
+  const heroImageUrl = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1600&auto=format&fit=crop&cache=" + Date.now();
   
   return (
     <div className="md:w-1/2 flex justify-center px-4 md:px-0">

@@ -49,6 +49,7 @@ export function useFetchEngine(params: ListingsFetchParams) {
       // Only update state if component is still mounted
       if (isMountedRef.current) {
         setListings(data || []);
+        setIsLoading(false); // Important: Move this inside the success path
       
         // Show toast for empty search results with search term
         if (params.searchTerm && data.length === 0) {
@@ -59,6 +60,8 @@ export function useFetchEngine(params: ListingsFetchParams) {
           });
         }
       }
+      
+      fetchingRef.current = false;
     } catch (error) {
       // Enhanced error handling
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -76,18 +79,10 @@ export function useFetchEngine(params: ListingsFetchParams) {
       // Handle the error with the retry logic
       if (isMountedRef.current) {
         handleError(error);
+        setIsLoading(false); // Important: Also update loading state on error
       }
-    } finally {
-      // Only set loading to false if component is still mounted
-      if (isMountedRef.current) {
-        // Minimum delay to prevent flickering
-        setTimeout(() => {
-          setIsLoading(false);
-          fetchingRef.current = false;
-        }, 500);
-      } else {
-        fetchingRef.current = false;
-      }
+      
+      fetchingRef.current = false;
     }
   }, [
     params,

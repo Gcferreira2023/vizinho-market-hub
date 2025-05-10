@@ -36,27 +36,22 @@ export const OptimizedImage = ({
   const isMobile = useMobile();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imgSrc, setImgSrc] = useState("");
-  const [isImageSet, setIsImageSet] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
   
-  // Set initial image source based on provided src or fallback
+  // Atualizar a fonte da imagem quando a prop src mudar
   useEffect(() => {
-    // Only update image source once to prevent flickering
-    if (isImageSet) return;
-    
     if (!src || src.trim() === "" || src === "/placeholder.svg") {
-      console.log(`OptimizedImage: No valid source provided, using fallback for "${alt}"`);
       setImgSrc(fallbackSrc);
     } else if (src.startsWith('http') || src.startsWith('/')) {
-      console.log(`OptimizedImage: Setting src to "${src}" for "${alt}"`);
       setImgSrc(src);
     } else {
-      console.log(`OptimizedImage: Invalid URL format, using fallback for "${alt}"`);
       setImgSrc(fallbackSrc);
     }
     
-    setIsImageSet(true);
-  }, [src, fallbackSrc, alt, isImageSet]);
+    // Resetar estados quando a fonte muda
+    setIsLoaded(false);
+    setHasError(false);
+  }, [src, fallbackSrc]);
 
   const objectFitClass = {
     cover: "object-cover",

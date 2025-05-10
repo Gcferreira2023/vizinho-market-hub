@@ -54,6 +54,11 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
 
   // Effect to fetch listings from database based on filters
   useEffect(() => {
+    // Skip fetch if already loading to prevent duplicates
+    if (isLoading && !shouldFetchRef.current) {
+      return;
+    }
+    
     // Skip initial fetch if params haven't changed - avoid double fetch on mount
     if (prevParamsRef.current === paramsStr && !shouldFetchRef.current) {
       console.log("Skipping duplicate fetch with same params");
@@ -90,7 +95,8 @@ export function useFetchLifecycle(params: ListingsFetchParams) {
     retryCount,
     resetError,
     paramsStr,
-    cleanup
+    cleanup,
+    isLoading
   ]);
 
   return {

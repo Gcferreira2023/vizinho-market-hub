@@ -26,37 +26,27 @@ const MainContent = ({
 }: MainContentProps) => {
   // Use refs to keep track of previous state to prevent unnecessary re-renders
   const prevListingsLengthRef = useRef(listings.length);
-  const prevLoadingRef = useRef(isLoading);
   
-  // Add a stable rendering state to prevent flickering
-  const [isStableLoading, setIsStableLoading] = useState(true);
-  const [stableListings, setStableListings] = useState<any[]>([]);
-  
-  // Effect to stabilize loading state and prevent flickering
+  // Simplify loading state management to fix flickering and stuck loading issues
+  const [isStableLoading, setIsStableLoading] = useState(isLoading);
+
+  // Update stable loading state with a short delay to prevent flicker but ensure updates
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    // Only update loading state if there's an actual change
-    if (isLoading !== prevLoadingRef.current) {
-      prevLoadingRef.current = isLoading;
-      
-      if (isLoading) {
-        // Immediately show loading state
-        setIsStableLoading(true);
-      } else {
-        // Delay hiding the loading state to prevent flicker
-        timer = setTimeout(() => {
-          setIsStableLoading(false);
-          // Only update listings when loading is complete
-          setStableListings(listings);
-        }, 1000); // Increased delay for more stability
-      }
+    // For initial load or when loading starts, update immediately
+    if (isLoading) {
+      setIsStableLoading(true);
+      return;
     }
     
+    // When loading completes, add a small delay before updating UI
+    const timer = setTimeout(() => {
+      setIsStableLoading(false);
+    }, 300);
+    
     return () => {
-      if (timer) clearTimeout(timer);
+      clearTimeout(timer);
     };
-  }, [isLoading, listings]);
+  }, [isLoading]);
   
   // Log filtering info for debugging
   useEffect(() => {
@@ -70,8 +60,8 @@ const MainContent = ({
     <>
       {isStableLoading ? (
         <LoadingSpinner message="Carregando anúncios..." />
-      ) : stableListings.length > 0 ? (
-        <ListingsGrid listings={stableListings} />
+      ) : listings.length > 0 ? (
+        <ListingsGrid listings={listings} />
       ) : (
         <EmptyListingsState 
           searchTerm={searchTerm} 
