@@ -74,7 +74,7 @@ const ListingImage = ({
             onLoad={handleImageLoad}
             onError={handleImageError}
             loading={lazyLoad ? "lazy" : "eager"}
-            fetchpriority={lazyLoad ? "auto" : "high"}
+            fetchPriority={lazyLoad ? "auto" : "high"}
           />
           
           {/* Error state */}
