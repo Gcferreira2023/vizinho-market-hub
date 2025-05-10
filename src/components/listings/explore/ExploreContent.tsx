@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import ListingsGrid from "./ListingsGrid";
@@ -122,6 +121,8 @@ const ExploreContent: React.FC<ExploreContentProps> = ({
       {/* Mobile filter sheet */}
       <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
         <MobileFilterSheet 
+          isOpen={isFilterSheetOpen}
+          setIsOpen={setIsFilterSheetOpen}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           selectedType={selectedType}
@@ -133,7 +134,6 @@ const ExploreContent: React.FC<ExploreContentProps> = ({
           priceRange={priceRange}
           setPriceRange={setPriceRange}
           resetFilters={resetFilters}
-          onClose={() => setIsFilterSheetOpen(false)}
           isCondominiumFilter={isCondominiumFilter}
           setIsCondominiumFilter={setIsCondominiumFilter}
           selectedStateId={selectedStateId}

@@ -42,6 +42,8 @@ interface MobileFilterSheetProps {
   // Condominium filter toggle
   isCondominiumFilter: boolean;
   setIsCondominiumFilter: (isFiltered: boolean) => void;
+  // Reset filters function
+  resetFilters: () => void;
   // Preço máximo dinâmico
   maxPrice?: number;
 }
@@ -69,6 +71,8 @@ const MobileFilterSheet = ({
   // Condominium filter toggle
   isCondominiumFilter,
   setIsCondominiumFilter,
+  // Reset filters function
+  resetFilters,
   // Preço máximo dinâmico
   maxPrice = 2000
 }: MobileFilterSheetProps) => {
@@ -133,6 +137,18 @@ const MobileFilterSheet = ({
             setPriceRange={setPriceRange}
             maxPrice={maxPrice}
           />
+
+          {/* Added Reset Filters button */}
+          <Button 
+            variant="outline" 
+            className="w-full mt-4 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+            onClick={() => {
+              resetFilters();
+              setIsOpen(false);
+            }}
+          >
+            Limpar Filtros
+          </Button>
 
           <Button 
             className="w-full mt-4" 
